@@ -8,7 +8,10 @@
 
 #define LOG(x) std::cout << x << std::endl
 #define V(x,y,z) glm::vec3(x, y, z)
+
 #define UP glm::vec3(0, 1, 0)
+#define FORWARD glm::vec3(0, 0, 1)
+#define RIGHT glm::vec3(1, 0, 1)
 
 struct Vertex
 {
@@ -19,6 +22,12 @@ struct Vertex
 	static const int OFFSET_POSITION = 0;
 	static const int OFFSET_COLOR = 3 * sizeof(float);
 };
+
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+		LOG("PRESSED!");
+}
 
 int main()
 {
@@ -58,8 +67,8 @@ int main()
 
 	Vertex vertices[VLENGTH] = {
 		// Positions			Colors
-		{-0.5f, -0.5f,	0,		1, 0, 0},
-		{0,		0.5f,	0,		1, 0, 0},
+		{-0.5f, -0.5f,	0,		0, 1, 1},
+		{0,		0.5f,	0,		1, 0, 1},
 		{0.5f, -0.5f,	0,		1, 1, 0}
 	};
 
@@ -72,7 +81,8 @@ int main()
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, (void*)Vertex::OFFSET_COLOR);
 
 	//glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
-	glm::mat4 proj = glm::perspective(90.0f, 1.0f, 0.1f, 1000.0f);
+
+	glm::mat4 proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 1000.0f);
 
 
 	unsigned int shader = CreateVertexColorShader();
@@ -82,6 +92,10 @@ int main()
 
 	float lastFrameTime = 0;
 
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+
+	glfwSetKeyCallback(window, KeyCallback);
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
@@ -90,12 +104,12 @@ int main()
 		// cam
 		const float time = glfwGetTime();
 		const float dt = time - lastFrameTime;
-		LOG(dt);
+		//LOG(dt);
 
 		const float t = sin(time);
-		const glm::vec3 v = glm::vec3(0, 0, -1);
+		const glm::vec3 v = glm::vec3(0, 0.15f, -1.0f);
 		auto viewMatrix = glm::translate(proj, v);
-		viewMatrix = glm::rotate(viewMatrix, t * 3.4f, UP);
+		viewMatrix = glm::rotate(viewMatrix, t * 3.0f, UP);
 		SetProjectionMatrix(shader, viewMatrix);
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -103,6 +117,17 @@ int main()
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
+
+		/*
+		int state = glfwGetKey(window, GLFW_KEY_W);
+		if (state == GLFW_PRESS)
+		{
+			LOG("PRESSED!");
+		}
+		if (state == GLFW_RELEASE)
+		{
+			LOG("RELEASED!");
+		}*/
 
 		lastFrameTime = time;
 	}
