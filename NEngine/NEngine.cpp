@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <iostream>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #define LOG(x) std::cout << x << std::endl
@@ -8,20 +9,29 @@ int main()
 {
 	LOG("First line!");
 
-	GLFWwindow* window;
-
 	if (!glfwInit())
 		return -1;
 
-	window = glfwCreateWindow(800, 600, "NEngine", NULL, NULL);
+	GLFWwindow* window;
+
+	window = glfwCreateWindow(640, 480, "NEngine", NULL, NULL);
 
 	if (!window)
 	{
 		glfwTerminate();
+		LOG("Creating window failed");
 		return -1;
 	}
 
 	glfwMakeContextCurrent(window);
+
+	if (glewInit() != GLEW_OK)
+	{
+		LOG("GLEW not inited correctly");
+		return -1;
+	}
+
+	LOG(glGetString(GL_VERSION)); 
 
 	while (!glfwWindowShouldClose(window))
 	{
