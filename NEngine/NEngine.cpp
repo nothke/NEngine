@@ -51,6 +51,16 @@ static unsigned int CreateShader(
 	return program;
 }
 
+struct Vertex
+{
+	float posx, posy, posz;
+	float colr, colg, colb;
+
+	static const int STRIDE = 3 * sizeof(float) + 3 * sizeof(float);
+	static const int OFFSET_POSITION = 0;
+	static const int OFFSET_COLOR = 3 * sizeof(float);
+};
+
 int main()
 {
 	LOG("First line!");
@@ -87,28 +97,41 @@ int main()
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-	const int VERT_STRIDE = 2 * sizeof(float);
-	const int VERT_OFFSET_POSITION = 0;
-
+	/*
 	float positions[] = {
 		-0.5f, -0.5f,
 		0, 0.5f,
 		0.5f, -0.5f
+	};*/
+
+	const int VLENGTH = 3;
+	Vertex vertices[VLENGTH] = {
+		{-0.5f, -0.5f,	0,		1, 0, 1},
+		{0,		0.5f,	0,		0, 0, 1},
+		{0.5f, -0.5f,	0,		1, 1, 1}
 	};
 
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+	const int totalsize = VLENGTH * sizeof(Vertex);
+	glBufferData(GL_ARRAY_BUFFER, totalsize, vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, VERT_STRIDE, VERT_OFFSET_POSITION);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, Vertex::OFFSET_POSITION);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, (void*)Vertex::OFFSET_COLOR);
 
 	const std::string vert = R"glsl(
 
 		#version 330 core
 		
-		layout(location = 0) in vec4 position;
+		in vec4 position; // layout(location = 0) 
+		in vec4 color; // layout(location = 3) 
+
+		out vec4 out_color;
 		
 		void main(){
-		   gl_Position = position;
+			gl_Position = position;
+			//gl_FrontColor = color;
+			out_color = color;
 		}
 
 		)glsl";
@@ -117,10 +140,13 @@ int main()
 
 		#version 330 core
 		
+		in vec4 out_color;
+
 		layout(location = 0) out vec4 color;
 		
 		void main(){
-		   color = vec4(1.0, 0, 0, 1);
+			//color = vec4(1.0, 0, 0, 1);
+			color = out_color;
 		}
 
 		)glsl";
