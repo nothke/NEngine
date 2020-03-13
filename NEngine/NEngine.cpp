@@ -3,6 +3,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "Shader.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #define LOG(x) std::cout << x << std::endl
 
@@ -69,6 +71,9 @@ int main()
 
 	unsigned int shader = CreateVertexColorShader();
 	glUseProgram(shader);
+
+	glm::mat4 proj = glm::ortho(0, 1, 0, 1);
+	glm::mat4 projection = glm::perspective(90.0f, 1.0f, 0.1f, 1000.0f);
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
