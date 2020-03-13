@@ -7,6 +7,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #define LOG(x) std::cout << x << std::endl
+#define V(x,y,z) glm::vec3(x, y, z)
+#define UP glm::vec3(0, 1, 0)
 
 struct Vertex
 {
@@ -78,6 +80,8 @@ int main()
 
 	SetProjectionMatrix(shader, proj);
 
+	float lastFrameTime = 0;
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
@@ -85,11 +89,13 @@ int main()
 
 		// cam
 		const float time = glfwGetTime();
+		const float dt = time - lastFrameTime;
+		LOG(dt);
 
 		const float t = sin(time);
 		const glm::vec3 v = glm::vec3(0, 0, -1);
 		auto viewMatrix = glm::translate(proj, v);
-		viewMatrix = glm::rotate(viewMatrix, t * 3.4f, glm::vec3(0, 1, 0));
+		viewMatrix = glm::rotate(viewMatrix, t * 3.4f, UP);
 		SetProjectionMatrix(shader, viewMatrix);
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -97,6 +103,8 @@ int main()
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
+
+		lastFrameTime = time;
 	}
 
 	glDeleteProgram(shader);
