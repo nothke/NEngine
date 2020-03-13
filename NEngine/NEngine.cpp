@@ -38,6 +38,9 @@ int main()
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
+	const int VERT_STRIDE = 2 * sizeof(float);
+	const int VERT_OFFSET_POSITION = 0;
+
 	float positions[] = {
 		-0.5f, -0.5f,
 		0, 0.5f,
@@ -45,6 +48,9 @@ int main()
 	};
 
 	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, VERT_STRIDE, VERT_OFFSET_POSITION);
 
 	while (!glfwWindowShouldClose(window))
 	{
