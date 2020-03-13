@@ -31,17 +31,26 @@ int main()
 		return -1;
 	}
 
-	LOG(glGetString(GL_VERSION)); 
+	LOG(glGetString(GL_VERSION));
+
+	// Tri buffer
+	unsigned int buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+	float positions[] = {
+		-0.5f, -0.5f,
+		0, 0.5f,
+		0.5f, -0.5f
+	};
+
+	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glBegin(GL_TRIANGLES);
-		glVertex2f(-0.5f, -0.5f);
-		glVertex2f(0, 0.5f);
-		glVertex2d(0.5f, -0.5f);
-		glEnd();
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
 
