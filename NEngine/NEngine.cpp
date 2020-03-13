@@ -51,6 +51,43 @@ static unsigned int CreateShader(
 	return program;
 }
 
+static unsigned int CreateVertexColorShader()
+{
+	const std::string vert = R"glsl(
+
+		#version 330 core
+		
+		in vec4 position; // layout(location = 0) // not needed, apparently
+		in vec4 color; // layout(location = 3) 
+
+		out vec4 out_color;
+		
+		void main(){
+			gl_Position = position;
+			//gl_FrontColor = color;
+			out_color = color;
+		}
+
+		)glsl";
+
+	const std::string frag = R"glsl(
+
+		#version 330 core
+		
+		in vec4 out_color;
+
+		layout(location = 0) out vec4 color;
+		
+		void main(){
+			//color = vec4(1.0, 0, 0, 1);
+			color = out_color;
+		}
+
+		)glsl";
+
+	return CreateShader(vert, frag);
+}
+
 struct Vertex
 {
 	float posx, posy, posz;
@@ -92,23 +129,18 @@ int main()
 
 	LOG(glGetString(GL_VERSION));
 
-	// Tri buffer
+	// Vertex buffer
 	unsigned int buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-	/*
-	float positions[] = {
-		-0.5f, -0.5f,
-		0, 0.5f,
-		0.5f, -0.5f
-	};*/
-
 	const int VLENGTH = 3;
+
 	Vertex vertices[VLENGTH] = {
-		{-0.5f, -0.5f,	0,		1, 0, 1},
-		{0,		0.5f,	0,		0, 0, 1},
-		{0.5f, -0.5f,	0,		1, 1, 1}
+		// Positions			Colors
+		{-0.5f, -0.5f,	0,		1, 0, 0},
+		{0,		0.5f,	0,		1, 0, 0},
+		{0.5f, -0.5f,	0,		1, 1, 0}
 	};
 
 	const int totalsize = VLENGTH * sizeof(Vertex);
@@ -119,41 +151,10 @@ int main()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, (void*)Vertex::OFFSET_COLOR);
 
-	const std::string vert = R"glsl(
-
-		#version 330 core
-		
-		in vec4 position; // layout(location = 0) 
-		in vec4 color; // layout(location = 3) 
-
-		out vec4 out_color;
-		
-		void main(){
-			gl_Position = position;
-			//gl_FrontColor = color;
-			out_color = color;
-		}
-
-		)glsl";
-
-	const std::string frag = R"glsl(
-
-		#version 330 core
-		
-		in vec4 out_color;
-
-		layout(location = 0) out vec4 color;
-		
-		void main(){
-			//color = vec4(1.0, 0, 0, 1);
-			color = out_color;
-		}
-
-		)glsl";
-
-	unsigned int shader = CreateShader(vert, frag);
+	unsigned int shader = CreateVertexColorShader();
 	glUseProgram(shader);
 
+	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
