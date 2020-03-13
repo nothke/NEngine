@@ -7,10 +7,27 @@
 
 static unsigned int CompileShader(unsigned int type, const std::string& source)
 {
-	unsigned int id = glCreateShader(GL_VERTEX_SHADER);
+	unsigned int id = glCreateShader(type);
 	const char* src = source.c_str();
 	glShaderSource(id, 1, &src, nullptr);
 	glCompileShader(id);
+
+	// Log shader error
+	int result;
+	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+	if (result == GL_FALSE)
+	{
+		int length;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		// alloca - allocates on the stack dynamically
+		char* message = (char*)alloca(length * sizeof(char));
+		glGetShaderInfoLog(id, length, &length, message);
+		LOG("Failed to compile shader:");
+		LOG(message);
+
+		glDeleteShader(id);
+		return 0;
+	}
 
 	return id;
 }
@@ -21,7 +38,7 @@ static unsigned int CreateShader(
 {
 	unsigned int program = glCreateProgram();
 	unsigned int vs = CompileShader(GL_VERTEX_SHADER, vert);
-	unsigned int fs = CompileShader(GL_VERTEX_SHADER, frag);
+	unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, frag);
 
 	glAttachShader(program, vs);
 	glAttachShader(program, fs);
@@ -84,6 +101,33 @@ int main()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, VERT_STRIDE, VERT_OFFSET_POSITION);
 
+	const std::string vert = R"glsl(
+
+		#version 330 core
+		
+		layout(location = 0) in vec4 position;
+		
+		void main(){
+		   gl_Position = position;
+		}
+
+		)glsl";
+
+	const std::string frag = R"glsl(
+
+		#version 330 core
+		
+		layout(location = 0) out vec4 color;
+		
+		void main(){
+		   color = vec4(1.0, 0, 0, 1);
+		}
+
+		)glsl";
+
+	unsigned int shader = CreateShader(vert, frag);
+	glUseProgram(shader);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -94,6 +138,8 @@ int main()
 
 		glfwPollEvents();
 	}
+
+	glDeleteProgram(shader);
 
 	glfwTerminate();
 	return 0;
