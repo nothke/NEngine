@@ -69,11 +69,13 @@ int main()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, (void*)Vertex::OFFSET_COLOR);
 
+	glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+	//glm::mat4 projection = glm::perspective(90.0f, 1.0f, 0.1f, 1000.0f);
+
 	unsigned int shader = CreateVertexColorShader();
 	glUseProgram(shader);
 
-	glm::mat4 proj = glm::ortho(0, 1, 0, 1);
-	glm::mat4 projection = glm::perspective(90.0f, 1.0f, 0.1f, 1000.0f);
+	SetProjectionMatrix(shader, proj);
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))

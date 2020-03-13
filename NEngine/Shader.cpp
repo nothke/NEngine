@@ -3,6 +3,7 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #define LOG(x) std::cout << x << std::endl
 
@@ -52,6 +53,11 @@ unsigned int CreateShader(
 	return program;
 }
 
+void SetProjectionMatrix(unsigned int program, glm::mat4& matrix)
+{
+	glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &matrix[0][0]);
+}
+
 unsigned int CreateVertexColorShader()
 {
 	const std::string vert = R"glsl(
@@ -61,10 +67,12 @@ unsigned int CreateVertexColorShader()
 		in vec4 position; // layout(location = 0) // not needed, apparently
 		in vec4 color; // layout(location = 3) 
 
+		uniform mat4 mvp;
+
 		out vec4 out_color;
 		
 		void main(){
-			gl_Position = position;
+			gl_Position = mvp * position;
 			//gl_FrontColor = color;
 			out_color = color;
 		}
