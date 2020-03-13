@@ -69,8 +69,9 @@ int main()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, (void*)Vertex::OFFSET_COLOR);
 
-	glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
-	//glm::mat4 projection = glm::perspective(90.0f, 1.0f, 0.1f, 1000.0f);
+	//glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+	glm::mat4 proj = glm::perspective(90.0f, 1.0f, 0.1f, 1000.0f);
+
 
 	unsigned int shader = CreateVertexColorShader();
 	glUseProgram(shader);
@@ -81,6 +82,15 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// cam
+		const float time = glfwGetTime();
+
+		const float t = sin(time);
+		const glm::vec3 v = glm::vec3(0, 0, -1);
+		auto viewMatrix = glm::translate(proj, v);
+		viewMatrix = glm::rotate(viewMatrix, t * 3.4f, glm::vec3(0, 1, 0));
+		SetProjectionMatrix(shader, viewMatrix);
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
