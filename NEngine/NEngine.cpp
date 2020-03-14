@@ -131,10 +131,13 @@ int main()
 	double lastMousePosY = 0;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// cam
 		const float time = glfwGetTime();
