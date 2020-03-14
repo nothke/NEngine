@@ -24,13 +24,7 @@ struct Vertex
 	static const int OFFSET_COLOR = 3 * sizeof(float);
 };
 
-static Input input;
 GLFWwindow* window;
-
-void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode)
-{
-	input.KeyCallback(window, key, scancode, action, mode);
-}
 
 bool KeyPressed(int key)
 {
@@ -103,7 +97,7 @@ int main()
 
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
-	glfwSetKeyCallback(window, KeyCallback);
+	//glfwSetKeyCallback(window, KeyCallback);
 
 	float addx = 0;
 	float addz = 0;
