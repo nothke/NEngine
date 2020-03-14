@@ -19,17 +19,25 @@ std::vector<Vertex> ModelReader::Get(const char * name)
 	bool trisStart = false;
 
 	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
 
 	if (file.is_open())
 	{
+		int vertexCount = 0;
+		int indexCount = 0;
+
 		while (std::getline(file, line))
 		{
 			std::cout << line << '\n';
 
 			int ct = 0;
 
-			if (headerStart)
+			// Vertices
+			if (headerStart && !trisStart)
 			{
+
+
+
 				Vertex vert;
 
 				std::string str;
@@ -40,12 +48,12 @@ std::vector<Vertex> ModelReader::Get(const char * name)
 						float f = std::stof(str);
 
 						switch (ct) {
-						case 0: LOG("V1: " << f); vert.posx = f; break;
-						case 1: LOG("V2: " << f); vert.posy = f; break;
-						case 2: LOG("V3: " << f); vert.posz = f; break;
-						case 3: LOG("R: " << f); vert.colr = f / 255.0f; break;
-						case 4: LOG("G: " << f); vert.colg = f / 255.0f; break;
-						case 5: LOG("B: " << f); vert.colb = f / 255.0f; break;
+						case 0: LOG("----- V1: " << f); vert.posx = f; break;
+						case 1: LOG("----- V2: " << f); vert.posy = f; break;
+						case 2: LOG("----- V3: " << f); vert.posz = f; break;
+						case 3: LOG("----- R: " << f); vert.colr = f / 255.0f; break;
+						case 4: LOG("----- G: " << f); vert.colg = f / 255.0f; break;
+						case 5: LOG("----- B: " << f); vert.colb = f / 255.0f; break;
 						}
 
 						if (ct == 5)
@@ -57,11 +65,17 @@ std::vector<Vertex> ModelReader::Get(const char * name)
 					str += c;
 				}
 
+				vertexCount--;
+				if (vertexCount == 0)
+				{
+					LOG("----- END OF VERTEX -----");
+				}
+
 				if (ct < 5)
 				{
 					trisStart = true;
-					LOG("Bail");
-					break;
+					LOG("Ended reading vertices");
+					//break;
 				}
 				else
 				{
@@ -69,15 +83,68 @@ std::vector<Vertex> ModelReader::Get(const char * name)
 				}
 			}
 
+			// Indices
+			if (trisStart)
+			{
+				unsigned int tri[3];
+
+				std::string str;
+				for (char c : line)
+				{
+					if (c == ' ')
+					{
+						float f = std::stoi(str);
+
+						switch (ct) {
+						case 0: break; // skip first as it's vertex count
+						case 1: LOG("----- i0: " << f); tri[0] = f; break;
+						case 2: LOG("----- i1: " << f); tri[1] = f; break;
+						case 3: LOG("----- i2: " << f); tri[2] = f; break;
+						}
+
+						if (ct == 3)
+							break;
+
+						str.clear();
+						ct++;
+					}
+					str += c;
+				}
+
+				indices.push_back(tri[0]);
+				indices.push_back(tri[1]);
+				indices.push_back(tri[2]);
+			}
+
+			if (!headerStart)
+			{
+				if (line.rfind("element vertex ") == 0)
+				{
+					std::string num = line.substr(14, std::string::npos);
+					vertexCount = std::stoi(num);
+					LOG("----- FOUND VCOUNT " << vertexCount);
+				}
+
+				if (line.rfind("element face ") == 0)
+				{
+					std::string num = line.substr(12, std::string::npos);
+					indexCount = std::stoi(num);
+					LOG("----- FOUND ICOUNT " << indexCount);
+				}
+			}
+
 			if (!headerStart && line.rfind("end_header") == 0)
 			{
 				headerStart = true;
-				std::cout << "Start read from here" << '\n';
+				LOG("----- HEADER END, STARTED READING VERTICES");
 			}
 		}
 		file.close();
 	}
 	else std::cout << "Can't open file";
+
+	LOG(" ");
+	LOG("Vertex check: ");
 
 	for (Vertex vert : vertices)
 	{
@@ -89,6 +156,8 @@ std::vector<Vertex> ModelReader::Get(const char * name)
 			vert.colg << ", " <<
 			vert.colb);
 	}
+
+
 
 	return vertices;
 }
