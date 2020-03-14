@@ -11,7 +11,8 @@
 
 #define UP glm::vec3(0, 1, 0)
 #define FORWARD glm::vec3(0, 0, 1)
-#define RIGHT glm::vec3(1, 0, 1)
+#define RIGHT glm::vec3(1, 0, 0)
+#define LEFT glm::vec3(-1, 0, 0)
 
 struct Vertex
 {
@@ -41,7 +42,7 @@ int main()
 
 	//GLFWwindow* window;
 
-	window = glfwCreateWindow(640, 480, "NEngine", NULL, NULL);
+	window = glfwCreateWindow(800, 600, "NEngine", NULL, NULL);
 
 	if (!window)
 	{
@@ -102,6 +103,12 @@ int main()
 	float addx = 0;
 	float addz = 0;
 
+	double lastMouseX = 0;
+	double lastMouseY = 0;
+
+	float rotX = 0;
+	float rotY = 0;
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
@@ -114,8 +121,12 @@ int main()
 
 		const float t = sin(time);
 		const glm::vec3 v = glm::vec3(addx, 0.15f, addz + -1.0f);
-		auto viewMatrix = glm::translate(proj, v);
-		viewMatrix = glm::rotate(viewMatrix, t * 3.0f, UP);
+		//viewMatrix = glm::rotate(viewMatrix, t * 3.0f, UP);
+		auto viewMatrix = proj;
+		const float mouseSensitivity = 0.005f;
+		viewMatrix = glm::rotate(viewMatrix, rotY * mouseSensitivity, RIGHT);
+		viewMatrix = glm::rotate(viewMatrix, -rotX * mouseSensitivity, UP);
+		viewMatrix = glm::translate(viewMatrix, v);
 		SetProjectionMatrix(shader, viewMatrix);
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -138,6 +149,17 @@ int main()
 
 		if (KeyPressed(GLFW_KEY_ESCAPE))
 			break;
+
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+		//lastMouseX -= xpos;
+		//lastMouseY -= ypos;
+
+		rotX = (float)xpos;
+		rotY = (float)ypos;
+
+		//LOG(xpos);
+		addx = xpos * 0.001f;
 
 		lastFrameTime = time;
 	}
