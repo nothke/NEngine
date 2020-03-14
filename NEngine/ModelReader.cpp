@@ -9,7 +9,8 @@
 
 #define LOG(x) std::cout << x << std::endl
 
-int ModelReader::Get(const char * name)
+// copy??
+std::vector<Vertex> ModelReader::Get(const char * name)
 {
 	std::string line;
 	std::ifstream file(name);
@@ -89,7 +90,7 @@ int ModelReader::Get(const char * name)
 			vert.colb);
 	}
 
-	return 0;
+	return vertices;
 }
 
 ModelReader::ModelReader()

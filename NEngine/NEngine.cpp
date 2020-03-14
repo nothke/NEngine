@@ -7,6 +7,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "ModelReader.h"
 #include "Vertex.h"
+#include <vector>
 
 #define LOG(x) std::cout << x << std::endl
 #define V(x,y,z) glm::vec3(x, y, z)
@@ -67,6 +68,9 @@ int main()
 		{0.5f, -0.5f,	0,		1, 1, 0}
 	};
 
+	ModelReader mr;
+	std::vector<Vertex> vectors = mr.Get("../cube.ply");
+
 	const int totalsize = VLENGTH * sizeof(Vertex);
 	glBufferData(GL_ARRAY_BUFFER, totalsize, vertices, GL_STATIC_DRAW);
 
@@ -92,8 +96,7 @@ int main()
 	//glfwSetKeyCallback(window, KeyCallback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	ModelReader mr;
-	mr.Get("../cube.ply");
+
 
 	float addx = 0;
 	float addz = 0;

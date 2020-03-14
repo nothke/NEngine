@@ -1,8 +1,11 @@
 #pragma once
+#include <vector>
+#include "Vertex.h"
+
 class ModelReader
 {
 public:
-	int Get(const char* name);
+	std::vector<Vertex> Get(const char * name);
 
 	ModelReader();
 	~ModelReader();
