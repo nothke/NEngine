@@ -53,29 +53,13 @@ int main()
 
 	LOG(glGetString(GL_VERSION));
 
-	/*
-	const int VLENGTH = 3;
-
-	Vertex vertices[VLENGTH] = {
-		// Positions			Colors
-		{-0.5f, -0.5f,	0,		0, 1, 1},
-		{0,		0.5f,	0,		1, 0, 1},
-		{0.5f, -0.5f,	0,		1, 1, 0}
-	};*/
-
-	/*
-	const int ILENGTH = 6;
-	unsigned int indices[ILENGTH]
-	{
-		0, 1, 2,
-		2, 3, 4,
-	};*/
-
+	// Get vertices and indices from file
 	ModelReader mr;
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector = mr.Get("../suz.ply", indicesVector);
 	const int VLENGTH = vertVector.size();
 	const int ILENGTH = indicesVector.size();
+
 	// Convert vector to array:
 	Vertex* vertices = &vertVector[0];
 	unsigned int* indices = &indicesVector[0];
@@ -99,24 +83,16 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, ILENGTH * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-	//glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
-
-	glm::mat4 proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 1000.0f);
-
-
+	// Shader
 	unsigned int shader = CreateVertexColorShader();
 	glUseProgram(shader);
 
-	SetProjectionMatrix(shader, proj);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 
-	float lastFrameTime = 0;
-
+	// FPS input
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
-
-	//glfwSetKeyCallback(window, KeyCallback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-
 
 	float addx = 0;
 	float addz = 0;
@@ -131,8 +107,11 @@ int main()
 	double lastMousePosY = 0;
 	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
 
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
+	// Timing
+	float lastFrameTime = 0;
+
+	// Matrix
+	glm::mat4 proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 1000.0f);
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
