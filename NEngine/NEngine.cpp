@@ -10,6 +10,7 @@
 #include <vector>
 
 #define LOG(x) std::cout << x << std::endl
+#define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
 #define V(x,y,z) glm::vec3(x, y, z)
 
 #define UP glm::vec3(0, 1, 0)
@@ -113,6 +114,8 @@ int main()
 	// Matrix
 	glm::mat4 proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 1000.0f);
 
+	glm::vec3 camPos = glm::vec3();
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
@@ -124,14 +127,23 @@ int main()
 		//LOG(dt);
 
 		const float t = sin(time);
-		const glm::vec3 v = glm::vec3(addx, 0.15f, addz - 1.0f);
+		//const glm::vec3 v = glm::vec3(addx, 0.15f, addz - 1.0f);
 		//viewMatrix = glm::rotate(viewMatrix, t * 3.0f, UP);
-		auto viewMatrix = proj;
+		glm::mat4 viewMatrix = glm::mat4(1.0f);
 		const float mouseSensitivity = 0.005f;
 		viewMatrix = glm::rotate(viewMatrix, rotY, RIGHT);
 		viewMatrix = glm::rotate(viewMatrix, rotX, UP);
-		viewMatrix = glm::translate(viewMatrix, v);
-		SetProjectionMatrix(shader, viewMatrix);
+
+		const glm::mat4 inv = glm::inverse(viewMatrix);
+		const glm::vec3 right = -glm::normalize(inv[0]);
+		const glm::vec3 forward = -glm::normalize(inv[2]);
+
+		camPos += forward * addz * dt + right * addx * dt;
+		//const glm::vec3 v = forward * addz * dt; //glm::vec3(addx, 0.15f, addz - 1.0f);
+		//LOGV(forward);
+		viewMatrix = glm::translate(viewMatrix, camPos);
+		glm::mat4 mvpMatrix = proj * viewMatrix;
+		SetProjectionMatrix(shader, mvpMatrix);
 
 		//glDrawArrays(GL_TRIANGLES, 0, VLENGTH);
 		glDrawElements(GL_TRIANGLES, ILENGTH, GL_UNSIGNED_INT, nullptr);
@@ -140,17 +152,8 @@ int main()
 
 		glfwPollEvents();
 
-		if (KeyPressed(GLFW_KEY_A))
-			addx += 1 * dt;
-
-		if (KeyPressed(GLFW_KEY_D))
-			addx -= 1 * dt;
-
-		if (KeyPressed(GLFW_KEY_W))
-			addz += 1 * dt;
-
-		if (KeyPressed(GLFW_KEY_S))
-			addz -= 1 * dt;
+		addx = KeyPressed(GLFW_KEY_A) ? -1 : KeyPressed(GLFW_KEY_D) ? 1 : 0;
+		addz = KeyPressed(GLFW_KEY_W) ? -1 : KeyPressed(GLFW_KEY_S) ? 1 : 0;
 
 		if (KeyPressed(GLFW_KEY_ESCAPE))
 			break;
