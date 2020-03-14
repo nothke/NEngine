@@ -3,7 +3,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "Shader.h"
-#include "Input.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -98,6 +97,7 @@ int main()
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
 	//glfwSetKeyCallback(window, KeyCallback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	float addx = 0;
 	float addz = 0;
@@ -135,6 +135,9 @@ int main()
 
 		if (KeyPressed(GLFW_KEY_S))
 			addz -= 1 * dt;
+
+		if (KeyPressed(GLFW_KEY_ESCAPE))
+			break;
 
 		lastFrameTime = time;
 	}
