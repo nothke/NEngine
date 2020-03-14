@@ -128,8 +128,8 @@ int main()
 		//viewMatrix = glm::rotate(viewMatrix, t * 3.0f, UP);
 		auto viewMatrix = proj;
 		const float mouseSensitivity = 0.005f;
-		viewMatrix = glm::rotate(viewMatrix, rotY * mouseSensitivity, RIGHT);
-		viewMatrix = glm::rotate(viewMatrix, -rotX * mouseSensitivity, UP);
+		viewMatrix = glm::rotate(viewMatrix, rotY, RIGHT);
+		viewMatrix = glm::rotate(viewMatrix, rotX, UP);
 		viewMatrix = glm::translate(viewMatrix, v);
 		SetProjectionMatrix(shader, viewMatrix);
 
@@ -163,9 +163,10 @@ int main()
 		lastMousePosX = mousePosX;
 		lastMousePosY = mousePosY;
 
-		rotX += (float)mouseX;
-		rotY += (float)mouseY;
-		rotY = glm::clamp(rotY, -200.0f, 200.0f);
+		rotX += (float)mouseX * mouseSensitivity;
+		rotY += (float)mouseY * mouseSensitivity;
+		const float rad90 = 1.5708f;
+		rotY = glm::clamp(rotY, -rad90, rad90);
 
 		lastFrameTime = time;
 	}
