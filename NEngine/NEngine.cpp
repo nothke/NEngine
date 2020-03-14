@@ -102,7 +102,7 @@ int main()
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	ModelReader mr;
-	mr.Get("../test.txt");
+	mr.Get("../cube.ply");
 
 	float addx = 0;
 	float addz = 0;
