@@ -109,6 +109,10 @@ int main()
 	float rotX = 0;
 	float rotY = 0;
 
+	double lastMousePosX = 0;
+	double lastMousePosY = 0;
+	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
@@ -120,7 +124,7 @@ int main()
 		//LOG(dt);
 
 		const float t = sin(time);
-		const glm::vec3 v = glm::vec3(addx, 0.15f, addz + -1.0f);
+		const glm::vec3 v = glm::vec3(addx, 0.15f, addz - 1.0f);
 		//viewMatrix = glm::rotate(viewMatrix, t * 3.0f, UP);
 		auto viewMatrix = proj;
 		const float mouseSensitivity = 0.005f;
@@ -150,16 +154,18 @@ int main()
 		if (KeyPressed(GLFW_KEY_ESCAPE))
 			break;
 
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
-		//lastMouseX -= xpos;
-		//lastMouseY -= ypos;
+		double mousePosX, mousePosY;
+		glfwGetCursorPos(window, &mousePosX, &mousePosY);
 
-		rotX = (float)xpos;
-		rotY = (float)ypos;
+		double mouseX = mousePosX - lastMousePosX;
+		double mouseY = mousePosY - lastMousePosY;
 
-		//LOG(xpos);
-		addx = xpos * 0.001f;
+		lastMousePosX = mousePosX;
+		lastMousePosY = mousePosY;
+
+		rotX += (float)mouseX;
+		rotY += (float)mouseY;
+		rotY = glm::clamp(rotY, -200.0f, 200.0f);
 
 		lastFrameTime = time;
 	}
