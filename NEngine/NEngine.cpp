@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "Shader.h"
+#include "Input.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -23,10 +24,18 @@ struct Vertex
 	static const int OFFSET_COLOR = 3 * sizeof(float);
 };
 
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
+static Input input;
+GLFWwindow* window;
+
+void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode)
 {
-	if (key == GLFW_KEY_W && action == GLFW_PRESS)
-		LOG("PRESSED!");
+	input.KeyCallback(window, key, scancode, action, mode);
+}
+
+bool KeyPressed(int key)
+{
+	int state = glfwGetKey(window, key);
+	return state == GLFW_PRESS;
 }
 
 int main()
@@ -37,7 +46,7 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	//glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 
-	GLFWwindow* window;
+	//GLFWwindow* window;
 
 	window = glfwCreateWindow(640, 480, "NEngine", NULL, NULL);
 
@@ -96,6 +105,9 @@ int main()
 
 	glfwSetKeyCallback(window, KeyCallback);
 
+	float addx = 0;
+	float addz = 0;
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
@@ -107,7 +119,7 @@ int main()
 		//LOG(dt);
 
 		const float t = sin(time);
-		const glm::vec3 v = glm::vec3(0, 0.15f, -1.0f);
+		const glm::vec3 v = glm::vec3(addx, 0.15f, addz + -1.0f);
 		auto viewMatrix = glm::translate(proj, v);
 		viewMatrix = glm::rotate(viewMatrix, t * 3.0f, UP);
 		SetProjectionMatrix(shader, viewMatrix);
@@ -118,16 +130,17 @@ int main()
 
 		glfwPollEvents();
 
-		/*
-		int state = glfwGetKey(window, GLFW_KEY_W);
-		if (state == GLFW_PRESS)
-		{
-			LOG("PRESSED!");
-		}
-		if (state == GLFW_RELEASE)
-		{
-			LOG("RELEASED!");
-		}*/
+		if (KeyPressed(GLFW_KEY_A))
+			addx += 1 * dt;
+
+		if (KeyPressed(GLFW_KEY_D))
+			addx -= 1 * dt;
+
+		if (KeyPressed(GLFW_KEY_W))
+			addz += 1 * dt;
+
+		if (KeyPressed(GLFW_KEY_S))
+			addz -= 1 * dt;
 
 		lastFrameTime = time;
 	}
