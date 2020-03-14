@@ -59,6 +59,7 @@ int main()
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
+	/*
 	const int VLENGTH = 3;
 
 	Vertex vertices[VLENGTH] = {
@@ -66,10 +67,13 @@ int main()
 		{-0.5f, -0.5f,	0,		0, 1, 1},
 		{0,		0.5f,	0,		1, 0, 1},
 		{0.5f, -0.5f,	0,		1, 1, 0}
-	};
+	};*/
 
 	ModelReader mr;
-	std::vector<Vertex> vectors = mr.Get("../cube.ply");
+	std::vector<Vertex> vertVector = mr.Get("../cube.ply");
+	const int VLENGTH = vertVector.size();
+	// Convert vector to array:
+	Vertex* vertices = &vertVector[0];
 
 	const int totalsize = VLENGTH * sizeof(Vertex);
 	glBufferData(GL_ARRAY_BUFFER, totalsize, vertices, GL_STATIC_DRAW);
@@ -131,7 +135,7 @@ int main()
 		viewMatrix = glm::translate(viewMatrix, v);
 		SetProjectionMatrix(shader, viewMatrix);
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, VLENGTH);
 
 		glfwSwapBuffers(window);
 
