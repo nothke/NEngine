@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include "Vertex.h"
 
 #define LOG(x) std::cout << x << std::endl
 
@@ -16,6 +17,8 @@ int ModelReader::Get(const char * name)
 	bool headerStart = false;
 	bool trisStart = false;
 
+	std::vector<Vertex> vertices;
+
 	if (file.is_open())
 	{
 		while (std::getline(file, line))
@@ -26,6 +29,8 @@ int ModelReader::Get(const char * name)
 
 			if (headerStart)
 			{
+				Vertex vert;
+
 				std::string str;
 				for (char c : line)
 				{
@@ -34,12 +39,12 @@ int ModelReader::Get(const char * name)
 						float f = std::stof(str);
 
 						switch (ct) {
-						case 0: LOG("V1: " << f); break;
-						case 1: LOG("V2: " << f); break;
-						case 2: LOG("V3: " << f); break;
-						case 3: LOG("R: " << f); break;
-						case 4: LOG("G: " << f); break;
-						case 5: LOG("B: " << f); break;
+						case 0: LOG("V1: " << f); vert.posx = f; break;
+						case 1: LOG("V2: " << f); vert.posy = f; break;
+						case 2: LOG("V3: " << f); vert.posz = f; break;
+						case 3: LOG("R: " << f); vert.colr = f / 255.0f; break;
+						case 4: LOG("G: " << f); vert.colg = f / 255.0f; break;
+						case 5: LOG("B: " << f); vert.colb = f / 255.0f; break;
 						}
 
 						if (ct == 5)
@@ -57,9 +62,13 @@ int ModelReader::Get(const char * name)
 					LOG("Bail");
 					break;
 				}
+				else
+				{
+					vertices.push_back(vert);
+				}
 			}
 
-			if (line.rfind("end_header") == 0)
+			if (!headerStart && line.rfind("end_header") == 0)
 			{
 				headerStart = true;
 				std::cout << "Start read from here" << '\n';
@@ -68,6 +77,17 @@ int ModelReader::Get(const char * name)
 		file.close();
 	}
 	else std::cout << "Can't open file";
+
+	for (Vertex vert : vertices)
+	{
+		LOG("V " <<
+			vert.posx << ", " <<
+			vert.posy << ", " <<
+			vert.posz << ", " <<
+			vert.colr << ", " <<
+			vert.colg << ", " <<
+			vert.colb);
+	}
 
 	return 0;
 }
