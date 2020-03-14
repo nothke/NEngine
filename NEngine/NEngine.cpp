@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "ModelReader.h"
 
 #define LOG(x) std::cout << x << std::endl
 #define V(x,y,z) glm::vec3(x, y, z)
@@ -99,6 +100,9 @@ int main()
 
 	//glfwSetKeyCallback(window, KeyCallback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	ModelReader mr;
+	mr.Get("../test.txt");
 
 	float addx = 0;
 	float addz = 0;
