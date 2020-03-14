@@ -5,7 +5,7 @@
 class ModelReader
 {
 public:
-	std::vector<Vertex> Get(const char * name);
+	std::vector<Vertex> Get(const char * path, std::vector<unsigned int>& indices);
 
 	ModelReader();
 	~ModelReader();

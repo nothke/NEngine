@@ -7,19 +7,26 @@
 #include <sstream>
 #include "Vertex.h"
 
+//#define DEBUG
+
+#ifdef DEBUG
 #define LOG(x) std::cout << x << std::endl
+#else
+#define LOG(x)
+#endif
+
 
 // copy??
-std::vector<Vertex> ModelReader::Get(const char * name)
+std::vector<Vertex> ModelReader::Get(const char * path, std::vector<unsigned int>& indices)
 {
 	std::string line;
-	std::ifstream file(name);
+	std::ifstream file(path);
 
 	bool headerStart = false;
 	bool trisStart = false;
 
 	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
+	//std::vector<unsigned int> indices;
 
 	if (file.is_open())
 	{
@@ -28,16 +35,13 @@ std::vector<Vertex> ModelReader::Get(const char * name)
 
 		while (std::getline(file, line))
 		{
-			std::cout << line << '\n';
+			LOG(line);
 
 			int ct = 0;
 
 			// Vertices
 			if (headerStart && !trisStart)
 			{
-
-
-
 				Vertex vert;
 
 				std::string str;
@@ -65,21 +69,14 @@ std::vector<Vertex> ModelReader::Get(const char * name)
 					str += c;
 				}
 
+				vertices.push_back(vert);
+
 				vertexCount--;
 				if (vertexCount == 0)
 				{
 					LOG("----- END OF VERTEX -----");
-				}
-
-				if (ct < 5)
-				{
 					trisStart = true;
-					LOG("Ended reading vertices");
-					//break;
-				}
-				else
-				{
-					vertices.push_back(vert);
+					continue;
 				}
 			}
 
@@ -91,25 +88,29 @@ std::vector<Vertex> ModelReader::Get(const char * name)
 				std::string str;
 				for (char c : line)
 				{
-					if (c == ' ')
+					if (c == ' ' || c == '\n')
 					{
-						float f = std::stoi(str);
+						int i = std::stoi(str);
 
 						switch (ct) {
-						case 0: break; // skip first as it's vertex count
-						case 1: LOG("----- i0: " << f); tri[0] = f; break;
-						case 2: LOG("----- i1: " << f); tri[1] = f; break;
-						case 3: LOG("----- i2: " << f); tri[2] = f; break;
+						case 0: if (i != 3) LOG("Engine only accepts 3 indices"); break;
+						case 1: LOG("----- i0: " << i); tri[0] = i; break;
+						case 2: LOG("----- i1: " << i); tri[1] = i; break;
+						case 3: LOG("----- i2: " << i); tri[2] = i; break;
 						}
 
-						if (ct == 3)
-							break;
+						//if (ct == 3)
+						//	break;
 
 						str.clear();
 						ct++;
 					}
 					str += c;
 				}
+
+				// duplicate for the last piece, because loop ends, not very nice
+				float f = std::stoi(str);
+				LOG("----- i2: " << f); tri[2] = f;
 
 				indices.push_back(tri[0]);
 				indices.push_back(tri[1]);
@@ -157,7 +158,13 @@ std::vector<Vertex> ModelReader::Get(const char * name)
 			vert.colb);
 	}
 
+	LOG(" ");
+	LOG("Index check: ");
 
+	for (size_t i = 0; i < indices.size(); i += 3)
+	{
+		LOG("I " << indices[i] << ", " << indices[i + 1] << ", " << indices[i + 2]);
+	}
 
 	return vertices;
 }

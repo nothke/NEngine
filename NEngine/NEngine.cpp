@@ -63,18 +63,22 @@ int main()
 		{0.5f, -0.5f,	0,		1, 1, 0}
 	};*/
 
+	/*
 	const int ILENGTH = 6;
 	unsigned int indices[ILENGTH]
 	{
 		0, 1, 2,
 		2, 3, 4,
-	};
+	};*/
 
 	ModelReader mr;
-	std::vector<Vertex> vertVector = mr.Get("../cube.ply");
+	std::vector<unsigned int> indicesVector;
+	std::vector<Vertex> vertVector = mr.Get("../suz.ply", indicesVector);
 	const int VLENGTH = vertVector.size();
+	const int ILENGTH = indicesVector.size();
 	// Convert vector to array:
 	Vertex* vertices = &vertVector[0];
+	unsigned int* indices = &indicesVector[0];
 
 	// Vertex buffer
 	unsigned int buffer;
