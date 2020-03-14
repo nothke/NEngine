@@ -6,6 +6,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "ModelReader.h"
+#include "Vertex.h"
 
 #define LOG(x) std::cout << x << std::endl
 #define V(x,y,z) glm::vec3(x, y, z)
@@ -14,16 +15,6 @@
 #define FORWARD glm::vec3(0, 0, 1)
 #define RIGHT glm::vec3(1, 0, 0)
 #define LEFT glm::vec3(-1, 0, 0)
-
-struct Vertex
-{
-	float posx, posy, posz;
-	float colr, colg, colb;
-
-	static const int STRIDE = 3 * sizeof(float) + 3 * sizeof(float);
-	static const int OFFSET_POSITION = 0;
-	static const int OFFSET_COLOR = 3 * sizeof(float);
-};
 
 GLFWwindow* window;
 

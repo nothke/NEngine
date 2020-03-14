@@ -160,6 +160,7 @@
     <ClInclude Include="ModelReader.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModelReader.cpp" />
