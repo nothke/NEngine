@@ -54,11 +54,6 @@ int main()
 
 	LOG(glGetString(GL_VERSION));
 
-	// Vertex buffer
-	unsigned int buffer;
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-
 	/*
 	const int VLENGTH = 3;
 
@@ -69,11 +64,23 @@ int main()
 		{0.5f, -0.5f,	0,		1, 1, 0}
 	};*/
 
+	const int ILENGTH = 6;
+	unsigned int indices[ILENGTH]
+	{
+		0, 1, 2,
+		2, 3, 4,
+	};
+
 	ModelReader mr;
 	std::vector<Vertex> vertVector = mr.Get("../cube.ply");
 	const int VLENGTH = vertVector.size();
 	// Convert vector to array:
 	Vertex* vertices = &vertVector[0];
+
+	// Vertex buffer
+	unsigned int buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
 	const int totalsize = VLENGTH * sizeof(Vertex);
 	glBufferData(GL_ARRAY_BUFFER, totalsize, vertices, GL_STATIC_DRAW);
@@ -82,6 +89,12 @@ int main()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, Vertex::OFFSET_POSITION);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, (void*)Vertex::OFFSET_COLOR);
+
+	// Index buffer
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, ILENGTH * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
 	//glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
 
@@ -135,7 +148,8 @@ int main()
 		viewMatrix = glm::translate(viewMatrix, v);
 		SetProjectionMatrix(shader, viewMatrix);
 
-		glDrawArrays(GL_TRIANGLES, 0, VLENGTH);
+		//glDrawArrays(GL_TRIANGLES, 0, VLENGTH);
+		glDrawElements(GL_TRIANGLES, ILENGTH, GL_UNSIGNED_INT, nullptr);
 
 		glfwSwapBuffers(window);
 
