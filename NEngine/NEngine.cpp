@@ -30,12 +30,24 @@ int main()
 	if (!glfwInit())
 		return -1;
 
+	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+#if !WINDOWED
+	const float screenWidth = 800;
+	const float screenHeight = 600;
+#else
+	const float screenWidth = mode->width;
+	const float screenHeight = mode->height;
+#endif
+
+	const float screenAspectRatio = screenWidth / screenHeight;
+
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	//glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 
 	//GLFWwindow* window;
 
-	window = glfwCreateWindow(800, 600, "NEngine", NULL, NULL);
+	window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", NULL, NULL);
 
 	if (!window)
 	{
@@ -112,7 +124,7 @@ int main()
 	float lastFrameTime = 0;
 
 	// Matrix
-	glm::mat4 proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 1000.0f);
+	glm::mat4 proj = glm::perspective(glm::radians(90.0f), screenAspectRatio, 0.1f, 1000.0f);
 
 	glm::vec3 camPos = glm::vec3();
 
@@ -138,7 +150,7 @@ int main()
 		const glm::vec3 right = -glm::normalize(inv[0]);
 		const glm::vec3 forward = -glm::normalize(inv[2]);
 
-		camPos += forward * addz * dt + right * addx * dt;
+		camPos += (forward * addz + right * addx) * dt;
 		//const glm::vec3 v = forward * addz * dt; //glm::vec3(addx, 0.15f, addz - 1.0f);
 		//LOGV(forward);
 		viewMatrix = glm::translate(viewMatrix, camPos);
