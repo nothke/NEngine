@@ -148,7 +148,9 @@ int main()
 
 		const glm::mat4 inv = glm::inverse(viewMatrix);
 		const glm::vec3 right = -glm::normalize(inv[0]);
-		const glm::vec3 forward = -glm::normalize(inv[2]);
+		glm::vec3 forward = -glm::normalize(inv[2]);
+		forward.y = 0;
+		forward = glm::normalize(forward);
 
 		camPos += (forward * addz + right * addx) * dt;
 		//const glm::vec3 v = forward * addz * dt; //glm::vec3(addx, 0.15f, addz - 1.0f);
