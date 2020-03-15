@@ -58,6 +58,14 @@ void SetProjectionMatrix(unsigned int program, glm::mat4& matrix)
 	glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &matrix[0][0]);
 }
 
+namespace Shader
+{
+	void SetVector(unsigned int program, const char* name, glm::vec4& v)
+	{
+		glUniform4f(glGetUniformLocation(program, name), v.x, v.y, v.z, v.w);
+	}
+}
+
 unsigned int CreateVertexColorShader()
 {
 	const std::string vert = R"glsl(
@@ -67,6 +75,8 @@ unsigned int CreateVertexColorShader()
 		in vec4 position; // layout(location = 0) // not needed, apparently
 		in vec4 color; // layout(location = 3) 
 
+		uniform vec4 _InputColor1;
+		uniform vec4 _InputColor2;
 		uniform mat4 mvp;
 
 		out vec4 out_color;
@@ -80,7 +90,8 @@ unsigned int CreateVertexColorShader()
 			grad += length(position) * 0.3;
 			grad = clamp(grad, 0, 1);
 
-			vec3 vc = mix(vec3(0.7,0.3,1), vec3(0,1,1), grad);
+            //vec3 vc = mix(vec3(0.7,0.3,1), vec3(0,1,1), grad);
+			vec3 vc = mix(_InputColor1.rgb, _InputColor2.rgb, grad);
 			out_color = vec4(vc, 1);
 		}
 

@@ -8,4 +8,9 @@ unsigned int CreateShader(const std::string & vert, const std::string & frag);
 
 void SetProjectionMatrix(unsigned int program, glm::mat4 & matrix);
 
+namespace Shader
+{
+	void SetVector(unsigned int program, const char* name, glm::vec4& v);
+}
+
 unsigned int CreateVertexColorShader();

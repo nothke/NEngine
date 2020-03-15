@@ -25,10 +25,55 @@
 
 GLFWwindow* window;
 
+bool mouseView = true;
+
+void LockMouse(bool b)
+{
+	if (b)
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		if (glfwRawMouseMotionSupported())
+			glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+	}
+	else
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+		if (glfwRawMouseMotionSupported())
+			glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+	}
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		switch (key)
+		{
+		case GLFW_KEY_LEFT_CONTROL:
+
+			mouseView = !mouseView;
+
+			if (mouseView)
+				LockMouse(true);
+			else LockMouse(false);
+
+			break;
+		}
+	}
+}
+
 bool KeyPressed(int key)
 {
 	int state = glfwGetKey(window, key);
 	return state == GLFW_PRESS;
+}
+
+glm::vec4 FromImVec(ImVec4 vec)
+{
+	glm::vec4 v{ vec.x, vec.y, vec.z, vec.w };
+	return v;
 }
 
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -143,9 +188,8 @@ int main()
 
 	// FPS input setup
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	if (glfwRawMouseMotionSupported())
-		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
+	LockMouse(true);
 
 	const float mouseSensitivity = 0.2f;
 
@@ -174,6 +218,11 @@ int main()
 	const glm::vec3 UP = glm::vec3(0, 1, 0);
 	const glm::vec3 FORWARD = glm::vec3(0, 0, 1);
 
+	ImVec4 color1{ 0.7f, 0.3f, 1.0f, 1.0f };
+	ImVec4 color2{ 0.0f, 1.0f, 1.0f, 1.0f };
+
+	glfwSetKeyCallback(window, key_callback);
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
@@ -198,11 +247,16 @@ int main()
 		double mouseDeltaX = mousePosX - lastMousePosX;
 		double mouseDeltaY = mousePosY - lastMousePosY;
 
+
 		lastMousePosX = mousePosX;
 		lastMousePosY = mousePosY;
 
-		rotX += (float)mouseDeltaX * mouseSensitivity * dt;
-		rotY += (float)mouseDeltaY * mouseSensitivity * dt;
+		if (mouseView)
+		{
+			rotX += (float)mouseDeltaX * mouseSensitivity * dt;
+			rotY += (float)mouseDeltaY * mouseSensitivity * dt;
+		}
+
 		const float rad90 = 1.5708f;
 		rotY = glm::clamp(rotY, -rad90, rad90);
 
@@ -230,12 +284,30 @@ int main()
 		// Draw call
 		glDrawElements(GL_TRIANGLES, ILENGTH, GL_UNSIGNED_INT, nullptr);
 
+		glm::vec4 inputColor1 = FromImVec(color1);
+		Shader::SetVector(shader, "_InputColor1", inputColor1);
+
+		glm::vec4 inputColor2 = FromImVec(color2);
+		Shader::SetVector(shader, "_InputColor2", inputColor2);
+
 		// imgui
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
+
+		{
+			ImGui::Begin("So Pro");
+
+			ImGui::ColorEdit3("color 1", (float*)&color1);
+			ImGui::ColorEdit3("color 2", (float*)&color2);
+			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, dt * 60 * 60, ImGui::GetIO().Framerate);
+			//ImGui::ColorPicker3("Color", (float*)&color, 0);
+
+			ImGui::End();
+		}
+
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
