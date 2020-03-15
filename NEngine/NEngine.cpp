@@ -9,13 +9,12 @@
 #include "Vertex.h"
 #include <vector>
 
-//#define USE_CONSOLE
-
 #if defined(WIN32) && !defined(USE_CONSOLE)
 #include <windows.h>
 #endif
 
-//#define WINDOWED
+//#define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console
+#define WINDOWED
 
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
@@ -44,23 +43,23 @@ int main()
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-
 #ifdef WINDOWED
 	const float screenWidth = 800;
 	const float screenHeight = 600;
 #else
 	const float screenWidth = mode->width;
 	const float screenHeight = mode->height;
-	//glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 #endif
 
 	const float screenAspectRatio = screenWidth / screenHeight;
 
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	//GLFWwindow* window;
-
+#ifdef WINDOWED
+	window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", NULL, NULL);
+#else
 	window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", monitor, NULL);
+#endif
 
 	if (!window)
 	{
@@ -69,10 +68,7 @@ int main()
 		return -1;
 	}
 
-#ifndef WINDOWED
 	//glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-#endif
-
 
 	glfwMakeContextCurrent(window);
 
@@ -85,7 +81,7 @@ int main()
 	LOG(glGetString(GL_VERSION));
 
 	// Get vertices and indices from file
-	ModelReader mr;
+	ModelReader mr; // TODO: Remove class
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector;
 	if (mr.Get("../suz.ply", vertVector, indicesVector) != 0)
