@@ -15,10 +15,6 @@
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
 #define V(x,y,z) glm::vec3(x, y, z)
 
-#define UP glm::vec3(0, 1, 0)
-#define FORWARD glm::vec3(0, 0, 1)
-#define RIGHT glm::vec3(1, 0, 0)
-
 GLFWwindow* window;
 
 bool KeyPressed(int key)
@@ -106,7 +102,7 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(60.0f / 255, 195.0f / 255, 1, 1);
 
-	// FPS input
+	// FPS input setup
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -130,6 +126,10 @@ int main()
 	glm::mat4 proj = glm::perspective(glm::radians(90.0f), screenAspectRatio, 0.1f, 1000.0f);
 
 	glm::vec3 camPos = glm::vec3();
+
+	const glm::vec3 RIGHT = glm::vec3(1, 0, 0);
+	const glm::vec3 UP = glm::vec3(0, 1, 0);
+	const glm::vec3 FORWARD = glm::vec3(0, 0, 1);
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
@@ -162,11 +162,12 @@ int main()
 		glm::mat4 mvpMatrix = proj * viewMatrix;
 		SetProjectionMatrix(shader, mvpMatrix);
 
-		//glDrawArrays(GL_TRIANGLES, 0, VLENGTH);
+		// Draw call
 		glDrawElements(GL_TRIANGLES, ILENGTH, GL_UNSIGNED_INT, nullptr);
 
 		glfwSwapBuffers(window);
 
+		// Input
 		glfwPollEvents();
 
 		addx = KeyPressed(GLFW_KEY_A) ? -1 : KeyPressed(GLFW_KEY_D) ? 1 : 0;
