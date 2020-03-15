@@ -27,6 +27,12 @@
 GLFWwindow* window;
 
 bool mouseView = true;
+bool fullscreen = false;
+
+int windowedWidth = 800;
+int windowedHeight = 600;
+
+int fullscreenWidth, fullscreenHeight = 0;
 
 void LockMouse(bool b)
 {
@@ -46,6 +52,7 @@ void LockMouse(bool b)
 	}
 }
 
+// Keyboard button press
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS)
@@ -59,6 +66,25 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			if (mouseView)
 				LockMouse(true);
 			else LockMouse(false);
+
+			break;
+
+		case GLFW_KEY_ENTER:
+			fullscreen = !fullscreen;
+
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+			if (fullscreen)
+			{
+				glfwSetWindowMonitor(window, monitor,
+					0, 0, fullscreenWidth, fullscreenHeight, mode->refreshRate);
+			}
+			else
+			{
+				glfwSetWindowMonitor(window, NULL,
+					100, 100, windowedWidth, windowedHeight, mode->refreshRate);
+			}
 
 			break;
 		}
@@ -92,6 +118,9 @@ int main()
 
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+	fullscreenWidth = mode->width;
+	fullscreenHeight = mode->height;
 
 #ifdef WINDOWED
 	const float screenWidth = 800;
@@ -312,6 +341,7 @@ int main()
 			ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
 			ImGui::SliderFloat("Range", &shader_range, 0, 2);
 			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, dt * 60 * 60, ImGui::GetIO().Framerate);
+			ImGui::Text("FW: %i, %i", fullscreenWidth, fullscreenHeight);
 
 			ImGui::End();
 		}
