@@ -89,10 +89,6 @@ int main()
 
 	// imgui
 	IMGUI_CHECKVERSION();
-	
-	//ImGui::CreateContext();
-	/*
-	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 
@@ -101,7 +97,6 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	//(char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
-	*/
 
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -148,7 +143,7 @@ int main()
 
 	// FPS input setup
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	if (glfwRawMouseMotionSupported())
 		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
@@ -236,7 +231,6 @@ int main()
 		glDrawElements(GL_TRIANGLES, ILENGTH, GL_UNSIGNED_INT, nullptr);
 
 		// imgui
-		/*
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -244,8 +238,6 @@ int main()
 		ImGui::ShowDemoWindow();
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		*/
-
 
 		glfwSwapBuffers(window);
 	}
