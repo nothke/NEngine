@@ -9,6 +9,12 @@
 #include "Vertex.h"
 #include <vector>
 
+//#define USE_CONSOLE
+
+#if defined(WIN32) && !defined(USE_CONSOLE)
+#include <windows.h>
+#endif
+
 //#define WINDOWED
 
 #define LOG(x) std::cout << x << std::endl
@@ -22,12 +28,22 @@ bool KeyPressed(int key)
 	return state == GLFW_PRESS;
 }
 
+#if defined(WIN32) && !defined(USE_CONSOLE)
+int WINAPI WinMain(
+	HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR     lpCmdLine,
+	int       nShowCmd)
+#else
 int main()
+#endif
 {
 	if (!glfwInit())
 		return -1;
 
-	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
 
 #ifdef WINDOWED
 	const float screenWidth = 800;
@@ -35,7 +51,7 @@ int main()
 #else
 	const float screenWidth = mode->width;
 	const float screenHeight = mode->height;
-	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+	//glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 #endif
 
 	const float screenAspectRatio = screenWidth / screenHeight;
@@ -44,7 +60,7 @@ int main()
 
 	//GLFWwindow* window;
 
-	window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", NULL, NULL);
+	window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", monitor, NULL);
 
 	if (!window)
 	{
@@ -52,6 +68,11 @@ int main()
 		LOG("Creating window failed");
 		return -1;
 	}
+
+#ifndef WINDOWED
+	//glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+#endif
+
 
 	glfwMakeContextCurrent(window);
 
@@ -110,7 +131,7 @@ int main()
 	if (glfwRawMouseMotionSupported())
 		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
-	const float mouseSensitivity = 0.005f;
+	const float mouseSensitivity = 0.2f;
 
 	float addx = 0;
 	float addz = 0;
@@ -164,8 +185,8 @@ int main()
 		lastMousePosX = mousePosX;
 		lastMousePosY = mousePosY;
 
-		rotX += (float)mouseDeltaX * mouseSensitivity;
-		rotY += (float)mouseDeltaY * mouseSensitivity;
+		rotX += (float)mouseDeltaX * mouseSensitivity * dt;
+		rotY += (float)mouseDeltaY * mouseSensitivity * dt;
 		const float rad90 = 1.5708f;
 		rotY = glm::clamp(rotY, -rad90, rad90);
 
@@ -173,7 +194,7 @@ int main()
 
 		// Camera
 		glm::mat4 viewMatrix = glm::mat4(1.0f);
-		
+
 		viewMatrix = glm::rotate(viewMatrix, rotY, RIGHT);
 		viewMatrix = glm::rotate(viewMatrix, rotX, UP);
 
