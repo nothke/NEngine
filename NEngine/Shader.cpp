@@ -74,7 +74,14 @@ unsigned int CreateVertexColorShader()
 		void main(){
 			gl_Position = mvp * position;
 			//gl_FrontColor = color;
-			out_color = color;
+			//out_color = color;
+			
+			float grad = (2 + position.y)*0.2;
+			grad += length(position) * 0.3;
+			grad = clamp(grad, 0, 1);
+
+			vec3 vc = mix(vec3(0.7,0.3,1), vec3(0,1,1), grad);
+			out_color = vec4(vc, 1);
 		}
 
 		)glsl";

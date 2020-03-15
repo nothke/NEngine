@@ -9,6 +9,8 @@
 #include "Vertex.h"
 #include <vector>
 
+#define WINDOWED
+
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
 #define V(x,y,z) glm::vec3(x, y, z)
@@ -32,7 +34,7 @@ int main()
 
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-#if !WINDOWED
+#ifdef WINDOWED
 	const float screenWidth = 800;
 	const float screenHeight = 600;
 #else
@@ -102,6 +104,7 @@ int main()
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
+	glClearColor(60.0f / 255, 195.0f / 255, 1, 1);
 
 	// FPS input
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
