@@ -15,6 +15,7 @@
 
 #if defined(WIN32) && !defined(USE_CONSOLE)
 #include <windows.h>
+#include "NEngine.h"
 #endif
 
 //#define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console
@@ -187,6 +188,8 @@ int main()
 	glClearColor(60.0f / 255, 195.0f / 255, 1, 1);
 
 	// FPS input setup
+	glfwSetKeyCallback(window, key_callback);
+
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
 	LockMouse(true);
@@ -218,10 +221,11 @@ int main()
 	const glm::vec3 UP = glm::vec3(0, 1, 0);
 	const glm::vec3 FORWARD = glm::vec3(0, 0, 1);
 
+	// Data passed to shader
 	ImVec4 color1{ 0.7f, 0.3f, 1.0f, 1.0f };
 	ImVec4 color2{ 0.0f, 1.0f, 1.0f, 1.0f };
-
-	glfwSetKeyCallback(window, key_callback);
+	float shader_mult = 0.3f;
+	float shader_range = 1;
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(window))
@@ -290,6 +294,9 @@ int main()
 		glm::vec4 inputColor2 = FromImVec(color2);
 		Shader::SetVector(shader, "_InputColor2", inputColor2);
 
+		Shader::SetFloat(shader, "_Mult", shader_mult);
+		Shader::SetFloat(shader, "_Range", shader_range);
+
 		// imgui
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -302,8 +309,9 @@ int main()
 
 			ImGui::ColorEdit3("color 1", (float*)&color1);
 			ImGui::ColorEdit3("color 2", (float*)&color2);
+			ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
+			ImGui::SliderFloat("Range", &shader_range, 0, 2);
 			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, dt * 60 * 60, ImGui::GetIO().Framerate);
-			//ImGui::ColorPicker3("Color", (float*)&color, 0);
 
 			ImGui::End();
 		}

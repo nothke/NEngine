@@ -11,6 +11,7 @@ void SetProjectionMatrix(unsigned int program, glm::mat4 & matrix);
 namespace Shader
 {
 	void SetVector(unsigned int program, const char* name, glm::vec4& v);
+	void SetFloat(unsigned int program, const char* name, float f);
 }
 
 unsigned int CreateVertexColorShader();

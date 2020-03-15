@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ModelReader.h" />
+    <ClInclude Include="NEngine.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="vendor\imgui\imconfig.h" />
