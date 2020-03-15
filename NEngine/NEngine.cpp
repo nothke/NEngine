@@ -9,11 +9,10 @@
 #include "Vertex.h"
 #include <vector>
 
-#define WINDOWED
+//#define WINDOWED
 
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
-#define V(x,y,z) glm::vec3(x, y, z)
 
 GLFWwindow* window;
 
@@ -195,8 +194,6 @@ int main()
 		glDrawElements(GL_TRIANGLES, ILENGTH, GL_UNSIGNED_INT, nullptr);
 
 		glfwSwapBuffers(window);
-
-		
 	}
 
 	glDeleteProgram(shader);
