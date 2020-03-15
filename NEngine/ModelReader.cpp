@@ -15,9 +15,9 @@
 #define LOG(x)
 #endif
 
+#define ERROR(x) std::cout << "ModelReader ERROR: " << x << std::endl
 
-// copy??
-std::vector<Vertex> ModelReader::Get(const char * path, std::vector<unsigned int>& indices)
+int ModelReader::Get(const char * path, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
 {
 	std::string line;
 	std::ifstream file(path);
@@ -25,7 +25,7 @@ std::vector<Vertex> ModelReader::Get(const char * path, std::vector<unsigned int
 	bool headerStart = false;
 	bool trisStart = false;
 
-	std::vector<Vertex> vertices;
+	//std::vector<Vertex> vertices;
 	//std::vector<unsigned int> indices;
 
 	if (file.is_open())
@@ -93,7 +93,14 @@ std::vector<Vertex> ModelReader::Get(const char * path, std::vector<unsigned int
 						int i = std::stoi(str);
 
 						switch (ct) {
-						case 0: if (i != 3) LOG("Engine only accepts 3 indices"); break;
+						case 0:
+							if (i != 3)
+							{
+								ERROR("Engine only accepts meshes with 3 indices");
+								return -1;
+							}
+							break;
+
 						case 1: LOG("----- i0: " << i); tri[0] = i; break;
 						case 2: LOG("----- i1: " << i); tri[1] = i; break;
 						case 3: LOG("----- i2: " << i); tri[2] = i; break;
@@ -166,7 +173,7 @@ std::vector<Vertex> ModelReader::Get(const char * path, std::vector<unsigned int
 		LOG("I " << indices[i] << ", " << indices[i + 1] << ", " << indices[i + 2]);
 	}
 
-	return vertices;
+	return 0;
 }
 
 ModelReader::ModelReader()
