@@ -8,6 +8,10 @@
 #include "ModelReader.h"
 #include "Vertex.h"
 #include <vector>
+//#include <imgui/imgui.h>
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 #if defined(WIN32) && !defined(USE_CONSOLE)
 #include <windows.h>
@@ -79,6 +83,27 @@ int main()
 	}
 
 	LOG(glGetString(GL_VERSION));
+
+	// needed for imgui
+	const char* glsl_version = "#version 130";
+
+	// imgui
+	IMGUI_CHECKVERSION();
+	
+	//ImGui::CreateContext();
+	/*
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	ImGui::StyleColorsDark();
+
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	//(char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
+	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
+	*/
+
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	// Get vertices and indices from file
 	ModelReader mr; // TODO: Remove class
@@ -209,6 +234,18 @@ int main()
 
 		// Draw call
 		glDrawElements(GL_TRIANGLES, ILENGTH, GL_UNSIGNED_INT, nullptr);
+
+		// imgui
+		/*
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::ShowDemoWindow();
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		*/
+
 
 		glfwSwapBuffers(window);
 	}
