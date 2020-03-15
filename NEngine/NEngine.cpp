@@ -36,12 +36,12 @@ int main()
 #else
 	const float screenWidth = mode->width;
 	const float screenHeight = mode->height;
+	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 #endif
 
 	const float screenAspectRatio = screenWidth / screenHeight;
 
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	//glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 
 	//GLFWwindow* window;
 
@@ -67,7 +67,10 @@ int main()
 	// Get vertices and indices from file
 	ModelReader mr;
 	std::vector<unsigned int> indicesVector;
-	std::vector<Vertex> vertVector = mr.Get("../suz.ply", indicesVector);
+	std::vector<Vertex> vertVector;
+	if (mr.Get("../suz.ply", vertVector, indicesVector) != 0)
+		return -1;
+
 	const int VLENGTH = vertVector.size();
 	const int ILENGTH = indicesVector.size();
 
@@ -105,6 +108,10 @@ int main()
 	// FPS input setup
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	if (glfwRawMouseMotionSupported())
+		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
+	const float mouseSensitivity = 0.005f;
 
 	float addx = 0;
 	float addz = 0;
@@ -136,16 +143,38 @@ int main()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// cam
+		// Time
 		const float time = glfwGetTime();
 		const float dt = time - lastFrameTime;
-		//LOG(dt);
 
-		const float t = sin(time);
-		//const glm::vec3 v = glm::vec3(addx, 0.15f, addz - 1.0f);
-		//viewMatrix = glm::rotate(viewMatrix, t * 3.0f, UP);
+		// Input
+		glfwPollEvents();
+
+		addx = KeyPressed(GLFW_KEY_A) ? -1 : KeyPressed(GLFW_KEY_D) ? 1 : 0;
+		addz = KeyPressed(GLFW_KEY_W) ? -1 : KeyPressed(GLFW_KEY_S) ? 1 : 0;
+
+		if (KeyPressed(GLFW_KEY_ESCAPE))
+			break;
+
+		double mousePosX, mousePosY;
+		glfwGetCursorPos(window, &mousePosX, &mousePosY);
+
+		double mouseDeltaX = mousePosX - lastMousePosX;
+		double mouseDeltaY = mousePosY - lastMousePosY;
+
+		lastMousePosX = mousePosX;
+		lastMousePosY = mousePosY;
+
+		rotX += (float)mouseDeltaX * mouseSensitivity;
+		rotY += (float)mouseDeltaY * mouseSensitivity;
+		const float rad90 = 1.5708f;
+		rotY = glm::clamp(rotY, -rad90, rad90);
+
+		lastFrameTime = time;
+
+		// Camera
 		glm::mat4 viewMatrix = glm::mat4(1.0f);
-		const float mouseSensitivity = 0.005f;
+		
 		viewMatrix = glm::rotate(viewMatrix, rotY, RIGHT);
 		viewMatrix = glm::rotate(viewMatrix, rotX, UP);
 
@@ -167,30 +196,7 @@ int main()
 
 		glfwSwapBuffers(window);
 
-		// Input
-		glfwPollEvents();
-
-		addx = KeyPressed(GLFW_KEY_A) ? -1 : KeyPressed(GLFW_KEY_D) ? 1 : 0;
-		addz = KeyPressed(GLFW_KEY_W) ? -1 : KeyPressed(GLFW_KEY_S) ? 1 : 0;
-
-		if (KeyPressed(GLFW_KEY_ESCAPE))
-			break;
-
-		double mousePosX, mousePosY;
-		glfwGetCursorPos(window, &mousePosX, &mousePosY);
-
-		double mouseX = mousePosX - lastMousePosX;
-		double mouseY = mousePosY - lastMousePosY;
-
-		lastMousePosX = mousePosX;
-		lastMousePosY = mousePosY;
-
-		rotX += (float)mouseX * mouseSensitivity;
-		rotY += (float)mouseY * mouseSensitivity;
-		const float rad90 = 1.5708f;
-		rotY = glm::clamp(rotY, -rad90, rad90);
-
-		lastFrameTime = time;
+		
 	}
 
 	glDeleteProgram(shader);
