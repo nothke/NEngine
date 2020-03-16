@@ -118,10 +118,9 @@ int main()
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	// Get vertices and indices from file
-	ModelReader mr; // TODO: Remove class
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector;
-	if (mr.Get("../suz.ply", vertVector, indicesVector) != 0)
+	if (ModelReader::Get("../suz.ply", vertVector, indicesVector) != 0)
 		return -1;
 
 	// Mesh BIND

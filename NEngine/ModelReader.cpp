@@ -191,12 +191,3 @@ int ModelReader::Get(const char* path, std::vector<Vertex>& vertices, std::vecto
 
 	return 0;
 }
-
-ModelReader::ModelReader()
-{
-}
-
-
-ModelReader::~ModelReader()
-{
-}
