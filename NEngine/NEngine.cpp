@@ -14,6 +14,7 @@
 #include "Window.h"
 #include "Mesh.h"
 #include "Renderer.h"
+#include "Conversion.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -75,10 +76,7 @@ bool KeyPressed(int key)
 	return state == GLFW_PRESS;
 }
 
-glm::vec4 FromImVec(ImVec4 vec)
-{
-	return { vec.x, vec.y, vec.z, vec.w };
-}
+
 
 #if defined(WIN32) && !defined(USE_CONSOLE)
 int WINAPI WinMain(
@@ -247,10 +245,10 @@ int main()
 		renderer.DrawMesh(mesh);
 		//glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, nullptr);
 
-		glm::vec4 inputColor1 = FromImVec(color1);
+		glm::vec4 inputColor1 = from(color1);
 		shader.SetVector("_InputColor1", inputColor1);
 
-		glm::vec4 inputColor2 = FromImVec(color2);
+		glm::vec4 inputColor2 = from(color2);
 		shader.SetVector("_InputColor2", inputColor2);
 
 		shader.SetFloat("_Mult", shader_mult);
