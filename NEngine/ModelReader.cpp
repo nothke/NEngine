@@ -6,6 +6,7 @@
 #include <vector>
 #include <sstream>
 #include "Vertex.h"
+#include "Mesh.h"
 
 //#define DEBUG
 
@@ -17,7 +18,20 @@
 
 #define ERROR(x) std::cout << "ModelReader ERROR: " << x << std::endl
 
-int ModelReader::Get(const char * path, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
+int ModelReader::Get(const char* path, Mesh** mesh)
+{
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
+
+	if (Get(path, vertices, indices) != 0)
+		return -1;
+
+	*mesh = new Mesh(vertices, indices);
+
+	return 0;
+}
+
+int ModelReader::Get(const char* path, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
 {
 	std::string line;
 	std::ifstream file(path);

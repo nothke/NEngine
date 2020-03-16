@@ -27,6 +27,7 @@ void Mesh::Bind()
 
 Mesh::Mesh(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector)
 {
+	// Gets out of scope!
 	vertices = &vertVector[0];
 	indices = &indicesVector[0];
 

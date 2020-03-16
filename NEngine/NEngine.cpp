@@ -118,15 +118,25 @@ int main()
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	// Get vertices and indices from file
+	/*
 	ModelReader mr; // TODO: Remove class
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector;
 	if (mr.Get("../suz.ply", vertVector, indicesVector) != 0)
 		return -1;
+	*/
+
+	ModelReader mr;
+	Mesh* mesh = nullptr;
+	if (mr.Get("../suz.ply", &mesh) != 0)
+		return -1;
+
+	if (mesh == nullptr)
+		return -1;
 
 	// Mesh BIND
-	Mesh mesh(vertVector, indicesVector);
-	mesh.Bind();
+	//Mesh mesh(vertVector, indicesVector);
+	mesh->Bind();
 
 	// Shader
 	unsigned int shader = CreateVertexColorShader();
@@ -235,7 +245,7 @@ int main()
 		SetProjectionMatrix(shader, mvpMatrix);
 
 		// Draw call
-		glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, nullptr);
 
 		glm::vec4 inputColor1 = FromImVec(color1);
 		Shader::SetVector(shader, "_InputColor1", inputColor1);
@@ -261,6 +271,7 @@ int main()
 			ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
 			ImGui::SliderFloat("Range", &shader_range, 0, 2);
 			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, dt * 60 * 60, ImGui::GetIO().Framerate);
+			ImGui::Text("Mesh: vertices: %i, indices: %i", mesh->vertexCount, mesh->indexCount);
 			//ImGui::Text("FW: %i, %i", fullscreenWidth, fullscreenHeight);
 
 			ImGui::End();
@@ -273,6 +284,8 @@ int main()
 	}
 
 	glDeleteProgram(shader);
+
+	delete(mesh);
 
 	glfwTerminate();
 	return 0;
