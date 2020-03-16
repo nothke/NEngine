@@ -1,21 +1,19 @@
 #include "pch.h"
 #include <iostream>
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include "Shader.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "ModelReader.h"
 #include "Vertex.h"
 #include <vector>
-//#include <imgui/imgui.h>
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "Window.h"
 
 #if defined(WIN32) && !defined(USE_CONSOLE)
 #include <windows.h>
-#include "NEngine.h"
 #endif
 
 //#define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console
@@ -24,31 +22,25 @@
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
 
-GLFWwindow* window;
-
 bool mouseView = true;
-bool fullscreen = false;
 
-int windowedWidth = 800;
-int windowedHeight = 600;
-
-int fullscreenWidth, fullscreenHeight = 0;
+Window gameWindow;
 
 void LockMouse(bool b)
 {
 	if (b)
 	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(gameWindow.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		if (glfwRawMouseMotionSupported())
-			glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+			glfwSetInputMode(gameWindow.window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 	}
 	else
 	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetInputMode(gameWindow.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 		if (glfwRawMouseMotionSupported())
-			glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+			glfwSetInputMode(gameWindow.window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
 	}
 }
 
@@ -70,30 +62,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 
 		case GLFW_KEY_ENTER:
-			fullscreen = !fullscreen;
-
-			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-			if (fullscreen)
-			{
-				glfwSetWindowMonitor(window, monitor,
-					0, 0, fullscreenWidth, fullscreenHeight, mode->refreshRate);
-			}
-			else
-			{
-				glfwSetWindowMonitor(window, NULL,
-					100, 100, windowedWidth, windowedHeight, mode->refreshRate);
-			}
-
-			break;
+			gameWindow.ToggleFullscreen();
 		}
 	}
 }
 
 bool KeyPressed(int key)
 {
-	int state = glfwGetKey(window, key);
+	int state = glfwGetKey(gameWindow.window, key);
 	return state == GLFW_PRESS;
 }
 
@@ -113,43 +89,8 @@ int WINAPI WinMain(
 int main()
 #endif
 {
-	if (!glfwInit())
+	if (gameWindow.Initialize() != 0)
 		return -1;
-
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-	fullscreenWidth = mode->width;
-	fullscreenHeight = mode->height;
-
-#ifdef WINDOWED
-	const float screenWidth = 800;
-	const float screenHeight = 600;
-#else
-	const float screenWidth = mode->width;
-	const float screenHeight = mode->height;
-#endif
-
-	const float screenAspectRatio = screenWidth / screenHeight;
-
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-#ifdef WINDOWED
-	window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", NULL, NULL);
-#else
-	window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", monitor, NULL);
-#endif
-
-	if (!window)
-	{
-		glfwTerminate();
-		LOG("Creating window failed");
-		return -1;
-	}
-
-	//glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-
-	glfwMakeContextCurrent(window);
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -169,7 +110,7 @@ int main()
 
 	ImGui::StyleColorsDark();
 
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplGlfw_InitForOpenGL(gameWindow.window, true);
 	//(char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 
@@ -217,9 +158,9 @@ int main()
 	glClearColor(60.0f / 255, 195.0f / 255, 1, 1);
 
 	// FPS input setup
-	glfwSetKeyCallback(window, key_callback);
+	glfwSetKeyCallback(gameWindow.window, key_callback);
 
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+	glfwSetInputMode(gameWindow.window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
 	LockMouse(true);
 
@@ -236,13 +177,13 @@ int main()
 
 	double lastMousePosX = 0;
 	double lastMousePosY = 0;
-	glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
+	glfwGetCursorPos(gameWindow.window, &lastMousePosX, &lastMousePosY);
 
 	// Timing
 	float lastFrameTime = 0;
 
 	// Matrix
-	glm::mat4 proj = glm::perspective(glm::radians(90.0f), screenAspectRatio, 0.1f, 1000.0f);
+	glm::mat4 proj = glm::perspective(glm::radians(90.0f), gameWindow.aspectRatio, 0.1f, 1000.0f);
 
 	glm::vec3 camPos = glm::vec3();
 
@@ -257,7 +198,7 @@ int main()
 	float shader_range = 1;
 
 	// GAME LOOP
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(gameWindow.window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -275,7 +216,7 @@ int main()
 			break;
 
 		double mousePosX, mousePosY;
-		glfwGetCursorPos(window, &mousePosX, &mousePosY);
+		glfwGetCursorPos(gameWindow.window, &mousePosX, &mousePosY);
 
 		double mouseDeltaX = mousePosX - lastMousePosX;
 		double mouseDeltaY = mousePosY - lastMousePosY;
@@ -341,7 +282,7 @@ int main()
 			ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
 			ImGui::SliderFloat("Range", &shader_range, 0, 2);
 			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, dt * 60 * 60, ImGui::GetIO().Framerate);
-			ImGui::Text("FW: %i, %i", fullscreenWidth, fullscreenHeight);
+			//ImGui::Text("FW: %i, %i", fullscreenWidth, fullscreenHeight);
 
 			ImGui::End();
 		}
@@ -349,7 +290,7 @@ int main()
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		glfwSwapBuffers(window);
+		gameWindow.SwapBuffers();
 	}
 
 	glDeleteProgram(shader);
