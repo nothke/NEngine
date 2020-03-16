@@ -15,12 +15,11 @@
 #include "Mesh.h"
 #include "Renderer.h"
 
+#define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
 #include <windows.h>
 #endif
 
-//#define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console
-#define WINDOWED
 
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
@@ -78,8 +77,7 @@ bool KeyPressed(int key)
 
 glm::vec4 FromImVec(ImVec4 vec)
 {
-	glm::vec4 v{ vec.x, vec.y, vec.z, vec.w };
-	return v;
+	return { vec.x, vec.y, vec.z, vec.w };
 }
 
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -92,6 +90,8 @@ int WINAPI WinMain(
 int main()
 #endif
 {
+	// TODO: Parse command line arguments
+
 	if (gameWindow.Initialize() != 0)
 		return -1;
 
@@ -104,9 +104,6 @@ int main()
 	LOG(glGetString(GL_VERSION));
 
 	Renderer renderer;
-
-	// needed for imgui
-	const char* glsl_version = "#version 130";
 
 	// imgui
 	IMGUI_CHECKVERSION();
@@ -133,7 +130,7 @@ int main()
 	mesh.Bind();
 
 	// Shader
-	unsigned int shader = CreateVertexColorShader();
+	unsigned int shader = Shader::CreateVertexColorShader();
 	glUseProgram(shader);
 
 	glEnable(GL_CULL_FACE);
@@ -236,7 +233,7 @@ int main()
 		//LOGV(forward);
 		viewMatrix = glm::translate(viewMatrix, camPos);
 		glm::mat4 mvpMatrix = proj * viewMatrix;
-		SetProjectionMatrix(shader, mvpMatrix);
+		Shader::SetProjectionMatrix(shader, mvpMatrix);
 
 		// Rendering
 		renderer.Clear();

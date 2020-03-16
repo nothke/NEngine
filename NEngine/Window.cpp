@@ -26,15 +26,21 @@ void Window::SetFullscreen(bool b)
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
+	glfwDestroyWindow(window);
+
 	if (fullscreen)
 	{
-		glfwSetWindowMonitor(window, monitor,
-			0, 0, fullscreenWidth, fullscreenHeight, mode->refreshRate);
+		window = glfwCreateWindow(
+			fullscreenWidth, fullscreenHeight, "NEngine", monitor, NULL);
+		//glfwSetWindowMonitor(window, monitor,
+			//0, 0, fullscreenWidth, fullscreenHeight, mode->refreshRate);
 	}
 	else
 	{
-		glfwSetWindowMonitor(window, NULL,
-			100, 100, windowedWidth, windowedHeight, mode->refreshRate);
+		window = glfwCreateWindow(
+			windowedWidth, windowedHeight, "NEngine", NULL, NULL);
+		//glfwSetWindowMonitor(window, NULL,
+			//100, 100, windowedWidth, windowedHeight, mode->refreshRate);
 	}
 }
 

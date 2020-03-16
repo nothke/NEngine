@@ -102,4 +102,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="res\vertexcolor.glsl" />
+  </ItemGroup>
 </Project>

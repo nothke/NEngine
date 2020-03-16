@@ -4,10 +4,12 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <fstream>
+#include <sstream>
 
 #define LOG(x) std::cout << x << std::endl
 
-unsigned int CompileShader(unsigned int type, const std::string& source)
+unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 {
 	unsigned int id = glCreateShader(type);
 	const char* src = source.c_str();
@@ -34,7 +36,7 @@ unsigned int CompileShader(unsigned int type, const std::string& source)
 	return id;
 }
 
-unsigned int CreateShader(
+unsigned int Shader::CreateShader(
 	const std::string& vert,
 	const std::string& frag)
 {
@@ -53,24 +55,31 @@ unsigned int CreateShader(
 	return program;
 }
 
-void SetProjectionMatrix(unsigned int program, glm::mat4& matrix)
+void Shader::SetProjectionMatrix(unsigned int program, glm::mat4& matrix)
 {
 	glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &matrix[0][0]);
 }
 
-namespace Shader
+void Shader::SetFloat(const char * name, float f)
 {
-	void SetVector(unsigned int program, const char* name, glm::vec4& v)
-	{
-		glUniform4f(glGetUniformLocation(program, name), v.x, v.y, v.z, v.w);
-	}
-	void SetFloat(unsigned int program, const char * name, float f)
-	{
-		glUniform1f(glGetUniformLocation(program, name), f);
-	}
+}
+void Shader::SetVector(const char * name, glm::vec4 & v)
+{
+}
+void Shader::SetProjectionMatrix(glm::mat4 & matrix)
+{
 }
 
-unsigned int CreateVertexColorShader()
+void Shader::SetVector(unsigned int program, const char* name, glm::vec4& v)
+{
+	glUniform4f(glGetUniformLocation(program, name), v.x, v.y, v.z, v.w);
+}
+void Shader::SetFloat(unsigned int program, const char * name, float f)
+{
+	glUniform1f(glGetUniformLocation(program, name), f);
+}
+
+unsigned int Shader::CreateVertexColorShader()
 {
 	const std::string vert = R"glsl(
 
@@ -119,4 +128,43 @@ unsigned int CreateVertexColorShader()
 		)glsl";
 
 	return CreateShader(vert, frag);
+}
+
+Shader::Shader(std::string & source)
+{
+	//CompileShader()
+}
+
+ShaderSource ShaderReader::ParseShader(const std::string& path)
+{
+	std::ifstream stream(path);
+
+	enum class ShaderType
+	{
+		NONE = -1,
+		VERTEX = 0,
+		FRAGMENT = 1
+	};
+
+	ShaderType type;
+
+	std::string line;
+	std::stringstream ss[2];
+
+	while (getline(stream, line))
+	{
+		if (line.find("#shader") != std::string::npos)
+		{
+			if (line.find("vert") != std::string::npos)
+				type = ShaderType::VERTEX;
+			else if (line.find("frag"))
+				type = ShaderType::FRAGMENT;
+		}
+		else
+		{
+			ss[(int)type] << line << '\n';
+		}
+	}
+
+	return { ss[0].str(), ss[1].str() };
 }
