@@ -11,6 +11,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "Window.h"
+#include "Mesh.h"
 
 #if defined(WIN32) && !defined(USE_CONSOLE)
 #include <windows.h>
@@ -123,31 +124,9 @@ int main()
 	if (mr.Get("../suz.ply", vertVector, indicesVector) != 0)
 		return -1;
 
-	const int VLENGTH = vertVector.size();
-	const int ILENGTH = indicesVector.size();
-
-	// Convert vector to array:
-	Vertex* vertices = &vertVector[0];
-	unsigned int* indices = &indicesVector[0];
-
-	// Vertex buffer
-	unsigned int buffer;
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-
-	const int totalsize = VLENGTH * sizeof(Vertex);
-	glBufferData(GL_ARRAY_BUFFER, totalsize, vertices, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, Vertex::OFFSET_POSITION);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, (void*)Vertex::OFFSET_COLOR);
-
-	// Index buffer
-	unsigned int ibo;
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, ILENGTH * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+	// Mesh BIND
+	Mesh mesh(vertVector, indicesVector);
+	mesh.Bind();
 
 	// Shader
 	unsigned int shader = CreateVertexColorShader();
@@ -256,7 +235,7 @@ int main()
 		SetProjectionMatrix(shader, mvpMatrix);
 
 		// Draw call
-		glDrawElements(GL_TRIANGLES, ILENGTH, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, nullptr);
 
 		glm::vec4 inputColor1 = FromImVec(color1);
 		Shader::SetVector(shader, "_InputColor1", inputColor1);

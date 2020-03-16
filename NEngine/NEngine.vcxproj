@@ -157,6 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="ModelReader.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Shader.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ModelReader.cpp" />
     <ClCompile Include="NEngine.cpp" />
     <ClCompile Include="pch.cpp">
