@@ -10,8 +10,10 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+
 #include "Window.h"
 #include "Mesh.h"
+#include "Renderer.h"
 
 #if defined(WIN32) && !defined(USE_CONSOLE)
 #include <windows.h>
@@ -101,6 +103,8 @@ int main()
 
 	LOG(glGetString(GL_VERSION));
 
+	Renderer renderer;
+
 	// needed for imgui
 	const char* glsl_version = "#version 130";
 
@@ -179,7 +183,7 @@ int main()
 	// GAME LOOP
 	while (!glfwWindowShouldClose(gameWindow.window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 		// Time
 		const float time = glfwGetTime();
@@ -234,8 +238,12 @@ int main()
 		glm::mat4 mvpMatrix = proj * viewMatrix;
 		SetProjectionMatrix(shader, mvpMatrix);
 
+		// Rendering
+		renderer.Clear();
+
 		// Draw call
-		glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, nullptr);
+		renderer.DrawMesh(mesh);
+		//glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, nullptr);
 
 		glm::vec4 inputColor1 = FromImVec(color1);
 		Shader::SetVector(shader, "_InputColor1", inputColor1);
