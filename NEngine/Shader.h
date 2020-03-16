@@ -2,6 +2,12 @@
 #include <string>
 #include <glm/glm.hpp>
 
+struct ShaderSource
+{
+	std::string vertex;
+	std::string fragment;
+};
+
 class Shader
 {
 	unsigned int program;
@@ -22,14 +28,8 @@ public:
 	static unsigned int CreateShader(const std::string & vert, const std::string & frag);
 	static unsigned int CreateVertexColorShader();
 
-	Shader(std::string& source);
+	Shader(ShaderSource& source);
 	Shader();
-};
-
-struct ShaderSource
-{
-	std::string vertex;
-	std::string fragment;
 };
 
 namespace ShaderReader

@@ -79,6 +79,11 @@ void Shader::SetFloat(unsigned int program, const char * name, float f)
 	glUniform1f(glGetUniformLocation(program, name), f);
 }
 
+Shader::Shader(ShaderSource& source)
+{
+	program = CreateShader(source.vertex, source.fragment);
+}
+
 unsigned int Shader::CreateVertexColorShader()
 {
 	const std::string vert = R"glsl(
@@ -128,11 +133,6 @@ unsigned int Shader::CreateVertexColorShader()
 		)glsl";
 
 	return CreateShader(vert, frag);
-}
-
-Shader::Shader(std::string & source)
-{
-	//CompileShader()
 }
 
 ShaderSource ShaderReader::ParseShader(const std::string& path)
