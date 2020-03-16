@@ -119,7 +119,7 @@ int main()
 	//(char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	// Get vertices and indices from file
 	std::vector<unsigned int> indicesVector;
