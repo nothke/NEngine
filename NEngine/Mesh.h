@@ -15,8 +15,6 @@ struct Mesh
 
 	void Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector);
 
-	Mesh(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector);
-
 	Mesh();
 	~Mesh();
 };

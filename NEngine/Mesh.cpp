@@ -25,9 +25,8 @@ void Mesh::Bind()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 }
 
-Mesh::Mesh(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector)
+void Mesh::Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector)
 {
-	// Gets out of scope!
 	vertices = &vertVector[0];
 	indices = &indicesVector[0];
 
