@@ -60,14 +60,22 @@ void Shader::SetProjectionMatrix(unsigned int program, glm::mat4& matrix)
 	glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &matrix[0][0]);
 }
 
+void Shader::Bind()
+{
+	glUseProgram(program);
+}
+
 void Shader::SetFloat(const char * name, float f)
 {
+	SetFloat(program, name, f);
 }
 void Shader::SetVector(const char * name, glm::vec4 & v)
 {
+	SetVector(program, name, v);
 }
 void Shader::SetProjectionMatrix(glm::mat4 & matrix)
 {
+	SetProjectionMatrix(program, matrix);
 }
 
 void Shader::SetVector(unsigned int program, const char* name, glm::vec4& v)
@@ -135,9 +143,17 @@ unsigned int Shader::CreateVertexColorShader()
 	return CreateShader(vert, frag);
 }
 
-ShaderSource ShaderReader::ParseShader(const std::string& path)
+void Shader::Delete()
+{
+	glDeleteProgram(program);
+}
+
+ShaderSource ShaderReader::Parse(const std::string& path)
 {
 	std::ifstream stream(path);
+
+	if (!stream.good())
+		LOG("Shader " << path << " not found");
 
 	enum class ShaderType
 	{
@@ -157,7 +173,7 @@ ShaderSource ShaderReader::ParseShader(const std::string& path)
 		{
 			if (line.find("vert") != std::string::npos)
 				type = ShaderType::VERTEX;
-			else if (line.find("frag"))
+			else if (line.find("frag") != std::string::npos)
 				type = ShaderType::FRAGMENT;
 		}
 		else

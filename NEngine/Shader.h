@@ -12,13 +12,6 @@ class Shader
 {
 	unsigned int program;
 
-public:
-	void Bind();
-
-	void SetFloat(const char* name, float f);
-	void SetVector(const char* name, glm::vec4& v);
-	void SetProjectionMatrix(glm::mat4 & matrix);
-
 	// statics
 	static void SetVector(unsigned int program, const char* name, glm::vec4& v);
 	static void SetFloat(unsigned int program, const char* name, float f);
@@ -26,14 +19,25 @@ public:
 
 	static unsigned int CompileShader(unsigned int type, const std::string & source);
 	static unsigned int CreateShader(const std::string & vert, const std::string & frag);
+
+	Shader();
+
+public:
+	void SetFloat(const char* name, float f);
+	void SetVector(const char* name, glm::vec4& v);
+	void SetProjectionMatrix(glm::mat4 & matrix);
+	
+	void Bind();
+
 	static unsigned int CreateVertexColorShader();
 
+	void Delete();
+
 	Shader(ShaderSource& source);
-	Shader();
 };
 
 namespace ShaderReader
 {
-	ShaderSource ParseShader(const std::string& path);
+	ShaderSource Parse(const std::string& path);
 }
 

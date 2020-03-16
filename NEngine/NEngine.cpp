@@ -130,9 +130,14 @@ int main()
 	mesh.Bind();
 
 	// Shader
-	unsigned int shader = Shader::CreateVertexColorShader();
-	glUseProgram(shader);
+	//unsigned int shader = Shader::CreateVertexColorShader();
+	auto source = ShaderReader::Parse("../NEngine/res/vertexcolor.glsl");
+	Shader shader = Shader(source);
 
+	//glUseProgram(shader);
+	shader.Bind();
+
+	// Todo: move to renderer
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(60.0f / 255, 195.0f / 255, 1, 1);
@@ -233,7 +238,7 @@ int main()
 		//LOGV(forward);
 		viewMatrix = glm::translate(viewMatrix, camPos);
 		glm::mat4 mvpMatrix = proj * viewMatrix;
-		Shader::SetProjectionMatrix(shader, mvpMatrix);
+		shader.SetProjectionMatrix(mvpMatrix);
 
 		// Rendering
 		renderer.Clear();
@@ -243,13 +248,13 @@ int main()
 		//glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, nullptr);
 
 		glm::vec4 inputColor1 = FromImVec(color1);
-		Shader::SetVector(shader, "_InputColor1", inputColor1);
+		shader.SetVector("_InputColor1", inputColor1);
 
 		glm::vec4 inputColor2 = FromImVec(color2);
-		Shader::SetVector(shader, "_InputColor2", inputColor2);
+		shader.SetVector("_InputColor2", inputColor2);
 
-		Shader::SetFloat(shader, "_Mult", shader_mult);
-		Shader::SetFloat(shader, "_Range", shader_range);
+		shader.SetFloat("_Mult", shader_mult);
+		shader.SetFloat("_Range", shader_range);
 
 		// imgui
 		ImGui_ImplOpenGL3_NewFrame();
@@ -278,7 +283,7 @@ int main()
 		gameWindow.SwapBuffers();
 	}
 
-	glDeleteProgram(shader);
+	shader.Delete();
 
 	glfwTerminate();
 	return 0;
