@@ -221,7 +221,7 @@ int main()
 
 		// Object matrix
 		glm::mat4 modelMatrix = glm::mat4(1.0);
-		modelMatrix = glm::translate(modelMatrix, { 1,0,0 });
+		modelMatrix = glm::translate(modelMatrix, { 1, 0, 0 });
 
 		// Camera
 		glm::mat4 viewMatrix = glm::mat4(1.0f);
@@ -248,7 +248,11 @@ int main()
 		// Draw call
 		renderer.DrawMesh(mesh);
 
+		modelMatrix = glm::translate(modelMatrix, { -2, 0, -1 });
+		mvpMatrix = proj * viewMatrix * modelMatrix;
+		shader.SetProjectionMatrix(mvpMatrix);
 
+		renderer.DrawMesh(mesh);
 
 		// imgui read values
 		glm::vec4 inputColor1 = from(color1);
