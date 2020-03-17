@@ -83,8 +83,6 @@ bool KeyPressed(int key)
 	return state == GLFW_PRESS;
 }
 
-
-
 #if defined(WIN32) && !defined(USE_CONSOLE)
 int WINAPI WinMain(
 	HINSTANCE hInstance,
@@ -125,7 +123,7 @@ int main()
 	// Get vertices and indices from file
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector;
-	if (ModelReader::Get("../cube.ply", vertVector, indicesVector) != 0)
+	if (ModelReader::Get("../suz.ply", vertVector, indicesVector) != 0)
 		return -1;
 
 	// Mesh BIND
@@ -159,10 +157,16 @@ int main()
 	glm::vec2 rotation = glm::vec2(0, 0);
 	glm::vec2 lastMousePos;
 
-	//glfwGetCursorPos(gameWindow.window, &lastMousePosX, &lastMousePosY);
+	{
+		// Initialize mouse position
+		double lastMousePosX, lastMousePosY;
+		glfwGetCursorPos(gameWindow.window, &lastMousePosX, &lastMousePosY);
+		lastMousePos = glm::vec2(lastMousePosX, lastMousePosY);
+	}
 
 	// Timing
 	float lastFrameTime = glfwGetTime();
+	LOG("Frame " << lastFrameTime);
 
 	// Matrix
 	glm::mat4 proj = glm::perspective(glm::radians(90.0f), gameWindow.aspectRatio, 0.1f, 1000.0f);
@@ -215,6 +219,10 @@ int main()
 
 		lastFrameTime = time;
 
+		// Object matrix
+		glm::mat4 modelMatrix = glm::mat4(1.0);
+		modelMatrix = glm::translate(modelMatrix, { 1,0,0 });
+
 		// Camera
 		glm::mat4 viewMatrix = glm::mat4(1.0f);
 
@@ -231,7 +239,7 @@ int main()
 		camPos += (forward * playerInput.y + right * playerInput.x) * dt;
 
 		viewMatrix = glm::translate(viewMatrix, camPos);
-		glm::mat4 mvpMatrix = proj * viewMatrix;
+		glm::mat4 mvpMatrix = proj * viewMatrix * modelMatrix;
 		shader.SetProjectionMatrix(mvpMatrix);
 
 		// Rendering
@@ -239,6 +247,8 @@ int main()
 
 		// Draw call
 		renderer.DrawMesh(mesh);
+
+
 
 		// imgui read values
 		glm::vec4 inputColor1 = from(color1);
