@@ -18,6 +18,7 @@
 
 #define ERROR(x) std::cout << "ModelReader ERROR: " << x << std::endl
 
+/* Don't use this one
 int ModelReader::Get(const char* path, Mesh& mesh)
 {
 	// These will get out of scope
@@ -31,7 +32,7 @@ int ModelReader::Get(const char* path, Mesh& mesh)
 	//*mesh = new Mesh(vertices, indices);
 
 	return 0;
-}
+}*/
 
 int ModelReader::Get(const char* path, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
 {

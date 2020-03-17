@@ -199,7 +199,7 @@ int main()
 
 	// objects
 	std::vector<Transform> objects;
-
+	objects.reserve(2);
 
 	Transform t = { glm::vec3(0, 1, 0), mesh };
 	Transform t2 = { {-1, 0, 0}, mesh };
@@ -225,7 +225,6 @@ int main()
 		double mousePosX, mousePosY;
 		glfwGetCursorPos(gameWindow.window, &mousePosX, &mousePosY);
 		auto mousePos = glm::vec2(mousePosX, mousePosY);
-		Log(mousePos);
 
 		glm::vec2 mouseDelta = mousePos - lastMousePos;
 		lastMousePos = mousePos;
@@ -235,8 +234,6 @@ int main()
 			glm::vec2 delta = mouseDelta * mouseSensitivity * dt;
 			rotation += delta;
 		}
-
-		Log(mouseDelta);
 
 		const float rad90 = 1.56f;
 		rotation.y = glm::clamp(rotation.y, -rad90, rad90);

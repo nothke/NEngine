@@ -22,7 +22,7 @@ void main(){
 	grad = clamp(grad * _Mult, 0, 1);
     //vec3 vc = mix(vec3(0.7,0.3,1), vec3(0,1,1), grad);
 	vec3 vc = mix(_InputColor1.rgb, _InputColor2.rgb, grad);
-	out_color = vec4(vc, 1);
+	out_color = color * vec4(vc, 1);
 }
 
 #shader fragment
