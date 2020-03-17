@@ -111,7 +111,6 @@ int main()
 	ImGui::StyleColorsDark();
 
 	ImGui_ImplGlfw_InitForOpenGL(gameWindow.window, true);
-	//(char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 
 	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -128,11 +127,9 @@ int main()
 	mesh.Bind();
 
 	// Shader
-	//unsigned int shader = Shader::CreateVertexColorShader();
 	auto source = ShaderReader::Parse("../NEngine/res/vertexcolor.glsl");
 	Shader shader = Shader(source);
 
-	//glUseProgram(shader);
 	shader.Bind();
 
 	// Todo: move to renderer
@@ -183,8 +180,6 @@ int main()
 	// GAME LOOP
 	while (!glfwWindowShouldClose(gameWindow.window))
 	{
-
-
 		// Time
 		const float time = glfwGetTime();
 		const float dt = time - lastFrameTime;
@@ -243,8 +238,8 @@ int main()
 
 		// Draw call
 		renderer.DrawMesh(mesh);
-		//glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, nullptr);
 
+		// imgui read values
 		glm::vec4 inputColor1 = from(color1);
 		shader.SetVector("_InputColor1", inputColor1);
 
