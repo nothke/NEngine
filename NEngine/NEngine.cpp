@@ -15,6 +15,7 @@
 #include "Mesh.h"
 #include "Renderer.h"
 #include "Conversion.h"
+#include "Log.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -24,10 +25,16 @@
 
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
+#define LOGV2(x) std::cout << x[0] << ", " << x[1] << std::endl
 
 bool mouseView = true;
 
 Window gameWindow;
+
+struct Character
+{
+	glm::vec3 position;
+};
 
 void LockMouse(bool b)
 {
@@ -118,7 +125,7 @@ int main()
 	// Get vertices and indices from file
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector;
-	if (ModelReader::Get("../suz.ply", vertVector, indicesVector) != 0)
+	if (ModelReader::Get("../cube.ply", vertVector, indicesVector) != 0)
 		return -1;
 
 	// Mesh BIND
@@ -146,26 +153,20 @@ int main()
 
 	const float mouseSensitivity = 0.2f;
 
-	float addx = 0;
-	float addz = 0;
+	glm::vec3 camPos = { 0, 0, 0 };
+	glm::vec2 playerInput;
+	glm::vec2 lastMouse;
+	glm::vec2 rotation = glm::vec2(0, 0);
+	glm::vec2 lastMousePos;
 
-	double lastMouseX = 0;
-	double lastMouseY = 0;
-
-	float rotX = 0;
-	float rotY = 0;
-
-	double lastMousePosX = 0;
-	double lastMousePosY = 0;
-	glfwGetCursorPos(gameWindow.window, &lastMousePosX, &lastMousePosY);
+	//glfwGetCursorPos(gameWindow.window, &lastMousePosX, &lastMousePosY);
 
 	// Timing
-	float lastFrameTime = 0;
+	float lastFrameTime = glfwGetTime();
 
 	// Matrix
 	glm::mat4 proj = glm::perspective(glm::radians(90.0f), gameWindow.aspectRatio, 0.1f, 1000.0f);
 
-	glm::vec3 camPos = glm::vec3();
 
 	const glm::vec3 RIGHT = glm::vec3(1, 0, 0);
 	const glm::vec3 UP = glm::vec3(0, 1, 0);
@@ -187,48 +188,48 @@ int main()
 		// Input
 		glfwPollEvents();
 
-		addx = KeyPressed(GLFW_KEY_A) ? -1 : KeyPressed(GLFW_KEY_D) ? 1 : 0;
-		addz = KeyPressed(GLFW_KEY_W) ? -1 : KeyPressed(GLFW_KEY_S) ? 1 : 0;
+		playerInput.x = KeyPressed(GLFW_KEY_A) ? -1 : KeyPressed(GLFW_KEY_D) ? 1 : 0;
+		playerInput.y = KeyPressed(GLFW_KEY_W) ? -1 : KeyPressed(GLFW_KEY_S) ? 1 : 0;
 
 		if (KeyPressed(GLFW_KEY_ESCAPE))
 			break;
 
 		double mousePosX, mousePosY;
 		glfwGetCursorPos(gameWindow.window, &mousePosX, &mousePosY);
+		auto mousePos = glm::vec2(mousePosX, mousePosY);
+		Log(mousePos);
 
-		double mouseDeltaX = mousePosX - lastMousePosX;
-		double mouseDeltaY = mousePosY - lastMousePosY;
-
-
-		lastMousePosX = mousePosX;
-		lastMousePosY = mousePosY;
+		glm::vec2 mouseDelta = mousePos - lastMousePos;
+		lastMousePos = mousePos;
 
 		if (mouseView)
 		{
-			rotX += (float)mouseDeltaX * mouseSensitivity * dt;
-			rotY += (float)mouseDeltaY * mouseSensitivity * dt;
+			glm::vec2 delta = mouseDelta * mouseSensitivity * dt;
+			rotation += delta;
 		}
 
-		const float rad90 = 1.5708f;
-		rotY = glm::clamp(rotY, -rad90, rad90);
+		Log(mouseDelta);
+
+		const float rad90 = 1.56f;
+		rotation.y = glm::clamp(rotation.y, -rad90, rad90);
 
 		lastFrameTime = time;
 
 		// Camera
 		glm::mat4 viewMatrix = glm::mat4(1.0f);
 
-		viewMatrix = glm::rotate(viewMatrix, rotY, RIGHT);
-		viewMatrix = glm::rotate(viewMatrix, rotX, UP);
+		viewMatrix = glm::rotate(viewMatrix, rotation.y, RIGHT);
+		viewMatrix = glm::rotate(viewMatrix, rotation.x, UP);
 
+		// camera forward and right
 		const glm::mat4 inv = glm::inverse(viewMatrix);
 		const glm::vec3 right = -glm::normalize(inv[0]);
 		glm::vec3 forward = -glm::normalize(inv[2]);
 		forward.y = 0;
 		forward = glm::normalize(forward);
 
-		camPos += (forward * addz + right * addx) * dt;
-		//const glm::vec3 v = forward * addz * dt; //glm::vec3(addx, 0.15f, addz - 1.0f);
-		//LOGV(forward);
+		camPos += (forward * playerInput.y + right * playerInput.x) * dt;
+
 		viewMatrix = glm::translate(viewMatrix, camPos);
 		glm::mat4 mvpMatrix = proj * viewMatrix;
 		shader.SetProjectionMatrix(mvpMatrix);
