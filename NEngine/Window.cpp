@@ -11,25 +11,27 @@ Window::Window()
 {
 }
 
+static void glfw_error_callback(int error, const char* description)
+{
+	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
+
 int Window::CreateWindow()
 {
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-	fullscreenWidth = mode->width;
-	fullscreenHeight = mode->height;
+	//fullscreenWidth = mode->width;
+	//fullscreenHeight = mode->height;
 
-	const float screenWidth = windowedWidth;
-	const float screenHeight = windowedHeight;
+	const float screenWidth = fullscreen ? mode->width : windowedWidth;
+	const float screenHeight = fullscreen ? mode->height : windowedHeight;
 
 	aspectRatio = screenWidth / screenHeight;
 
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	if (!fullscreen)
-		window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", NULL, NULL);
-	else
-		window = glfwCreateWindow(mode->width, mode->height, "NEngine", monitor, NULL);
+	window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", fullscreen ? monitor : NULL, NULL);
 
 	if (!window)
 	{
@@ -68,8 +70,12 @@ void Window::ChangeResolution(int newWidth, int newHeight)
 
 int Window::Initialize()
 {
+	glfwSetErrorCallback(glfw_error_callback);
+
 	if (!glfwInit())
 		return -1;
+
+	//glfwSwapInterval(1); // Enable vsync
 
 	if (!CreateWindow())
 		return -1;

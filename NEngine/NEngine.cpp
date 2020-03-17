@@ -22,7 +22,6 @@
 #include <windows.h>
 #endif
 
-
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
 #define LOGV2(x) std::cout << x[0] << ", " << x[1] << std::endl
@@ -34,6 +33,7 @@ Renderer renderer;
 
 std::vector<Shader> shaders;
 std::vector<Mesh> meshes;
+glm::mat4 proj;
 
 struct Transform
 {
@@ -94,8 +94,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 
 		case GLFW_KEY_ENTER:
-			//gameWindow.ChangeResolution(1024, 768);
-			gameWindow.SetFullscreen(true);
+			gameWindow.ChangeResolution(1024, 768);
+			//gameWindow.ChangeResolution(800, 600);
+			//gameWindow.SetFullscreen(true);
 			RebuildEverything();
 
 			break;
@@ -114,10 +115,26 @@ void RebuildEverything()
 		shader.Bind();
 	}
 
+	// Commenting this out locks app
 	for (Mesh& mesh : meshes)
 		mesh.Bind();
 
 	glfwSetKeyCallback(gameWindow.window, key_callback);
+
+	proj = glm::perspective(glm::radians(90.0f), gameWindow.aspectRatio, 0.1f, 1000.0f);
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	//ImGui::DestroyContext();
+
+	//IMGUI_CHECKVERSION();
+	//ImGui::CreateContext();
+	//ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	//ImGui::StyleColorsDark();
+
+	ImGui_ImplGlfw_InitForOpenGL(gameWindow.window, true);
+	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 }
 
 bool KeyPressed(int key)
@@ -149,30 +166,26 @@ int main()
 
 	LOG(glGetString(GL_VERSION));
 
-
-
 #pragma region
-	/*
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	//ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsDark();
 
-	ImGui_ImplGlfw_InitForOpenGL(gameWindow.window, true);
+	ImGui_ImplGlfw_InitForOpenGL(gameWindow.window, false);
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 
 	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-	*/
 #pragma endregion ImGui initialize
 
 	// Get vertices and indices from file
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector;
-	if (ModelReader::Get("../suz.ply", vertVector, indicesVector) != 0)
+	if (ModelReader::Get("../cube.ply", vertVector, indicesVector) != 0)
 		return -1;
 
-	// Mesh BIND
+	// Mesh
 	Mesh mesh;
 	mesh.Init(vertVector, indicesVector);
 	mesh.Bind();
@@ -213,8 +226,7 @@ int main()
 	LOG("Frame " << lastFrameTime);
 
 	// Matrix
-	glm::mat4 proj = glm::perspective(glm::radians(90.0f), gameWindow.aspectRatio, 0.1f, 1000.0f);
-
+	proj = glm::perspective(glm::radians(90.0f), gameWindow.aspectRatio, 0.1f, 1000.0f);
 
 	const glm::vec3 RIGHT = glm::vec3(1, 0, 0);
 	const glm::vec3 UP = glm::vec3(0, 1, 0);
@@ -230,10 +242,10 @@ int main()
 	std::vector<Transform> objects;
 	objects.reserve(2);
 
-	glm::vec3 pos1(0);
+	glm::vec3 pos1(0.0f, 0.0f, -10.0f);
 
 	Transform t = { pos1, mesh };
-	Transform t2 = { {-1, 0, 0}, mesh };
+	Transform t2 = { {-3, 0, -10}, mesh };
 	objects.push_back(t);
 	objects.push_back(t2);
 
@@ -317,7 +329,6 @@ int main()
 
 		// imgui
 #pragma region
-		/*
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -347,11 +358,14 @@ int main()
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		*/
 #pragma endregion ImGui
 
 		gameWindow.SwapBuffers();
 	}
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	shader.Delete();
 
