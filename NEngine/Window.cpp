@@ -20,13 +20,15 @@ void Window::ToggleFullscreen()
 
 void Window::SetFullscreen(bool b)
 {
-
 	fullscreen = b;
 
+	glfwDestroyWindow(window);
+
+	Initialize();
+
+	/*
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-	glfwDestroyWindow(window);
 
 	if (fullscreen)
 	{
@@ -41,7 +43,7 @@ void Window::SetFullscreen(bool b)
 			windowedWidth, windowedHeight, "NEngine", NULL, NULL);
 		//glfwSetWindowMonitor(window, NULL,
 			//100, 100, windowedWidth, windowedHeight, mode->refreshRate);
-	}
+	}*/
 }
 
 int Window::Initialize()
@@ -62,11 +64,10 @@ int Window::Initialize()
 
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	// Windowed
-	window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", NULL, NULL);
-
-	// Fullscreen
-	//window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", monitor, NULL);
+	if (!fullscreen)
+		window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", NULL, NULL);
+	else
+		window = glfwCreateWindow(mode->width, mode->height, "NEngine", monitor, NULL);
 
 	if (!window)
 	{

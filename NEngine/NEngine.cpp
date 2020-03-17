@@ -298,9 +298,8 @@ int main()
 			ImGui::ColorEdit3("color 2", (float*)&color2);
 			ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
 			ImGui::SliderFloat("Range", &shader_range, 0, 2);
-			ImGui::DragFloat3("Yaya", &pos1[0], 0.01f, 0, 1);
 
-			Log(pos1);
+			ImGui::DragFloat3("Yaya", &pos1[0], 0.01f, 0, 1);
 
 			objects[0].position = pos1;
 			objects[0].isDirty = true;

@@ -6,7 +6,7 @@ class Window
 public:
 	GLFWwindow* window;
 
-	bool fullscreen = false;
+	bool fullscreen = true;
 
 	int windowedWidth = 800;
 	int windowedHeight = 600;
