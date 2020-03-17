@@ -4,6 +4,7 @@
 class Renderer
 {
 public:
+	void Init();
 	void Clear();
 	void DrawMesh(Mesh& mesh);
 

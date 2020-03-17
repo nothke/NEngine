@@ -123,7 +123,7 @@ int main()
 
 	Renderer renderer;
 
-	// imgui
+#pragma region
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -134,6 +134,7 @@ int main()
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 
 	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+#pragma endregion ImGui initialize
 
 	// Get vertices and indices from file
 	std::vector<unsigned int> indicesVector;
@@ -152,10 +153,7 @@ int main()
 
 	shader.Bind();
 
-	// Todo: move to renderer
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	glClearColor(60.0f / 255, 195.0f / 255, 1, 1);
+	renderer.Init();
 
 	// FPS input setup
 	glfwSetKeyCallback(gameWindow.window, key_callback);
@@ -201,7 +199,9 @@ int main()
 	std::vector<Transform> objects;
 	objects.reserve(2);
 
-	Transform t = { glm::vec3(0, 1, 0), mesh };
+	glm::vec3 pos1(0);
+
+	Transform t = { pos1, mesh };
 	Transform t2 = { {-1, 0, 0}, mesh };
 	objects.push_back(t);
 	objects.push_back(t2);
@@ -298,6 +298,14 @@ int main()
 			ImGui::ColorEdit3("color 2", (float*)&color2);
 			ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
 			ImGui::SliderFloat("Range", &shader_range, 0, 2);
+			ImGui::DragFloat3("Yaya", &pos1[0], 0.01f, 0, 1);
+
+			Log(pos1);
+
+			objects[0].position = pos1;
+			objects[0].isDirty = true;
+
+			// Analitics
 			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, dt * 60 * 60, ImGui::GetIO().Framerate);
 			ImGui::Text("Mesh: vertices: %i, indices: %i", mesh.vertexCount, mesh.indexCount);
 			//ImGui::Text("FW: %i, %i", fullscreenWidth, fullscreenHeight);
