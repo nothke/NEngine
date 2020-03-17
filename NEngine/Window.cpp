@@ -11,54 +11,16 @@ Window::Window()
 {
 }
 
-void Window::ToggleFullscreen()
+int Window::CreateWindow()
 {
-	fullscreen = !fullscreen;
-
-	SetFullscreen(fullscreen);
-}
-
-void Window::SetFullscreen(bool b)
-{
-	fullscreen = b;
-
-	glfwDestroyWindow(window);
-
-	Initialize();
-
-	/*
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-	if (fullscreen)
-	{
-		window = glfwCreateWindow(
-			fullscreenWidth, fullscreenHeight, "NEngine", monitor, NULL);
-		//glfwSetWindowMonitor(window, monitor,
-			//0, 0, fullscreenWidth, fullscreenHeight, mode->refreshRate);
-	}
-	else
-	{
-		window = glfwCreateWindow(
-			windowedWidth, windowedHeight, "NEngine", NULL, NULL);
-		//glfwSetWindowMonitor(window, NULL,
-			//100, 100, windowedWidth, windowedHeight, mode->refreshRate);
-	}*/
-}
-
-int Window::Initialize()
-{
-	if (!glfwInit())
-		return -1;
-
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
 	fullscreenWidth = mode->width;
 	fullscreenHeight = mode->height;
 
-	const float screenWidth = 800;
-	const float screenHeight = 600;
+	const float screenWidth = windowedWidth;
+	const float screenHeight = windowedHeight;
 
 	aspectRatio = screenWidth / screenHeight;
 
@@ -77,6 +39,40 @@ int Window::Initialize()
 	}
 
 	glfwMakeContextCurrent(window);
+}
+
+void Window::ToggleFullscreen()
+{
+	fullscreen = !fullscreen;
+
+	SetFullscreen(fullscreen);
+}
+
+void Window::SetFullscreen(bool b)
+{
+	fullscreen = b;
+
+	glfwDestroyWindow(window);
+	CreateWindow();
+}
+
+void Window::ChangeResolution(int newWidth, int newHeight)
+{
+	glfwDestroyWindow(window);
+
+	windowedWidth = newWidth;
+	windowedHeight = newHeight;
+
+	CreateWindow();
+}
+
+int Window::Initialize()
+{
+	if (!glfwInit())
+		return -1;
+
+	if (!CreateWindow())
+		return -1;
 
 	return 0;
 }

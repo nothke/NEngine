@@ -30,6 +30,10 @@
 bool mouseView = true;
 
 Window gameWindow;
+Renderer renderer;
+
+std::vector<Shader> shaders;
+std::vector<Mesh> meshes;
 
 struct Transform
 {
@@ -69,6 +73,9 @@ void LockMouse(bool b)
 	}
 }
 
+// forward declaration for key_callback
+void RebuildEverything();
+
 // Keyboard button press
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -87,9 +94,30 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 
 		case GLFW_KEY_ENTER:
-			gameWindow.ToggleFullscreen();
+			//gameWindow.ChangeResolution(1024, 768);
+			gameWindow.SetFullscreen(true);
+			RebuildEverything();
+
+			break;
 		}
 	}
+}
+
+void RebuildEverything()
+{
+	renderer.Init();
+
+	for (Shader& shader : shaders)
+	{
+		auto source = ShaderReader::Parse("../NEngine/res/vertexcolor.glsl");
+		shader = Shader(source);
+		shader.Bind();
+	}
+
+	for (Mesh& mesh : meshes)
+		mesh.Bind();
+
+	glfwSetKeyCallback(gameWindow.window, key_callback);
 }
 
 bool KeyPressed(int key)
@@ -121,9 +149,10 @@ int main()
 
 	LOG(glGetString(GL_VERSION));
 
-	Renderer renderer;
+
 
 #pragma region
+	/*
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -134,6 +163,7 @@ int main()
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 
 	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	*/
 #pragma endregion ImGui initialize
 
 	// Get vertices and indices from file
@@ -146,10 +176,12 @@ int main()
 	Mesh mesh;
 	mesh.Init(vertVector, indicesVector);
 	mesh.Bind();
+	meshes.push_back(mesh);
 
 	// Shader
 	auto source = ShaderReader::Parse("../NEngine/res/vertexcolor.glsl");
 	Shader shader = Shader(source);
+	shaders.push_back(shader);
 
 	shader.Bind();
 
@@ -157,8 +189,7 @@ int main()
 
 	// FPS input setup
 	glfwSetKeyCallback(gameWindow.window, key_callback);
-
-	glfwSetInputMode(gameWindow.window, GLFW_STICKY_KEYS, GLFW_TRUE);
+	//glfwSetInputMode(gameWindow.window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
 	LockMouse(true);
 
@@ -285,6 +316,8 @@ int main()
 		shader.SetFloat("_Range", shader_range);
 
 		// imgui
+#pragma region
+		/*
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -314,6 +347,8 @@ int main()
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		*/
+#pragma endregion ImGui
 
 		gameWindow.SwapBuffers();
 	}

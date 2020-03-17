@@ -17,6 +17,7 @@ class Shader
 	static void SetFloat(unsigned int program, const char* name, const float& f);
 	static void SetProjectionMatrix(unsigned int program, const glm::mat4 & matrix);
 
+
 	static unsigned int CompileShader(unsigned int type, const std::string & source);
 	static unsigned int CreateShader(const std::string & vert, const std::string & frag);
 
@@ -28,6 +29,7 @@ public:
 	void SetProjectionMatrix(const glm::mat4 & matrix);
 
 	void Bind();
+	void Rebuild();
 
 	static unsigned int CreateVertexColorShader();
 

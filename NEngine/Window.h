@@ -6,7 +6,7 @@ class Window
 public:
 	GLFWwindow* window;
 
-	bool fullscreen = true;
+	bool fullscreen = false;
 
 	int windowedWidth = 800;
 	int windowedHeight = 600;
@@ -20,12 +20,17 @@ public:
 
 	void SetFullscreen(bool b);
 
+	void ChangeResolution(int newWidth, int newHeight);
+
 	int Initialize();
 
 	void SwapBuffers();
 
 	Window();
-
 	~Window();
+
+private:
+	int CreateWindow();
+
 };
 

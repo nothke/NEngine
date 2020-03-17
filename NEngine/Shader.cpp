@@ -60,6 +60,11 @@ void Shader::SetProjectionMatrix(unsigned int program, const glm::mat4& matrix)
 	glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &matrix[0][0]);
 }
 
+void Shader::Rebuild()
+{
+	glLinkProgram(program);
+}
+
 void Shader::Bind()
 {
 	glUseProgram(program);
