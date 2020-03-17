@@ -31,9 +31,24 @@ bool mouseView = true;
 
 Window gameWindow;
 
-struct Character
+struct Transform
 {
 	glm::vec3 position;
+	Mesh& mesh;
+
+	glm::mat4 model;
+	bool isDirty = true;
+
+	glm::mat4 GetMatrix()
+	{
+		if (isDirty)
+		{
+			model = glm::translate(glm::mat4(1), position);
+			isDirty = false;
+		}
+
+		return model;
+	}
 };
 
 void LockMouse(bool b)
@@ -182,6 +197,15 @@ int main()
 	float shader_mult = 0.3f;
 	float shader_range = 1;
 
+	// objects
+	std::vector<Transform> objects;
+
+
+	Transform t = { glm::vec3(0, 1, 0), mesh };
+	Transform t2 = { {-1, 0, 0}, mesh };
+	objects.push_back(t);
+	objects.push_back(t2);
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(gameWindow.window))
 	{
@@ -246,13 +270,12 @@ int main()
 		renderer.Clear();
 
 		// Draw call
-		renderer.DrawMesh(mesh);
-
-		modelMatrix = glm::translate(modelMatrix, { -2, 0, -1 });
-		mvpMatrix = proj * viewMatrix * modelMatrix;
-		shader.SetProjectionMatrix(mvpMatrix);
-
-		renderer.DrawMesh(mesh);
+		for (Transform& t : objects)
+		{
+			//t.model = glm::translate(glm::mat4(1), t.position);
+			shader.SetProjectionMatrix(proj * viewMatrix * t.GetMatrix());
+			renderer.DrawMesh(t.mesh);
+		}
 
 		// imgui read values
 		glm::vec4 inputColor1 = from(color1);
