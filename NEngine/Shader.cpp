@@ -55,7 +55,7 @@ unsigned int Shader::CreateShader(
 	return program;
 }
 
-void Shader::SetProjectionMatrix(unsigned int program, glm::mat4& matrix)
+void Shader::SetProjectionMatrix(unsigned int program, const glm::mat4& matrix)
 {
 	glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &matrix[0][0]);
 }
@@ -65,24 +65,24 @@ void Shader::Bind()
 	glUseProgram(program);
 }
 
-void Shader::SetFloat(const char * name, float f)
+void Shader::SetFloat(const char * name, const float& f)
 {
 	SetFloat(program, name, f);
 }
-void Shader::SetVector(const char * name, glm::vec4 & v)
+void Shader::SetVector(const char * name, const glm::vec4& v)
 {
 	SetVector(program, name, v);
 }
-void Shader::SetProjectionMatrix(glm::mat4 & matrix)
+void Shader::SetProjectionMatrix(const glm::mat4 & matrix)
 {
 	SetProjectionMatrix(program, matrix);
 }
 
-void Shader::SetVector(unsigned int program, const char* name, glm::vec4& v)
+void Shader::SetVector(unsigned int program, const char* name, const glm::vec4& v)
 {
 	glUniform4f(glGetUniformLocation(program, name), v.x, v.y, v.z, v.w);
 }
-void Shader::SetFloat(unsigned int program, const char * name, float f)
+void Shader::SetFloat(unsigned int program, const char * name, const float& f)
 {
 	glUniform1f(glGetUniformLocation(program, name), f);
 }
