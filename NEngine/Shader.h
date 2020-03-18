@@ -29,7 +29,6 @@ public:
 	void SetProjectionMatrix(const glm::mat4 & matrix);
 
 	void Bind();
-	void Rebuild();
 
 	static unsigned int CreateVertexColorShader();
 

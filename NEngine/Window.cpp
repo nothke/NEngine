@@ -41,6 +41,8 @@ int Window::CreateWindow()
 	}
 
 	glfwMakeContextCurrent(window);
+
+	glfwSwapInterval(0);
 }
 
 void Window::ToggleFullscreen()
