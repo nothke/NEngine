@@ -17,7 +17,14 @@ struct Model
 
 	void SetPosition(vec3 position) { this->position = position; isDirty = true; }
 	void SetRotation(quat rotation) { this->rotation = rotation; isDirty = true; }
-	void SetRotation(vec3 scale) { this->scale = scale; isDirty = true; }
+	void SetScale(float scale) { this->scale = vec3(scale); isDirty = true; }
+	void SetScale(vec3 scale) { this->scale = scale; isDirty = true; }
+
+	void SetRotation(vec3 eulerAngles)
+	{
+		rotation = quat(vec3(eulerAngles.x, eulerAngles.y, eulerAngles.z));
+		isDirty = true;
+	}
 
 	Model(vec3 position, Mesh&mesh)
 		: mesh(mesh), position(position) {}
@@ -32,8 +39,9 @@ struct Model
 	{
 		if (isDirty)
 		{
-			localToWorld = glm::translate(glm::mat4(1), position);
-			localToWorld = mat4_cast(rotation) * localToWorld;
+			localToWorld = mat4(1);
+			localToWorld = glm::translate(localToWorld, position);
+			localToWorld = localToWorld * mat4_cast(rotation);
 			localToWorld = glm::scale(localToWorld, scale);
 
 			isDirty = false;

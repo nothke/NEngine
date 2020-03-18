@@ -156,7 +156,7 @@ int main()
 	// Get vertices and indices from file
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector;
-	if (ModelReader::Get("../cube.ply", vertVector, indicesVector) != 0)
+	if (ModelReader::Get("../suza.ply", vertVector, indicesVector) != 0)
 		return -1;
 
 	// Mesh
@@ -216,15 +216,15 @@ int main()
 	std::vector<Model> objects;
 	objects.reserve(10);
 
-	glm::vec3 pos1(0.0f, 0.0f, -10.0f);
-	glm::vec3 pos2(0.0f, 0.0f, -10.0f);
+	glm::vec3 pos1(1.5f, 0.0f, -5.0f);
+	glm::vec3 pos2(-1.5f, 0.0f, -5.0f);
 
 	Model t(pos1, mesh);
-	Model t2({ -3, 0, -10 }, mesh);
+	//Model t2({ -3, 0, -10 }, mesh);
 	Model t3(pos2, mesh);
 
 	objects.push_back(t);
-	objects.push_back(t2);
+	//objects.push_back(t2);
 	objects.push_back(t3);
 
 	// GAME LOOP
@@ -234,8 +234,13 @@ int main()
 		const float time = glfwGetTime();
 		const float dt = time - lastFrameTime;
 
+		LOG(time);
 
-		pos2.y = sin(time) * 10;
+		pos2.y = sin(time * 2) * 2;
+		objects[1].SetPosition(pos2);
+		objects[1].SetRotation(vec3(time * 3, 0, 0));
+		objects[1].SetScale(vec3(2, 2, 2));
+		//objects[1].SetScale(2);
 
 		// Input
 		glfwPollEvents();
@@ -264,10 +269,6 @@ int main()
 
 		lastFrameTime = time;
 
-		// Object matrix
-		glm::mat4 modelMatrix = glm::mat4(1.0);
-		modelMatrix = glm::translate(modelMatrix, { 1, 0, 0 });
-
 		// Camera
 		glm::mat4 viewMatrix = glm::mat4(1.0f);
 
@@ -278,19 +279,18 @@ int main()
 		const glm::mat4 inv = glm::inverse(viewMatrix);
 		const glm::vec3 right = -glm::normalize(inv[0]);
 		glm::vec3 forward = -glm::normalize(inv[2]);
-		forward.y = 0;
-		forward = glm::normalize(forward);
+		//forward.y = 0;
+		//forward = glm::normalize(forward);
 
+		// Move camera
 		camPos += (forward * playerInput.y + right * playerInput.x) * dt;
 
 		viewMatrix = glm::translate(viewMatrix, camPos);
-		glm::mat4 mvpMatrix = proj * viewMatrix * modelMatrix;
-		shader.SetProjectionMatrix(mvpMatrix);
 
 		// Rendering
 		renderer.Clear();
 
-		// Draw call
+		// Draw calls
 		for (Model& t : objects)
 		{
 			shader.SetProjectionMatrix(proj * viewMatrix * t.LocalToWorld());
@@ -334,12 +334,6 @@ int main()
 
 			ImGui::SameLine();
 			ImGui::Checkbox("Fullscreen", &gameWindow.fullscreen);
-
-			objects[0].position = pos1;
-			objects[0].isDirty = true;
-
-			objects[2].position = pos2;
-			objects[2].isDirty = true;
 
 			// Analitics
 			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, dt * 60 * 60, ImGui::GetIO().Framerate);
