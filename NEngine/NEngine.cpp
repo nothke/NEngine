@@ -227,6 +227,12 @@ int main()
 	//objects.push_back(t2);
 	objects.push_back(t3);
 
+	for (size_t i = 0; i < 2000; i++)
+	{
+		Model m({ i, 1, -5 }, mesh);
+		objects.push_back(m);
+	}
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(gameWindow.window))
 	{
