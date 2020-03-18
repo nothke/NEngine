@@ -35,6 +35,8 @@ std::vector<Shader> shaders;
 std::vector<Mesh> meshes;
 glm::mat4 proj;
 
+glm::ivec2 targetResolution = { 1024, 768 };
+
 struct Transform
 {
 	glm::vec3 position;
@@ -335,6 +337,7 @@ int main()
 
 		//ImGui::ShowDemoWindow();
 
+		bool applyResolution = false;
 		{
 			ImGui::Begin("So Pro");
 
@@ -345,12 +348,22 @@ int main()
 
 			ImGui::DragFloat3("Yaya", &pos1[0], 0.01f, 0, 1);
 
+			ImGui::DragInt2("Resolution", &targetResolution[0], 4);
+			if (ImGui::Button("Apply"))
+			{
+				applyResolution = true;
+			}
+
+			ImGui::SameLine();
+			ImGui::Checkbox("Fullscreen", &gameWindow.fullscreen);
+
 			objects[0].position = pos1;
 			objects[0].isDirty = true;
 
 			// Analitics
 			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, dt * 60 * 60, ImGui::GetIO().Framerate);
 			ImGui::Text("Mesh: vertices: %i, indices: %i", mesh.vertexCount, mesh.indexCount);
+
 			//ImGui::Text("FW: %i, %i", fullscreenWidth, fullscreenHeight);
 
 			ImGui::End();
@@ -361,6 +374,12 @@ int main()
 #pragma endregion ImGui
 
 		gameWindow.SwapBuffers();
+
+		if (applyResolution)
+		{
+			gameWindow.ChangeResolution(targetResolution.x, targetResolution.y);
+			RebuildEverything();
+		}
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
