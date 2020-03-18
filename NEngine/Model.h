@@ -35,7 +35,7 @@ struct Model
 	Model(Mesh&mesh)
 		: mesh(mesh) {}
 
-	mat4 LocalToWorld()
+	inline mat4 LocalToWorld()
 	{
 		if (isDirty)
 		{

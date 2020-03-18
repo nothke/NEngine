@@ -38,6 +38,9 @@ glm::mat4 proj;
 
 glm::ivec2 targetResolution = { 1024, 768 };
 
+float cameraSpeedInput = 1;
+float cameraSpeed = 1;
+
 void LockMouse(bool b)
 {
 	if (b)
@@ -85,6 +88,21 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	if (yoffset != 0)
+	{
+		cameraSpeedInput += yoffset * 0.1f;
+		cameraSpeed = exp(cameraSpeedInput);
+	}
+}
+
+void InitInputCallbacks()
+{
+	glfwSetKeyCallback(gameWindow.window, key_callback);
+	glfwSetScrollCallback(gameWindow.window, scroll_callback);
+}
+
 void RebuildEverything()
 {
 	renderer.Init();
@@ -100,7 +118,7 @@ void RebuildEverything()
 	for (Mesh& mesh : meshes)
 		mesh.Bind();
 
-	glfwSetKeyCallback(gameWindow.window, key_callback);
+	InitInputCallbacks();
 
 	proj = glm::perspective(glm::radians(90.0f), gameWindow.aspectRatio, 0.1f, 1000.0f);
 
@@ -175,7 +193,7 @@ int main()
 	renderer.Init();
 
 	// FPS input setup
-	glfwSetKeyCallback(gameWindow.window, key_callback);
+	InitInputCallbacks();
 	//glfwSetInputMode(gameWindow.window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
 	LockMouse(true);
@@ -227,10 +245,13 @@ int main()
 	//objects.push_back(t2);
 	objects.push_back(t3);
 
-	for (size_t i = 0; i < 2000; i++)
+	for (size_t y = 0; y < 50; y++)
 	{
-		Model m({ i, 1, -5 }, mesh);
-		objects.push_back(m);
+		for (size_t x = 0; x < 50; x++)
+		{
+			Model m({ x * 2, y * 2, -10 }, mesh);
+			objects.push_back(m);
+		}
 	}
 
 	// GAME LOOP
@@ -239,8 +260,6 @@ int main()
 		// Time
 		const float time = glfwGetTime();
 		const float dt = time - lastFrameTime;
-
-		LOG(time);
 
 		pos2.y = sin(time * 2) * 2;
 		objects[1].SetPosition(pos2);
@@ -289,7 +308,7 @@ int main()
 		//forward = glm::normalize(forward);
 
 		// Move camera
-		camPos += (forward * playerInput.y + right * playerInput.x) * dt;
+		camPos += (forward * playerInput.y + right * playerInput.x) * dt * cameraSpeed;
 
 		viewMatrix = glm::translate(viewMatrix, camPos);
 
