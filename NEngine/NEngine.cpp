@@ -40,6 +40,7 @@ glm::ivec2 targetResolution = { 1024, 768 };
 struct Transform
 {
 	glm::vec3 position;
+	//glm::vec4 rotation;
 	Mesh& mesh;
 
 	glm::mat4 model;
@@ -50,6 +51,7 @@ struct Transform
 		if (isDirty)
 		{
 			model = glm::translate(glm::mat4(1), position);
+			//model = glm::rotate(model, )
 			isDirty = false;
 		}
 
@@ -242,14 +244,17 @@ int main()
 
 	// objects
 	std::vector<Transform> objects;
-	objects.reserve(2);
+	objects.reserve(10);
 
 	glm::vec3 pos1(0.0f, 0.0f, -10.0f);
+	glm::vec3 pos2(0.0f, 0.0f, -10.0f);
 
 	Transform t = { pos1, mesh };
 	Transform t2 = { {-3, 0, -10}, mesh };
+	Transform t3 = { pos2, mesh };
 	objects.push_back(t);
 	objects.push_back(t2);
+	objects.push_back(t3);
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(gameWindow.window))
@@ -257,6 +262,9 @@ int main()
 		// Time
 		const float time = glfwGetTime();
 		const float dt = time - lastFrameTime;
+
+
+		pos2.y = sin(time) * 10;
 
 		// Input
 		glfwPollEvents();
@@ -359,6 +367,9 @@ int main()
 
 			objects[0].position = pos1;
 			objects[0].isDirty = true;
+
+			objects[2].position = pos2;
+			objects[2].isDirty = true;
 
 			// Analitics
 			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, dt * 60 * 60, ImGui::GetIO().Framerate);
