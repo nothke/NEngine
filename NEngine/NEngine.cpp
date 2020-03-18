@@ -315,10 +315,12 @@ int main()
 		// Rendering
 		renderer.Clear();
 
+		mat4 vpMatrix = proj * viewMatrix;
+
 		// Draw calls
 		for (Model& t : objects)
 		{
-			shader.SetProjectionMatrix(proj * viewMatrix * t.LocalToWorld());
+			shader.SetProjectionMatrix(vpMatrix * t.LocalToWorld());
 			renderer.DrawMesh(t.mesh);
 		}
 

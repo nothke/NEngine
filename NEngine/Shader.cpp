@@ -78,7 +78,7 @@ void Shader::SetVector(const char * name, const glm::vec4& v)
 {
 	SetVector(program, name, v);
 }
-void Shader::SetProjectionMatrix(const glm::mat4 & matrix)
+void Shader::SetProjectionMatrix(const glm::mat4& matrix)
 {
 	SetProjectionMatrix(program, matrix);
 }
