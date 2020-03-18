@@ -77,9 +77,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 
 		case GLFW_KEY_ENTER:
-			gameWindow.ChangeResolution(1024, 768);
-			//gameWindow.ChangeResolution(800, 600);
-			//gameWindow.SetFullscreen(true);
+			gameWindow.ToggleFullscreen();
 			RebuildEverything();
 
 			break;
@@ -108,13 +106,6 @@ void RebuildEverything()
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
-	//ImGui::DestroyContext();
-
-	//IMGUI_CHECKVERSION();
-	//ImGui::CreateContext();
-	//ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-	//ImGui::StyleColorsDark();
 
 	ImGui_ImplGlfw_InitForOpenGL(gameWindow.window, true);
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
@@ -302,7 +293,6 @@ int main()
 		// Draw call
 		for (Model& t : objects)
 		{
-			//t.model = glm::translate(glm::mat4(1), t.position);
 			shader.SetProjectionMatrix(proj * viewMatrix * t.LocalToWorld());
 			renderer.DrawMesh(t.mesh);
 		}

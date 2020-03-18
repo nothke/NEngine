@@ -8,8 +8,8 @@ using namespace glm;
 struct Model
 {
 	vec3 position;
-	quat rotation;
-	vec3 scale;
+	quat rotation = quat();
+	vec3 scale = vec3(1);
 
 	Mesh& mesh;
 
@@ -33,7 +33,9 @@ struct Model
 		if (isDirty)
 		{
 			localToWorld = glm::translate(glm::mat4(1), position);
-			//model = glm::rotate(model, )
+			localToWorld = mat4_cast(rotation) * localToWorld;
+			localToWorld = glm::scale(localToWorld, scale);
+
 			isDirty = false;
 		}
 
