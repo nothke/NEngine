@@ -6,13 +6,15 @@ in vec4 color; // layout(location = 3)
 
 uniform vec4 _InputColor1;
 uniform vec4 _InputColor2;
-uniform mat4 mvp;
+uniform mat4 _VP;
+uniform mat4 _M;
 uniform float _Mult;
 uniform float _Range;
 
 out vec4 out_color;
 
 void main(){
+	mat4 mvp = _VP * _M;
 	gl_Position = mvp * position;
 	//gl_FrontColor = color;
 	//out_color = color;

@@ -26,7 +26,8 @@ class Shader
 public:
 	void SetFloat(const char* name, const float& f);
 	void SetVector(const char* name, const glm::vec4& v);
-	void SetProjectionMatrix(const glm::mat4 & matrix);
+	void SetVPMatrix(const glm::mat4 & matrix);
+	void SetMMatrix(const glm::mat4 & matrix);
 
 	void Bind();
 

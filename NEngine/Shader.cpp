@@ -36,7 +36,8 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 	return id;
 }
 
-GLint loc_mvp;
+GLint loc_VP;
+GLint loc_M;
 
 unsigned int Shader::CreateShader(
 	const std::string& vert,
@@ -54,7 +55,8 @@ unsigned int Shader::CreateShader(
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
-	loc_mvp = glGetUniformLocation(program, "mvp");
+	loc_VP = glGetUniformLocation(program, "_VP");
+	loc_M = glGetUniformLocation(program, "_M");
 
 	return program;
 }
@@ -72,9 +74,13 @@ void Shader::SetVector(const char * name, const glm::vec4& v)
 {
 	SetVector(program, name, v);
 }
-void Shader::SetProjectionMatrix(const glm::mat4& matrix)
+void Shader::SetVPMatrix(const glm::mat4& matrix)
 {
 	SetProjectionMatrix(program, matrix);
+}
+void Shader::SetMMatrix(const glm::mat4& matrix)
+{
+	glUniformMatrix4fv(loc_M, 1, GL_FALSE, &matrix[0][0]);
 }
 
 inline void Shader::SetFloat(unsigned int program, const char * name, const float& f)
@@ -89,7 +95,7 @@ inline void Shader::SetVector(unsigned int program, const char* name, const glm:
 
 inline void Shader::SetProjectionMatrix(unsigned int program, const glm::mat4& matrix)
 {
-	glUniformMatrix4fv(loc_mvp, 1, GL_FALSE, &matrix[0][0]);
+	glUniformMatrix4fv(loc_VP, 1, GL_FALSE, &matrix[0][0]);
 }
 
 Shader::Shader(ShaderSource& source)

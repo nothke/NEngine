@@ -322,11 +322,13 @@ int main()
 		renderer.Clear();
 
 		mat4 vpMatrix = proj * viewMatrix;
+		shader.SetVPMatrix(vpMatrix);
 
 		// Draw calls
 		for (Model& t : objects)
 		{
-			shader.SetProjectionMatrix(vpMatrix * t.LocalToWorld());
+			//shader.SetVPMatrix(t.LocalToWorld());
+			shader.SetMMatrix(t.LocalToWorld());
 			renderer.DrawMesh(t.mesh);
 		}
 
@@ -402,4 +404,4 @@ int main()
 
 	glfwTerminate();
 	return 0;
-	}
+}
