@@ -16,6 +16,7 @@
 #include "Renderer.h"
 #include "Conversion.h"
 #include "Log.h"
+#include "Model.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -36,28 +37,6 @@ std::vector<Mesh> meshes;
 glm::mat4 proj;
 
 glm::ivec2 targetResolution = { 1024, 768 };
-
-struct Transform
-{
-	glm::vec3 position;
-	//glm::vec4 rotation;
-	Mesh& mesh;
-
-	glm::mat4 model;
-	bool isDirty = true;
-
-	glm::mat4 GetMatrix()
-	{
-		if (isDirty)
-		{
-			model = glm::translate(glm::mat4(1), position);
-			//model = glm::rotate(model, )
-			isDirty = false;
-		}
-
-		return model;
-	}
-};
 
 void LockMouse(bool b)
 {
@@ -243,15 +222,16 @@ int main()
 	float shader_range = 1;
 
 	// objects
-	std::vector<Transform> objects;
+	std::vector<Model> objects;
 	objects.reserve(10);
 
 	glm::vec3 pos1(0.0f, 0.0f, -10.0f);
 	glm::vec3 pos2(0.0f, 0.0f, -10.0f);
 
-	Transform t = { pos1, mesh };
-	Transform t2 = { {-3, 0, -10}, mesh };
-	Transform t3 = { pos2, mesh };
+	Model t(pos1, mesh);
+	Model t2({ -3, 0, -10 }, mesh);
+	Model t3(pos2, mesh);
+
 	objects.push_back(t);
 	objects.push_back(t2);
 	objects.push_back(t3);
@@ -320,10 +300,10 @@ int main()
 		renderer.Clear();
 
 		// Draw call
-		for (Transform& t : objects)
+		for (Model& t : objects)
 		{
 			//t.model = glm::translate(glm::mat4(1), t.position);
-			shader.SetProjectionMatrix(proj * viewMatrix * t.GetMatrix());
+			shader.SetProjectionMatrix(proj * viewMatrix * t.LocalToWorld());
 			renderer.DrawMesh(t.mesh);
 		}
 

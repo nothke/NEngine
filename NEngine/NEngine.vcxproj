@@ -160,6 +160,7 @@
     <ClInclude Include="GLAssert.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="ModelReader.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
