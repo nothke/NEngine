@@ -26,27 +26,6 @@
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
 #define LOGV2(x) std::cout << x[0] << ", " << x[1] << std::endl
 
-#define ASSERT(x) if (!(x)) __debugbreak();
-#define GLCall(x) GLClearError();\
-	x;\
-	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-
-static void GLClearError()
-{
-	while (glGetError() != GL_NO_ERROR);
-}
-
-static bool GLLogCall(const char* function, const char* file, int line)
-{
-	while (GLenum error = glGetError())
-	{
-		std::cout << "[OpenGL Error] (" << error << ") " << function <<
-			" " << file << ":" << line << std::endl;
-		return false;
-	}
-	return true;
-}
-
 bool mouseView = true;
 
 Window gameWindow;
