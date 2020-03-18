@@ -23,6 +23,8 @@
 #include <windows.h>
 #endif
 
+//#define USE_GUI
+
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
 #define LOGV2(x) std::cout << x[0] << ", " << x[1] << std::endl
@@ -122,11 +124,13 @@ void RebuildEverything()
 
 	proj = glm::perspective(glm::radians(90.0f), gameWindow.aspectRatio, 0.1f, 1000.0f);
 
+#ifdef USE_GUI
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 
 	ImGui_ImplGlfw_InitForOpenGL(gameWindow.window, true);
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
+#endif
 }
 
 bool KeyPressed(int key)
@@ -159,6 +163,7 @@ int main()
 	LOG(glGetString(GL_VERSION));
 
 #pragma region
+#ifdef USE_GUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	//ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -169,6 +174,7 @@ int main()
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 
 	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+#endif
 #pragma endregion ImGui initialize
 
 	// Get vertices and indices from file
@@ -245,9 +251,9 @@ int main()
 	//objects.push_back(t2);
 	objects.push_back(t3);
 
-	for (size_t y = 0; y < 50; y++)
+	for (size_t y = 0; y < 80; y++)
 	{
-		for (size_t x = 0; x < 50; x++)
+		for (size_t x = 0; x < 80; x++)
 		{
 			Model m({ x * 2, y * 2, -10 }, mesh);
 			objects.push_back(m);
@@ -335,14 +341,14 @@ int main()
 		shader.SetFloat("_Range", shader_range);
 
 		// imgui
-#pragma region
+		bool applyResolution = false;
+#ifdef USE_GUI
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
 		//ImGui::ShowDemoWindow();
 
-		bool applyResolution = false;
 		{
 			ImGui::Begin("So Pro");
 
@@ -363,7 +369,7 @@ int main()
 			ImGui::Checkbox("Fullscreen", &gameWindow.fullscreen);
 
 			// Analitics
-			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, dt * 60 * 60, ImGui::GetIO().Framerate);
+			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, 1.0f / dt, ImGui::GetIO().Framerate);
 			ImGui::Text("Mesh: vertices: %i, indices: %i", mesh.vertexCount, mesh.indexCount);
 
 			//ImGui::Text("FW: %i, %i", fullscreenWidth, fullscreenHeight);
@@ -373,7 +379,9 @@ int main()
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#pragma endregion ImGui
+#endif
+
+		LOG(1.0f / dt);
 
 		gameWindow.SwapBuffers();
 
@@ -384,12 +392,14 @@ int main()
 		}
 	}
 
+#ifdef USE_GUI
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+#endif
 
 	shader.Delete();
 
 	glfwTerminate();
 	return 0;
-}
+	}
