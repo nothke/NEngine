@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <glm/gtc/type_ptr.hpp>
+#include "GLAssert.h"
 
 #define LOG(x) std::cout << x << std::endl
 
@@ -81,7 +82,7 @@ void Shader::SetVPMatrix(const glm::mat4& matrix) const
 }
 void Shader::SetMMatrix(const glm::mat4& matrix) const
 {
-	glUniformMatrix4fv(loc_M, 1, GL_FALSE, glm::value_ptr(matrix));
+	GLCall(glUniformMatrix4fv(loc_M, 1, GL_FALSE, glm::value_ptr(matrix)));
 }
 
 inline void Shader::SetFloat(unsigned int program, const char * name, const float& f)

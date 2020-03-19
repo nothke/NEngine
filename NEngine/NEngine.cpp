@@ -325,6 +325,7 @@ int main()
 		const glm::mat4 inv = glm::inverse(viewMatrix);
 		const glm::vec3 right = -glm::normalize(inv[0]);
 		glm::vec3 forward = -glm::normalize(inv[2]);
+		// Constrain to horizontal plane (walking):
 		//forward.y = 0;
 		//forward = glm::normalize(forward);
 
@@ -396,8 +397,6 @@ int main()
 				ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, 1.0f / dt, ImGui::GetIO().Framerate);
 				ImGui::Text("Mesh: vertices: %i, indices: %i", mesh.vertexCount, mesh.indexCount);
 
-				//ImGui::Text("FW: %i, %i", fullscreenWidth, fullscreenHeight);
-
 				ImGui::End();
 			}
 
@@ -405,8 +404,6 @@ int main()
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
 #endif
-
-		//LOG(1.0f / dt);
 
 		gameWindow.SwapBuffers();
 
