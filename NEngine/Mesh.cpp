@@ -1,8 +1,8 @@
 #include "Mesh.h"
 #include "GLAssert.h"
-
 #define GLEW_STATIC
 #include "GL/glew.h"
+#include "meshoptimizer.h"
 
 void Mesh::Bind()
 {
@@ -37,6 +37,9 @@ void Mesh::Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indi
 
 	vertexCount = vertVector.size();
 	indexCount = indicesVector.size();
+
+	std::vector<unsigned int> remap(indexCount);
+	meshopt_generateVertexRemap(&remap[0], NULL, indexCount, &vertices[0], indexCount, sizeof(Vertex));
 }
 
 Mesh::Mesh()
