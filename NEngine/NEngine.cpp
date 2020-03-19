@@ -159,7 +159,7 @@ int main()
 {
 	// TODO: Parse command line arguments
 
-	Instrumentor::Instance().beginSession("Game Session");
+	Instrumentor::Instance().beginSession("Game Session", "../results.json");
 
 	if (gameWindow.Initialize() != 0)
 		return -1;
