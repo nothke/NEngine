@@ -47,39 +47,6 @@ float cameraSpeed = 1;
 
 bool quitKeyPressed = false;
 
-class Timer
-{
-public:
-	Timer()
-	{
-		startTime = std::chrono::high_resolution_clock::now();
-
-	}
-
-	~Timer()
-	{
-		//Stop();
-	}
-
-	void Stop(const char* text)
-	{
-		using namespace std::chrono;
-
-		auto endTime = high_resolution_clock::now();
-
-		auto start = time_point_cast<microseconds>(startTime).time_since_epoch().count();
-		auto end = time_point_cast<microseconds>(endTime).time_since_epoch().count();
-
-		auto dur = end - start;
-		double durd = dur * 0.001;
-
-		std::cout << text << ": " << durd << " ms" << std::endl;
-	}
-
-private:
-	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
-};
-
 void LockMouse(bool b)
 {
 	if (b)
@@ -312,8 +279,6 @@ int main()
 	{
 		PROFILE_SCOPE("Game Loop");
 
-		Timer timer_pre;
-
 		// Time
 		const float time = glfwGetTime();
 		const float dt = time - lastFrameTime;
@@ -374,23 +339,13 @@ int main()
 		mat4 vpMatrix = proj * viewMatrix;
 		shader.SetVPMatrix(vpMatrix);
 
-		timer_pre.Stop("Pre draw stuff");
-
-		{
-			PROFILE_SCOPE("Matrix");
-			for (Model& t : objects)
-			{
-				shader.SetMMatrix(t.LocalToWorld());
-			}
-		}
-
 		// Draw calls
 		{
 			PROFILE_SCOPE("Draw");
 
 			for (Model& t : objects)
 			{
-				//shader.SetMMatrix(t.LocalToWorld());
+				shader.SetMMatrix(t.LocalToWorld());
 				renderer.DrawMesh(t.mesh);
 			}
 		}
