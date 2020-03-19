@@ -5,8 +5,8 @@ class Renderer
 {
 public:
 	void Init();
-	void Clear();
-	void DrawMesh(Mesh& mesh);
+	void Clear() const;
+	void DrawMesh(const Mesh& mesh); //const;
 
 	Renderer();
 	~Renderer();

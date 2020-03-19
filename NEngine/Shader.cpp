@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <fstream>
 #include <sstream>
+#include <glm/gtc/type_ptr.hpp>
 
 #define LOG(x) std::cout << x << std::endl
 
@@ -61,26 +62,26 @@ unsigned int Shader::CreateShader(
 	return program;
 }
 
-void Shader::Bind()
+void Shader::Bind() const
 {
 	glUseProgram(program);
 }
 
-void Shader::SetFloat(const char * name, const float& f)
+void Shader::SetFloat(const char * name, const float& f) const
 {
 	SetFloat(program, name, f);
 }
-void Shader::SetVector(const char * name, const glm::vec4& v)
+void Shader::SetVector(const char * name, const glm::vec4& v) const
 {
 	SetVector(program, name, v);
 }
-void Shader::SetVPMatrix(const glm::mat4& matrix)
+void Shader::SetVPMatrix(const glm::mat4& matrix) const
 {
 	SetProjectionMatrix(program, matrix);
 }
-void Shader::SetMMatrix(const glm::mat4& matrix)
+void Shader::SetMMatrix(const glm::mat4& matrix) const
 {
-	glUniformMatrix4fv(loc_M, 1, GL_FALSE, &matrix[0][0]);
+	glUniformMatrix4fv(loc_M, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 inline void Shader::SetFloat(unsigned int program, const char * name, const float& f)

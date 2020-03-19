@@ -11,12 +11,12 @@ void Renderer::Init()
 	GLCall(glClearColor(60.0f / 255, 195.0f / 255, 1, 1));
 }
 
-void Renderer::Clear()
+void Renderer::Clear() const
 {
 	GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
-void Renderer::DrawMesh(Mesh & mesh)
+void Renderer::DrawMesh(const Mesh& mesh) //const
 {
 	GLCall(glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, nullptr));
 }

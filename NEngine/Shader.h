@@ -24,12 +24,12 @@ class Shader
 	Shader();
 
 public:
-	void SetFloat(const char* name, const float& f);
-	void SetVector(const char* name, const glm::vec4& v);
-	void SetVPMatrix(const glm::mat4 & matrix);
-	void SetMMatrix(const glm::mat4 & matrix);
+	void SetFloat(const char* name, const float& f) const;
+	void SetVector(const char* name, const glm::vec4& v) const;
+	void SetVPMatrix(const glm::mat4 & matrix) const;
+	void SetMMatrix(const glm::mat4 & matrix) const;
 
-	void Bind();
+	void Bind() const;
 
 	static unsigned int CreateVertexColorShader();
 
