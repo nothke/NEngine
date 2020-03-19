@@ -10,6 +10,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include <chrono>
 
 #include "Window.h"
 #include "Mesh.h"
@@ -17,13 +18,14 @@
 #include "Conversion.h"
 #include "Log.h"
 #include "Model.h"
+#include "instrumentor.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
 #include <windows.h>
 #endif
 
-//#define USE_GUI
+#define USE_GUI
 
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
@@ -42,6 +44,41 @@ glm::ivec2 targetResolution = { 1024, 768 };
 
 float cameraSpeedInput = 1;
 float cameraSpeed = 1;
+
+bool quitKeyPressed = false;
+
+class Timer
+{
+public:
+	Timer()
+	{
+		startTime = std::chrono::high_resolution_clock::now();
+
+	}
+
+	~Timer()
+	{
+		//Stop();
+	}
+
+	void Stop(const char* text)
+	{
+		using namespace std::chrono;
+
+		auto endTime = high_resolution_clock::now();
+
+		auto start = time_point_cast<microseconds>(startTime).time_since_epoch().count();
+		auto end = time_point_cast<microseconds>(endTime).time_since_epoch().count();
+
+		auto dur = end - start;
+		double durd = dur * 0.001;
+
+		std::cout << text << ": " << durd << " ms" << std::endl;
+	}
+
+private:
+	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
+};
 
 void LockMouse(bool b)
 {
@@ -84,6 +121,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		case GLFW_KEY_ENTER:
 			gameWindow.ToggleFullscreen();
 			RebuildEverything();
+
+			break;
+		case GLFW_KEY_ESCAPE:
+			quitKeyPressed = true;
 
 			break;
 		}
@@ -150,6 +191,8 @@ int main()
 #endif
 {
 	// TODO: Parse command line arguments
+
+	Instrumentor::Instance().beginSession("Game Session");
 
 	if (gameWindow.Initialize() != 0)
 		return -1;
@@ -251,9 +294,13 @@ int main()
 	//objects.push_back(t2);
 	objects.push_back(t3);
 
-	for (size_t y = 0; y < 80; y++)
+
+
+	const int monkeys = 80;
+	for (size_t y = 0; y < monkeys; y++)
 	{
-		for (size_t x = 0; x < 80; x++)
+		//InstrumentationTimer timer11("Shoot");
+		for (size_t x = 0; x < monkeys; x++)
 		{
 			Model m({ x * 2, y * 2, -10 }, mesh);
 			objects.push_back(m);
@@ -263,14 +310,18 @@ int main()
 	// GAME LOOP
 	while (!glfwWindowShouldClose(gameWindow.window))
 	{
+		PROFILE_SCOPE("Game Loop");
+
+		Timer timer_pre;
+
 		// Time
 		const float time = glfwGetTime();
 		const float dt = time - lastFrameTime;
 
-		pos2.y = sin(time * 2) * 2;
-		objects[1].SetPosition(pos2);
-		objects[1].SetRotation(vec3(time * 3, 0, 0));
-		objects[1].SetScale(vec3(2, 2, 2));
+		//pos2.y = sin(time * 2) * 2;
+		//objects[1].SetPosition(pos2);
+		//objects[1].SetRotation(vec3(time * 3, 0, 0));
+		//objects[1].SetScale(vec3(2, 2, 2));
 		//objects[1].SetScale(2);
 
 		// Input
@@ -279,8 +330,7 @@ int main()
 		playerInput.x = KeyPressed(GLFW_KEY_A) ? -1 : KeyPressed(GLFW_KEY_D) ? 1 : 0;
 		playerInput.y = KeyPressed(GLFW_KEY_W) ? -1 : KeyPressed(GLFW_KEY_S) ? 1 : 0;
 
-		if (KeyPressed(GLFW_KEY_ESCAPE))
-			break;
+
 
 		double mousePosX, mousePosY;
 		glfwGetCursorPos(gameWindow.window, &mousePosX, &mousePosY);
@@ -324,12 +374,25 @@ int main()
 		mat4 vpMatrix = proj * viewMatrix;
 		shader.SetVPMatrix(vpMatrix);
 
-		// Draw calls
-		for (Model& t : objects)
+		timer_pre.Stop("Pre draw stuff");
+
 		{
-			//shader.SetVPMatrix(t.LocalToWorld());
-			shader.SetMMatrix(t.LocalToWorld());
-			renderer.DrawMesh(t.mesh);
+			PROFILE_SCOPE("Matrix");
+			for (Model& t : objects)
+			{
+				shader.SetMMatrix(t.LocalToWorld());
+			}
+		}
+
+		// Draw calls
+		{
+			PROFILE_SCOPE("Draw");
+
+			for (Model& t : objects)
+			{
+				//shader.SetMMatrix(t.LocalToWorld());
+				renderer.DrawMesh(t.mesh);
+			}
 		}
 
 		// imgui read values
@@ -345,53 +408,64 @@ int main()
 		// imgui
 		bool applyResolution = false;
 #ifdef USE_GUI
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		//ImGui::ShowDemoWindow();
-
 		{
-			ImGui::Begin("So Pro");
+			PROFILE_SCOPE("ImGui");
 
-			ImGui::ColorEdit3("color 1", (float*)&color1);
-			ImGui::ColorEdit3("color 2", (float*)&color2);
-			ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
-			ImGui::SliderFloat("Range", &shader_range, 0, 2);
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
 
-			ImGui::DragFloat3("Yaya", &pos1[0], 0.01f, 0, 1);
+			//ImGui::ShowDemoWindow();
 
-			ImGui::DragInt2("Resolution", &targetResolution[0], 4);
-			if (ImGui::Button("Apply"))
 			{
-				applyResolution = true;
+				ImGui::Begin("So Pro");
+
+				ImGui::ColorEdit3("color 1", (float*)&color1);
+				ImGui::ColorEdit3("color 2", (float*)&color2);
+				ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
+				ImGui::SliderFloat("Range", &shader_range, 0, 2);
+
+				ImGui::DragFloat3("Yaya", &pos1[0], 0.01f, 0, 1);
+
+				ImGui::Text("Window");
+				ImGui::DragInt2("Resolution", &targetResolution[0], 4);
+				if (ImGui::Button("Apply"))
+				{
+					applyResolution = true;
+				}
+
+				ImGui::SameLine();
+				ImGui::Checkbox("Fullscreen", &gameWindow.fullscreen);
+
+				// Analitics
+				ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, 1.0f / dt, ImGui::GetIO().Framerate);
+				ImGui::Text("Mesh: vertices: %i, indices: %i", mesh.vertexCount, mesh.indexCount);
+
+				//ImGui::Text("FW: %i, %i", fullscreenWidth, fullscreenHeight);
+
+				ImGui::End();
 			}
 
-			ImGui::SameLine();
-			ImGui::Checkbox("Fullscreen", &gameWindow.fullscreen);
-
-			// Analitics
-			ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, 1.0f / dt, ImGui::GetIO().Framerate);
-			ImGui::Text("Mesh: vertices: %i, indices: %i", mesh.vertexCount, mesh.indexCount);
-
-			//ImGui::Text("FW: %i, %i", fullscreenWidth, fullscreenHeight);
-
-			ImGui::End();
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
-
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #endif
 
-		LOG(1.0f / dt);
+		//LOG(1.0f / dt);
 
-		gameWindow.SwapBuffers();
+		{
+			PROFILE_SCOPE("Swap Buffers");
+			gameWindow.SwapBuffers();
+		}
 
 		if (applyResolution)
 		{
 			gameWindow.ChangeResolution(targetResolution.x, targetResolution.y);
 			RebuildEverything();
 		}
+
+		if (quitKeyPressed)
+			break;
 	}
 
 #ifdef USE_GUI
@@ -403,5 +477,8 @@ int main()
 	shader.Delete();
 
 	glfwTerminate();
+
+	Instrumentor::Instance().endSession();
+
 	return 0;
 }
