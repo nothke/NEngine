@@ -4,6 +4,7 @@
 //#include <GL/glew.h>
 //#endif
 #include <GLFW/glfw3.h>
+#include <instrumentor.h>
 
 #define LOG(x) std::cout << x << std::endl
 
@@ -87,6 +88,7 @@ int Window::Initialize()
 
 void Window::SwapBuffers()
 {
+	PROFILE_FUNCTION();
 	glfwSwapBuffers(window);
 }
 

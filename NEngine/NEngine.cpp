@@ -408,10 +408,7 @@ int main()
 
 		//LOG(1.0f / dt);
 
-		{
-			PROFILE_SCOPE("Swap Buffers");
-			gameWindow.SwapBuffers();
-		}
+		gameWindow.SwapBuffers();
 
 		if (applyResolution)
 		{
