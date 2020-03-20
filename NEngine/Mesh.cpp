@@ -49,6 +49,12 @@ void Mesh::Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indi
 	// 2. Vertex cache optimization
 	meshopt_optimizeVertexCache(&resultIndices[0], &resultIndices[0], ic, vc);
 
+	// 3. Overdraw optimization
+	//meshopt_optimizeOverdraw(&resultIndices[0], &resultIndices[0], ic, &resultVertices[0].posx,  vertex_count, sizeof(Vertex), 1.05f);
+
+	// 4. Vertex fetch optimization
+	meshopt_optimizeVertexFetch(&resultVertices[0], &resultIndices[0], ic, &resultVertices[0], vc, sizeof(Vertex));
+
 	vertVector = resultVertices;
 	indicesVector = resultIndices;
 
