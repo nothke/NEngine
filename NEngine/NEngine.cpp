@@ -196,7 +196,7 @@ int main()
 	// Mesh
 	Mesh mesh;
 	mesh.Init(vertVector, indicesVector);
-	//mesh.Simplify(0.2f); // not working
+	mesh.Simplify(0.2f);
 	mesh.Bind();
 	meshes.push_back(mesh);
 

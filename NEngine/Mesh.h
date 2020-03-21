@@ -5,9 +5,10 @@
 
 struct Mesh
 {
-	Vertex* vertices;
-	unsigned int* indices;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
 
+	// TODO: remove
 	int vertexCount;
 	int indexCount;
 
