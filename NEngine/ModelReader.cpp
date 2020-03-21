@@ -133,8 +133,8 @@ int ModelReader::Get(const char* path, std::vector<Vertex>& vertices, std::vecto
 				}
 
 				// duplicate for the last piece, because loop ends, not very nice
-				float f = std::stoi(str);
-				LOG("----- i2: " << f); tri[2] = f;
+				int i = std::stoi(str);
+				LOG("----- i2: " << i); tri[2] = i;
 
 				indices.push_back(tri[0]);
 				indices.push_back(tri[1]);

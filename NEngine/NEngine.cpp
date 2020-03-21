@@ -102,7 +102,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	if (yoffset != 0)
 	{
-		cameraSpeedInput += yoffset * 0.1f;
+		cameraSpeedInput += (float)(yoffset * 0.1f);
 		cameraSpeed = exp(cameraSpeedInput);
 	}
 }
@@ -196,7 +196,6 @@ int main()
 	// Mesh
 	Mesh mesh;
 	mesh.Init(vertVector, indicesVector);
-	mesh.Simplify(0.2f);
 	mesh.Bind();
 	meshes.push_back(mesh);
 
@@ -219,7 +218,6 @@ int main()
 
 	glm::vec3 camPos = { 0, 0, 0 };
 	glm::vec2 playerInput;
-	glm::vec2 lastMouse;
 	glm::vec2 rotation = glm::vec2(0, 0);
 	glm::vec2 lastMousePos;
 
@@ -231,7 +229,7 @@ int main()
 	}
 
 	// Timing
-	float lastFrameTime = glfwGetTime();
+	double lastFrameTime = glfwGetTime();
 	LOG("Frame " << lastFrameTime);
 
 	// Matrix
@@ -279,8 +277,8 @@ int main()
 		PROFILE_SCOPE("Game Loop");
 
 		// Time
-		const float time = glfwGetTime();
-		const float dt = time - lastFrameTime;
+		const double time = glfwGetTime();
+		const float dt = (float)(time - lastFrameTime);
 
 		//pos2.y = sin(time * 2) * 2;
 		//objects[1].SetPosition(pos2);
@@ -291,8 +289,8 @@ int main()
 		// Input
 		glfwPollEvents();
 
-		playerInput.x = KeyPressed(GLFW_KEY_A) ? -1 : KeyPressed(GLFW_KEY_D) ? 1 : 0;
-		playerInput.y = KeyPressed(GLFW_KEY_W) ? -1 : KeyPressed(GLFW_KEY_S) ? 1 : 0;
+		playerInput.x = (float)(KeyPressed(GLFW_KEY_A) ? -1 : KeyPressed(GLFW_KEY_D) ? 1 : 0);
+		playerInput.y = (float)(KeyPressed(GLFW_KEY_W) ? -1 : KeyPressed(GLFW_KEY_S) ? 1 : 0);
 
 		double mousePosX, mousePosY;
 		glfwGetCursorPos(gameWindow.window, &mousePosX, &mousePosY);

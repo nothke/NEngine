@@ -1,6 +1,5 @@
 #include "Mesh.h"
 #include "GLAssert.h"
-#define GLEW_STATIC
 #include "GL/glew.h"
 #include "meshoptimizer/meshoptimizer.h"
 
@@ -41,6 +40,17 @@ void Mesh::Simplify(float threshold, float target_error)
 	lod.resize(meshopt_simplify(&lod[0], &indices[0], indexCount, &vertices[0].posx, vertexCount, sizeof(Vertex), target_index_count, target_error));
 
 	// This should not work but it does
+	indices = lod;
+	indexCount = target_index_count;
+}
+
+void Mesh::SimplifySloppy(float threshold)
+{
+	size_t target_index_count = size_t(indexCount * threshold);
+
+	std::vector<unsigned int> lod(target_index_count);
+	lod.resize(meshopt_simplifySloppy(&lod[0], &indices[0], indexCount, &vertices[0].posx, vertexCount, sizeof(Vertex), target_index_count));
+
 	indices = lod;
 	indexCount = target_index_count;
 }
@@ -87,12 +97,4 @@ void Mesh::Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indi
 
 	vertexCount = vertices.size();
 	indexCount = indices.size();
-}
-
-Mesh::Mesh()
-{
-}
-
-Mesh::~Mesh()
-{
 }

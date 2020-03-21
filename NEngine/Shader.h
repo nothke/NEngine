@@ -21,8 +21,6 @@ class Shader
 	static unsigned int CompileShader(unsigned int type, const std::string & source);
 	static unsigned int CreateShader(const std::string & vert, const std::string & frag);
 
-	Shader();
-
 public:
 	void SetFloat(const char* name, const float& f) const;
 	void SetVector(const char* name, const glm::vec4& v) const;
