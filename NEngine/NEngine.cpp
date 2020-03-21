@@ -251,7 +251,6 @@ int main()
 		for (size_t x = 0; x < monkeys; x++)
 		{
 			Model m({ x * 2, y * 2, -10 }, mesh);
-			m.LocalToWorld();
 			objects.push_back(m);
 		}
 	}
@@ -287,7 +286,7 @@ int main()
 
 		if (mouseView)
 		{
-			glm::vec2 delta = mouseDelta * mouseSensitivity * dt;
+			glm::vec2 delta = mouseDelta * mouseSensitivity * (1.0f / 60.0f);
 			rotation += delta;
 		}
 
