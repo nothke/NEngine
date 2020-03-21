@@ -1,6 +1,8 @@
 #include "pch.h"
 #include <iostream>
+//#define GLEW_STATIC
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "Shader.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -8,8 +10,6 @@
 #include "Vertex.h"
 #include <vector>
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
 #include <chrono>
 
 #include "Application.h"
@@ -166,14 +166,6 @@ int main()
 	Instrumentor::Instance().beginSession("Game Session", "../results.json");
 
 	if (app.Init()) return -1;
-
-	if (glewInit() != GLEW_OK)
-	{
-		LOG("GLEW not inited correctly");
-		return -1;
-	}
-
-	LOG(glGetString(GL_VERSION));
 
 #ifdef USE_GUI
 	GUI::Init(app.window);

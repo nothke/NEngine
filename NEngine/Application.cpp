@@ -1,8 +1,6 @@
 #include "Application.h"
 #include <iostream>
-//#ifndef __glew_h__ // FUCK THIS
-//#include <GL/glew.h>
-//#endif
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <instrumentor.h>
 
@@ -39,6 +37,7 @@ int Application::CreateWindow()
 
 	glfwMakeContextCurrent(window);
 
+	// VSync
 	glfwSwapInterval(0);
 
 	return 0;
@@ -79,10 +78,16 @@ int Application::Init()
 		return -1;
 	}
 
-	//glfwSwapInterval(1); // Enable vsync
-
 	if (CreateWindow())
 		return -1;
+
+	if (glewInit() != GLEW_OK)
+	{
+		LOG("GLEW not inited correctly");
+		return -1;
+	}
+
+	LOG(glGetString(GL_VERSION));
 
 	return 0;
 }
