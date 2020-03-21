@@ -97,3 +97,8 @@ void Application::SwapBuffers()
 	PROFILE_FUNCTION();
 	glfwSwapBuffers(window);
 }
+
+void Application::Terminate()
+{
+	glfwTerminate();
+}

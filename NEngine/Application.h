@@ -22,6 +22,7 @@ public:
 	void ChangeResolution(int newWidth, int newHeight);
 	int Init();
 	void SwapBuffers();
+	void Terminate();
 
 private:
 	int CreateWindow();

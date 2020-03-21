@@ -111,6 +111,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void InitInputCallbacks()
 {
+	//glfwSetInputMode(gameWindow.window, GLFW_STICKY_KEYS, GLFW_TRUE);
 	glfwSetKeyCallback(app.window, key_callback);
 	glfwSetScrollCallback(app.window, scroll_callback);
 }
@@ -194,7 +195,6 @@ int main()
 
 	// FPS input setup
 	InitInputCallbacks();
-	//glfwSetInputMode(gameWindow.window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
 	LockMouse(true);
 
@@ -264,11 +264,11 @@ int main()
 		const float dt = (float)(time - lastFrameTime);
 		lastFrameTime = time;
 
-		//pos2.y = sin(time * 2) * 2;
-		//objects[1].SetPosition(pos2);
-		//objects[1].SetRotation(vec3(time * 3, 0, 0));
-		//objects[1].SetScale(vec3(2, 2, 2));
-		//objects[1].SetScale(2);
+		pos2.y = sin(time * 2) * 2;
+		objects[1].SetPosition(pos2);
+		objects[1].SetRotation(vec3(time * 3, 0, 0));
+		objects[1].SetScale(vec3(2, 2, 2));
+		objects[1].SetScale(2);
 
 		// Input
 		glfwPollEvents();
@@ -384,7 +384,7 @@ int main()
 
 	shader.Delete();
 
-	glfwTerminate();
+	app.Terminate();
 
 	Instrumentor::Instance().endSession();
 
