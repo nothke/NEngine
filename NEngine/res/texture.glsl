@@ -8,6 +8,7 @@ layout(location = 2) in vec4 color; // layout(location = 3)
 
 uniform mat4 _VP;
 uniform mat4 _M;
+uniform vec4 _CamPos;
 
 out vec4 v_color;
 out vec2 v_uv;
@@ -16,7 +17,9 @@ void main(){
 	mat4 mvp = _VP * _M;
 	gl_Position = mvp * position;
 
-	v_color = color;
+	vec3 worldPos = position.xyz; // TODO: to world
+	float fog = length(-_CamPos.xyz - worldPos) * 0.05;
+	v_color = vec4(v_color.rgb, fog);
 	v_uv = uv;
 }
 
@@ -31,5 +34,5 @@ out vec4 col;
 uniform sampler2D _Texture;
 
 void main(){
-	col = texture(_Texture, v_uv) * v_color;
+	col = mix(texture(_Texture, v_uv), vec4(1), v_color.r);
 }

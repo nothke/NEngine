@@ -324,6 +324,7 @@ int main()
 		renderer.Clear();
 
 		shader.SetVPMatrix(camera.vp);
+		shader.SetVector("_CamPos", vec4(camera.position, 1));
 		Frustum frustum = Frustum(camera.vp);
 
 		// Draw calls
