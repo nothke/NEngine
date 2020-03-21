@@ -196,6 +196,7 @@ int main()
 	// Mesh
 	Mesh mesh;
 	mesh.Init(vertVector, indicesVector);
+	//mesh.Simplify(0.2f); // not working
 	mesh.Bind();
 	meshes.push_back(mesh);
 
@@ -261,8 +262,6 @@ int main()
 	//objects.push_back(t2);
 	objects.push_back(t3);
 
-
-
 	const int monkeys = 80;
 	for (size_t y = 0; y < monkeys; y++)
 	{
@@ -294,8 +293,6 @@ int main()
 
 		playerInput.x = KeyPressed(GLFW_KEY_A) ? -1 : KeyPressed(GLFW_KEY_D) ? 1 : 0;
 		playerInput.y = KeyPressed(GLFW_KEY_W) ? -1 : KeyPressed(GLFW_KEY_S) ? 1 : 0;
-
-
 
 		double mousePosX, mousePosY;
 		glfwGetCursorPos(gameWindow.window, &mousePosX, &mousePosY);

@@ -13,7 +13,9 @@ struct Mesh
 
 	void Bind();
 
-	void Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector);
+	void Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector, bool optimizeVertexCache = true);
+	void Simplify(float threshold, float target_error = 1e-2f);
+	//void SimplifySloppy();
 
 	Mesh();
 	~Mesh();
