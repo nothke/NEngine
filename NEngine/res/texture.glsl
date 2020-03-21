@@ -32,7 +32,10 @@ in vec2 v_uv;
 out vec4 col;
 
 uniform sampler2D _Texture;
+uniform vec4 _InputColor1;
+uniform vec4 _InputColor2;
 
 void main(){
-	col = mix(texture(_Texture, v_uv), vec4(1), v_color.r);
+	//vec4 tex = texture(_Texture, v_uv);
+	col = mix(_InputColor1, _InputColor2, v_color.rgba);
 }

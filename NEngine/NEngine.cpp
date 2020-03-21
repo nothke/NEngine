@@ -192,7 +192,7 @@ int main()
 
 	// Mesh
 	Mesh mesh;
-	mesh.Init(vertVector, indicesVector, false);
+	mesh.Init(vertVector, indicesVector, true);
 	mesh.Bind();
 	meshes.push_back(mesh);
 
@@ -321,7 +321,7 @@ int main()
 		camera.Update();
 
 		// Rendering
-		renderer.Clear();
+		renderer.Clear(from(color1));
 
 		shader.SetVPMatrix(camera.vp);
 		shader.SetVector("_CamPos", vec4(camera.position, 1));
