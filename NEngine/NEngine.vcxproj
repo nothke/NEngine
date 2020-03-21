@@ -157,6 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="GLAssert.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Mesh.h" />

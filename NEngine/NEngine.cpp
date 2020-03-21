@@ -13,8 +13,9 @@
 #include <chrono>
 
 #include "Window.h"
-#include "Mesh.h"
 #include "Renderer.h"
+#include "Camera.h"
+#include "Mesh.h"
 #include "Conversion.h"
 #include "Log.h"
 #include "Model.h"
@@ -35,10 +36,10 @@ bool mouseView = true;
 
 Window gameWindow;
 Renderer renderer;
+Camera camera;
 
 std::vector<Shader> shaders;
 std::vector<Mesh> meshes;
-glm::mat4 proj;
 
 glm::ivec2 targetResolution = { 1024, 768 };
 
@@ -130,7 +131,7 @@ void RebuildEverything()
 
 	InitInputCallbacks();
 
-	proj = glm::perspective(glm::radians(90.0f), gameWindow.aspectRatio, 0.1f, 1000.0f);
+	camera.SetProjection(90.0f, gameWindow.aspectRatio);
 
 #ifdef USE_GUI
 	ImGui_ImplOpenGL3_Shutdown();
@@ -232,8 +233,7 @@ int main()
 	double lastFrameTime = glfwGetTime();
 	LOG("Frame " << lastFrameTime);
 
-	// Matrix
-	proj = glm::perspective(glm::radians(90.0f), gameWindow.aspectRatio, 0.1f, 1000.0f);
+	camera.SetProjection(90.0f, gameWindow.aspectRatio);
 
 	const glm::vec3 RIGHT = glm::vec3(1, 0, 0);
 	const glm::vec3 UP = glm::vec3(0, 1, 0);
@@ -279,6 +279,7 @@ int main()
 		// Time
 		const double time = glfwGetTime();
 		const float dt = (float)(time - lastFrameTime);
+		lastFrameTime = time;
 
 		//pos2.y = sin(time * 2) * 2;
 		//objects[1].SetPosition(pos2);
@@ -308,32 +309,17 @@ int main()
 		const float rad90 = 1.56f;
 		rotation.y = glm::clamp(rotation.y, -rad90, rad90);
 
-		lastFrameTime = time;
-
 		// Camera
-		glm::mat4 viewMatrix = glm::mat4(1.0f);
+		camera.SetInputRotation(rotation);
 
-		viewMatrix = glm::rotate(viewMatrix, rotation.y, RIGHT);
-		viewMatrix = glm::rotate(viewMatrix, rotation.x, UP);
-
-		// camera forward and right
-		const glm::mat4 inv = glm::inverse(viewMatrix);
-		const glm::vec3 right = -glm::normalize(inv[0]);
-		glm::vec3 forward = -glm::normalize(inv[2]);
-		// Constrain to horizontal plane (walking):
-		//forward.y = 0;
-		//forward = glm::normalize(forward);
-
-		// Move camera
-		camPos += (forward * playerInput.y + right * playerInput.x) * dt * cameraSpeed;
-
-		viewMatrix = glm::translate(viewMatrix, camPos);
+		camera.UpdateRotation();
+		camera.MoveRelative(playerInput * dt * cameraSpeed);
+		camera.Update();
 
 		// Rendering
 		renderer.Clear();
 
-		mat4 vpMatrix = proj * viewMatrix;
-		shader.SetVPMatrix(vpMatrix);
+		shader.SetVPMatrix(camera.vp);
 
 		// Draw calls
 		{
