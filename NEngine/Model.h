@@ -55,8 +55,9 @@ struct Model
 		localToWorld = localToWorld * mat4_cast(rotation);
 		localToWorld = glm::scale(localToWorld, scale);
 
-		boundsMin = position - vec3(0.1f);
-		boundsMax = position + vec3(0.1f);
+		// TODO: 1000 is temp, make method to find bounds
+		boundsMin = position - vec3(1000);
+		boundsMax = position + vec3(1000);
 
 		isDirty = false;
 	}

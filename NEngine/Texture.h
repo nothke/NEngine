@@ -7,7 +7,10 @@
 class Texture
 {
 public:
-	Texture(const std::string& path)
+	enum Filtering { Nearest, Linear };
+	enum EdgeMode { Clamp, Wrap };
+
+	Texture(const std::string& path, Filtering filtering = Nearest, EdgeMode edgeMode = Clamp)
 		: id(0), filePath(path), buffer(nullptr), width(0), height(0), bbp(0)
 	{
 		stbi_set_flip_vertically_on_load(1);
@@ -17,10 +20,13 @@ public:
 		GLCall(glGenTextures(1, &id));
 		GLCall(glBindTexture(GL_TEXTURE_2D, id));
 
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)); // GL_LINEAR
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)); // GL_LINEAR
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+		auto _filtering = filtering == Nearest ? GL_NEAREST : GL_LINEAR;
+		auto _wrap = edgeMode == Clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _filtering)); // GL_LINEAR
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, _filtering)); // GL_LINEAR
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, _wrap));
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, _wrap));
 
 		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer));
 		// unbind

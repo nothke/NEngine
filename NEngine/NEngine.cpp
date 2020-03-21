@@ -187,7 +187,7 @@ int main()
 	// Get vertices and indices from file
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector;
-	if (ModelReader::LoadFromPly("../suza.ply", vertVector, indicesVector) != 0)
+	if (ModelReader::LoadFromPly("../plain.ply", vertVector, indicesVector) != 0)
 		return -1;
 
 	// Mesh
@@ -203,7 +203,7 @@ int main()
 	shader.Bind();
 
 	// Texture
-	Texture tex("../NEngine/res/grass.png");
+	Texture tex("../NEngine/res/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
 	textures.push_back(tex);
 	tex.Bind();
 	shader.SetInt("_Texture", 0);
@@ -254,12 +254,13 @@ int main()
 
 	Model t(pos1, mesh);
 	//Model t2({ -3, 0, -10 }, mesh);
-	Model t3(pos2, mesh);
+	//Model t3(pos2, mesh);
 
 	objects.push_back(t);
 	//objects.push_back(t2);
-	objects.push_back(t3);
+	//objects.push_back(t3);
 
+	/*
 	const int monkeys = 80;
 	for (size_t y = 0; y < monkeys; y++)
 	{
@@ -270,6 +271,7 @@ int main()
 			objects.push_back(m);
 		}
 	}
+	*/
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
@@ -281,11 +283,13 @@ int main()
 		const float dt = (float)(time - lastFrameTime);
 		lastFrameTime = time;
 
+		/*
 		pos2.y = sin(time * 2) * 2;
 		objects[1].SetPosition(pos2);
 		objects[1].SetRotation(vec3(time * 3, 0, 0));
 		objects[1].SetScale(vec3(2, 2, 2));
 		objects[1].SetScale(2);
+		*/
 
 		// Input
 		glfwPollEvents();
