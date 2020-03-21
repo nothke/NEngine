@@ -26,6 +26,7 @@ public:
 	void SetVector(const char* name, const glm::vec4& v) const;
 	void SetVPMatrix(const glm::mat4 & matrix) const;
 	void SetMMatrix(const glm::mat4 & matrix) const;
+	void SetInt(const char* name, int i) const;
 
 	void Bind() const;
 

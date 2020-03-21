@@ -85,6 +85,11 @@ void Shader::SetMMatrix(const glm::mat4& matrix) const
 	GLCall(glUniformMatrix4fv(loc_M, 1, GL_FALSE, glm::value_ptr(matrix)));
 }
 
+void Shader::SetInt(const char * name, int i) const
+{
+	glUniform1f(glGetUniformLocation(program, name), i);
+}
+
 inline void Shader::SetFloat(unsigned int program, const char * name, const float& f)
 {
 	glUniform1f(glGetUniformLocation(program, name), f);

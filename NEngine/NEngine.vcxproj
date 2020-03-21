@@ -168,6 +168,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Conversion.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="vendor\FrustumCull.h" />
     <ClInclude Include="vendor\imgui\imconfig.h" />
     <ClInclude Include="vendor\imgui\imgui.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="vendor\imgui\imstb_truetype.h" />
     <ClInclude Include="vendor\instrumentor.h" />
     <ClInclude Include="vendor\meshoptimizer\meshoptimizer.h" />
+    <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Application.h" />
   </ItemGroup>
@@ -215,6 +217,7 @@
     <ClCompile Include="vendor\meshoptimizer\vfetchanalyzer.cpp" />
     <ClCompile Include="vendor\meshoptimizer\vfetchoptimizer.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="vendor\stb_image\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\vertexcolor.glsl" />

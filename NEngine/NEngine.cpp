@@ -22,6 +22,7 @@
 #include "instrumentor.h"
 #include "GUI.h"
 #include "FrustumCull.h"
+#include "Texture.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -185,12 +186,17 @@ int main()
 	mesh.Bind();
 	meshes.push_back(mesh);
 
+	// Texture
+	Texture tex("../NEngine/res/grass.png");
+	tex.Bind();
+
 	// Shader
-	auto source = ShaderReader::Parse("../NEngine/res/vertexcolor.glsl");
+	auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
 	Shader shader = Shader(source);
 	shaders.push_back(shader);
-
 	shader.Bind();
+
+	shader.SetInt("_Texture", 0);
 
 	renderer.Init();
 
