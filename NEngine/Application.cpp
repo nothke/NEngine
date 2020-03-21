@@ -1,4 +1,4 @@
-#include "Window.h"
+#include "Application.h"
 #include <iostream>
 //#ifndef __glew_h__ // FUCK THIS
 //#include <GL/glew.h>
@@ -21,10 +21,10 @@ int Application::CreateWindow()
 	//fullscreenWidth = mode->width;
 	//fullscreenHeight = mode->height;
 
-	const float screenWidth = fullscreen ? mode->width : windowedWidth;
-	const float screenHeight = fullscreen ? mode->height : windowedHeight;
+	const int screenWidth = fullscreen ? mode->width : windowedWidth;
+	const int screenHeight = fullscreen ? mode->height : windowedHeight;
 
-	aspectRatio = screenWidth / screenHeight;
+	aspectRatio = (float)screenWidth / (float)screenHeight;
 
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
@@ -40,6 +40,8 @@ int Application::CreateWindow()
 	glfwMakeContextCurrent(window);
 
 	glfwSwapInterval(0);
+
+	return 0;
 }
 
 void Application::ToggleFullscreen()
@@ -67,16 +69,19 @@ void Application::ChangeResolution(int newWidth, int newHeight)
 	CreateWindow();
 }
 
-int Application::Initialize()
+int Application::Init()
 {
 	glfwSetErrorCallback(glfw_error_callback);
 
-	if (!glfwInit())
+	if (glfwInit() == GLFW_FALSE)
+	{
+		LOG("GLFW error");
 		return -1;
+	}
 
 	//glfwSwapInterval(1); // Enable vsync
 
-	if (!CreateWindow())
+	if (CreateWindow())
 		return -1;
 
 	return 0;

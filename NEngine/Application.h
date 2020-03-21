@@ -17,13 +17,9 @@ public:
 	float aspectRatio;
 
 	void ToggleFullscreen();
-
 	void SetFullscreen(bool b);
-
 	void ChangeResolution(int newWidth, int newHeight);
-
-	int Initialize();
-
+	int Init();
 	void SwapBuffers();
 
 private:

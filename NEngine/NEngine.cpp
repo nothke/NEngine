@@ -12,7 +12,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include <chrono>
 
-#include "Window.h"
+#include "Application.h"
 #include "Renderer.h"
 #include "Camera.h"
 #include "Mesh.h"
@@ -20,6 +20,7 @@
 #include "Log.h"
 #include "Model.h"
 #include "instrumentor.h"
+#include "GUI.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -134,11 +135,13 @@ void RebuildEverything()
 	camera.SetProjection(90.0f, app.aspectRatio);
 
 #ifdef USE_GUI
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
+	GUI::Shutdown();
+	//ImGui_ImplOpenGL3_Shutdown();
+	//ImGui_ImplGlfw_Shutdown();
 
-	ImGui_ImplGlfw_InitForOpenGL(app.window, true);
-	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
+	GUI::Init(app.window);
+	//ImGui_ImplGlfw_InitForOpenGL(app.window, true);
+	//ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 #endif
 }
 
@@ -162,8 +165,7 @@ int main()
 
 	Instrumentor::Instance().beginSession("Game Session", "../results.json");
 
-	if (app.Initialize() != 0)
-		return -1;
+	if (app.Init()) return -1;
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -173,20 +175,9 @@ int main()
 
 	LOG(glGetString(GL_VERSION));
 
-#pragma region
 #ifdef USE_GUI
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	//ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-	//ImGui::StyleColorsDark();
-
-	ImGui_ImplGlfw_InitForOpenGL(app.window, false);
-	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
-
-	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	GUI::Init(app.window);
 #endif
-#pragma endregion ImGui initialize
 
 	// Get vertices and indices from file
 	std::vector<unsigned int> indicesVector;
@@ -348,9 +339,7 @@ int main()
 		{
 			PROFILE_SCOPE("ImGui");
 
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
+			GUI::NewFrame();
 
 			//ImGui::ShowDemoWindow();
 
@@ -381,8 +370,7 @@ int main()
 				ImGui::End();
 			}
 
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			GUI::Render();
 		}
 #endif
 
@@ -399,9 +387,7 @@ int main()
 	}
 
 #ifdef USE_GUI
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
+	GUI::Shutdown();
 #endif
 
 	shader.Delete();

@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GLAssert.h" />
+    <ClInclude Include="GUI.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
@@ -178,7 +179,7 @@
     <ClInclude Include="vendor\instrumentor.h" />
     <ClInclude Include="vendor\meshoptimizer\meshoptimizer.h" />
     <ClInclude Include="Vertex.h" />
-    <ClInclude Include="Window.h" />
+    <ClInclude Include="Application.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp" />
@@ -212,7 +213,7 @@
     <ClCompile Include="vendor\meshoptimizer\vertexcodec.cpp" />
     <ClCompile Include="vendor\meshoptimizer\vfetchanalyzer.cpp" />
     <ClCompile Include="vendor\meshoptimizer\vfetchoptimizer.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Application.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\vertexcolor.glsl" />
