@@ -34,7 +34,7 @@
 
 bool mouseView = true;
 
-Window gameWindow;
+Application app;
 Renderer renderer;
 Camera camera;
 
@@ -52,17 +52,17 @@ void LockMouse(bool b)
 {
 	if (b)
 	{
-		glfwSetInputMode(gameWindow.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(app.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		if (glfwRawMouseMotionSupported())
-			glfwSetInputMode(gameWindow.window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+			glfwSetInputMode(app.window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 	}
 	else
 	{
-		glfwSetInputMode(gameWindow.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetInputMode(app.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 		if (glfwRawMouseMotionSupported())
-			glfwSetInputMode(gameWindow.window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+			glfwSetInputMode(app.window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
 	}
 }
 
@@ -87,7 +87,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 
 		case GLFW_KEY_ENTER:
-			gameWindow.ToggleFullscreen();
+			app.ToggleFullscreen();
 			RebuildEverything();
 
 			break;
@@ -110,8 +110,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void InitInputCallbacks()
 {
-	glfwSetKeyCallback(gameWindow.window, key_callback);
-	glfwSetScrollCallback(gameWindow.window, scroll_callback);
+	glfwSetKeyCallback(app.window, key_callback);
+	glfwSetScrollCallback(app.window, scroll_callback);
 }
 
 void RebuildEverything()
@@ -131,20 +131,20 @@ void RebuildEverything()
 
 	InitInputCallbacks();
 
-	camera.SetProjection(90.0f, gameWindow.aspectRatio);
+	camera.SetProjection(90.0f, app.aspectRatio);
 
 #ifdef USE_GUI
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 
-	ImGui_ImplGlfw_InitForOpenGL(gameWindow.window, true);
+	ImGui_ImplGlfw_InitForOpenGL(app.window, true);
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 #endif
 }
 
 bool KeyPressed(int key)
 {
-	int state = glfwGetKey(gameWindow.window, key);
+	int state = glfwGetKey(app.window, key);
 	return state == GLFW_PRESS;
 }
 
@@ -162,7 +162,7 @@ int main()
 
 	Instrumentor::Instance().beginSession("Game Session", "../results.json");
 
-	if (gameWindow.Initialize() != 0)
+	if (app.Initialize() != 0)
 		return -1;
 
 	if (glewInit() != GLEW_OK)
@@ -181,7 +181,7 @@ int main()
 
 	//ImGui::StyleColorsDark();
 
-	ImGui_ImplGlfw_InitForOpenGL(gameWindow.window, false);
+	ImGui_ImplGlfw_InitForOpenGL(app.window, false);
 	ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 
 	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -225,7 +225,7 @@ int main()
 	{
 		// Initialize mouse position
 		double lastMousePosX, lastMousePosY;
-		glfwGetCursorPos(gameWindow.window, &lastMousePosX, &lastMousePosY);
+		glfwGetCursorPos(app.window, &lastMousePosX, &lastMousePosY);
 		lastMousePos = glm::vec2(lastMousePosX, lastMousePosY);
 	}
 
@@ -233,7 +233,7 @@ int main()
 	double lastFrameTime = glfwGetTime();
 	LOG("Frame " << lastFrameTime);
 
-	camera.SetProjection(90.0f, gameWindow.aspectRatio);
+	camera.SetProjection(90.0f, app.aspectRatio);
 
 	const glm::vec3 RIGHT = glm::vec3(1, 0, 0);
 	const glm::vec3 UP = glm::vec3(0, 1, 0);
@@ -272,7 +272,7 @@ int main()
 	}
 
 	// GAME LOOP
-	while (!glfwWindowShouldClose(gameWindow.window))
+	while (!glfwWindowShouldClose(app.window))
 	{
 		PROFILE_SCOPE("Game Loop");
 
@@ -294,7 +294,7 @@ int main()
 		playerInput.y = (float)(KeyPressed(GLFW_KEY_W) ? -1 : KeyPressed(GLFW_KEY_S) ? 1 : 0);
 
 		double mousePosX, mousePosY;
-		glfwGetCursorPos(gameWindow.window, &mousePosX, &mousePosY);
+		glfwGetCursorPos(app.window, &mousePosX, &mousePosY);
 		auto mousePos = glm::vec2(mousePosX, mousePosY);
 
 		glm::vec2 mouseDelta = mousePos - lastMousePos;
@@ -372,7 +372,7 @@ int main()
 				}
 
 				ImGui::SameLine();
-				ImGui::Checkbox("Fullscreen", &gameWindow.fullscreen);
+				ImGui::Checkbox("Fullscreen", &app.fullscreen);
 
 				// Analitics
 				ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, 1.0f / dt, ImGui::GetIO().Framerate);
@@ -386,11 +386,11 @@ int main()
 		}
 #endif
 
-		gameWindow.SwapBuffers();
+		app.SwapBuffers();
 
 		if (applyResolution)
 		{
-			gameWindow.ChangeResolution(targetResolution.x, targetResolution.y);
+			app.ChangeResolution(targetResolution.x, targetResolution.y);
 			RebuildEverything();
 		}
 

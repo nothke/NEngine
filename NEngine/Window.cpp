@@ -8,16 +8,12 @@
 
 #define LOG(x) std::cout << x << std::endl
 
-Window::Window()
-{
-}
-
 static void glfw_error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int Window::CreateWindow()
+int Application::CreateWindow()
 {
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -46,14 +42,14 @@ int Window::CreateWindow()
 	glfwSwapInterval(0);
 }
 
-void Window::ToggleFullscreen()
+void Application::ToggleFullscreen()
 {
 	fullscreen = !fullscreen;
 
 	SetFullscreen(fullscreen);
 }
 
-void Window::SetFullscreen(bool b)
+void Application::SetFullscreen(bool b)
 {
 	fullscreen = b;
 
@@ -61,7 +57,7 @@ void Window::SetFullscreen(bool b)
 	CreateWindow();
 }
 
-void Window::ChangeResolution(int newWidth, int newHeight)
+void Application::ChangeResolution(int newWidth, int newHeight)
 {
 	glfwDestroyWindow(window);
 
@@ -71,7 +67,7 @@ void Window::ChangeResolution(int newWidth, int newHeight)
 	CreateWindow();
 }
 
-int Window::Initialize()
+int Application::Initialize()
 {
 	glfwSetErrorCallback(glfw_error_callback);
 
@@ -86,12 +82,8 @@ int Window::Initialize()
 	return 0;
 }
 
-void Window::SwapBuffers()
+void Application::SwapBuffers()
 {
 	PROFILE_FUNCTION();
 	glfwSwapBuffers(window);
-}
-
-Window::~Window()
-{
 }

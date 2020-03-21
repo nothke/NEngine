@@ -1,7 +1,7 @@
 #pragma once
 #include <GLFW/glfw3.h>
 
-class Window
+class Application
 {
 public:
 	GLFWwindow* window;
@@ -25,9 +25,6 @@ public:
 	int Initialize();
 
 	void SwapBuffers();
-
-	Window();
-	~Window();
 
 private:
 	int CreateWindow();
