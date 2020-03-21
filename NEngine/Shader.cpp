@@ -68,6 +68,8 @@ void Shader::Bind() const
 	glUseProgram(program);
 }
 
+// Local
+
 void Shader::SetFloat(const char * name, const float& f) const
 {
 	SetFloat(program, name, f);
@@ -87,22 +89,24 @@ void Shader::SetMMatrix(const glm::mat4& matrix) const
 
 void Shader::SetInt(const char * name, int i) const
 {
-	glUniform1f(glGetUniformLocation(program, name), i);
+	GLCall(glUniform1i(glGetUniformLocation(program, name), i));
 }
+
+// Static
 
 inline void Shader::SetFloat(unsigned int program, const char * name, const float& f)
 {
-	glUniform1f(glGetUniformLocation(program, name), f);
+	GLCall(glUniform1f(glGetUniformLocation(program, name), f));
 }
 
 inline void Shader::SetVector(unsigned int program, const char* name, const glm::vec4& v)
 {
-	glUniform4f(glGetUniformLocation(program, name), v.x, v.y, v.z, v.w);
+	GLCall(glUniform4f(glGetUniformLocation(program, name), v.x, v.y, v.z, v.w));
 }
 
 inline void Shader::SetProjectionMatrix(unsigned int program, const glm::mat4& matrix)
 {
-	glUniformMatrix4fv(loc_VP, 1, GL_FALSE, &matrix[0][0]);
+	GLCall(glUniformMatrix4fv(loc_VP, 1, GL_FALSE, &matrix[0][0]));
 }
 
 Shader::Shader(ShaderSource& source)

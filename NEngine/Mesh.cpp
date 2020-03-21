@@ -3,6 +3,12 @@
 #include "GL/glew.h"
 #include "meshoptimizer/meshoptimizer.h"
 
+void AddAtribute(int index, int size, int offset, int type = GL_FLOAT, bool normalized = false)
+{
+	GLCall(glEnableVertexAttribArray(index));
+	GLCall(glVertexAttribPointer(index, size, type, normalized ? GL_TRUE : GL_FALSE, Vertex::STRIDE, (void*)offset));
+}
+
 void Mesh::Bind()
 {
 	unsigned int vao;
@@ -17,10 +23,14 @@ void Mesh::Bind()
 	const int totalsize = vertexCount * sizeof(Vertex);
 	GLCall(glBufferData(GL_ARRAY_BUFFER, totalsize, &vertices[0], GL_STATIC_DRAW));
 
-	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, Vertex::OFFSET_POSITION));
-	GLCall(glEnableVertexAttribArray(1));
-	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, (void*)Vertex::OFFSET_COLOR));
+	AddAtribute(0, 3, Vertex::OFFSET_POSITION);
+	AddAtribute(1, 2, Vertex::OFFSET_UV);
+	AddAtribute(2, 3, Vertex::OFFSET_COLOR);
+
+	//GLCall(glEnableVertexAttribArray(0));
+	//GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, Vertex::OFFSET_POSITION));
+	//GLCall(glEnableVertexAttribArray(1));
+	//GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, (void*)Vertex::OFFSET_COLOR));
 
 	// Index buffer
 	unsigned int ibo;

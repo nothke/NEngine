@@ -124,7 +124,7 @@ void RebuildEverything()
 
 	for (Shader& shader : shaders)
 	{
-		auto source = ShaderReader::Parse("../NEngine/res/vertexcolor.glsl");
+		auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
 		shader = Shader(source);
 		shader.Bind();
 	}
@@ -177,18 +177,14 @@ int main()
 	// Get vertices and indices from file
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector;
-	if (ModelReader::Get("../suza.ply", vertVector, indicesVector) != 0)
+	if (ModelReader::LoadFromPly("../suza.ply", vertVector, indicesVector) != 0)
 		return -1;
 
 	// Mesh
 	Mesh mesh;
-	mesh.Init(vertVector, indicesVector);
+	mesh.Init(vertVector, indicesVector, false);
 	mesh.Bind();
 	meshes.push_back(mesh);
-
-	// Texture
-	Texture tex("../NEngine/res/grass.png");
-	tex.Bind();
 
 	// Shader
 	auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
@@ -196,6 +192,9 @@ int main()
 	shaders.push_back(shader);
 	shader.Bind();
 
+	// Texture
+	Texture tex("../NEngine/res/grass.png");
+	tex.Bind();
 	shader.SetInt("_Texture", 0);
 
 	renderer.Init();

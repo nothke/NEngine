@@ -8,7 +8,7 @@ class Texture
 {
 public:
 	Texture(const std::string& path)
-		: filePath(path)
+		: id(0), filePath(path), buffer(nullptr), width(0), height(0), bbp(0)
 	{
 		stbi_set_flip_vertically_on_load(1);
 
@@ -17,8 +17,8 @@ public:
 		GLCall(glGenTextures(1, &id));
 		GLCall(glBindTexture(GL_TEXTURE_2D, id));
 
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)); // GL_LINEAR
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)); // GL_LINEAR
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
@@ -29,7 +29,7 @@ public:
 		if (buffer)
 			stbi_image_free(buffer);
 
-		std::cout << "Loaded texture: " << path << std::endl;
+		std::cout << "Loaded texture: " << path << ", size: " << width << "x" << height << std::endl;
 	}
 
 	~Texture()

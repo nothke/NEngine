@@ -34,7 +34,9 @@ int ModelReader::Get(const char* path, Mesh& mesh)
 	return 0;
 }*/
 
-int ModelReader::Get(const char* path, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
+int ModelReader::LoadFromPly(const char* path,
+	std::vector<Vertex>& vertices,
+	std::vector<unsigned int>& indices)
 {
 	std::string line;
 	std::ifstream file(path);
@@ -72,12 +74,16 @@ int ModelReader::Get(const char* path, std::vector<Vertex>& vertices, std::vecto
 						case 0: LOG("----- V1: " << f); vert.posx = f; break;
 						case 1: LOG("----- V2: " << f); vert.posy = f; break;
 						case 2: LOG("----- V3: " << f); vert.posz = f; break;
-						case 3: LOG("----- R: " << f); vert.colr = f / 255.0f; break;
-						case 4: LOG("----- G: " << f); vert.colg = f / 255.0f; break;
-						case 5: LOG("----- B: " << f); vert.colb = f / 255.0f; break;
+
+						case 3: LOG("----- S: " << f); vert.uvs = f; break;
+						case 4: LOG("----- T: " << f); vert.uvt = f; break;
+
+						case 5: LOG("----- R: " << f); vert.colr = f / 255.0f; break;
+						case 6: LOG("----- G: " << f); vert.colg = f / 255.0f; break;
+						case 7: LOG("----- B: " << f); vert.colb = f / 255.0f; break;
 						}
 
-						if (ct == 5)
+						if (ct == 7)
 							break;
 
 						str.clear();
@@ -166,8 +172,13 @@ int ModelReader::Get(const char* path, std::vector<Vertex>& vertices, std::vecto
 		}
 		file.close();
 	}
-	else std::cout << "Can't open file";
+	else
+	{
+		std::cout << "Can't open file";
+		return -1;
+	}
 
+#ifdef DEBUG
 	LOG(" ");
 	LOG("Vertex check: ");
 
@@ -177,6 +188,10 @@ int ModelReader::Get(const char* path, std::vector<Vertex>& vertices, std::vecto
 			vert.posx << ", " <<
 			vert.posy << ", " <<
 			vert.posz << ", " <<
+
+			vert.uvs << ", " <<
+			vert.uvt << ", " <<
+
 			vert.colr << ", " <<
 			vert.colg << ", " <<
 			vert.colb);
@@ -189,6 +204,7 @@ int ModelReader::Get(const char* path, std::vector<Vertex>& vertices, std::vecto
 	{
 		LOG("I " << indices[i] << ", " << indices[i + 1] << ", " << indices[i + 2]);
 	}
+#endif
 
 	return 0;
 }
