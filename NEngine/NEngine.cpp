@@ -21,6 +21,7 @@
 #include "Model.h"
 #include "instrumentor.h"
 #include "GUI.h"
+#include "FrustumCull.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -250,6 +251,7 @@ int main()
 		for (size_t x = 0; x < monkeys; x++)
 		{
 			Model m({ x * 2, y * 2, -10 }, mesh);
+			m.LocalToWorld();
 			objects.push_back(m);
 		}
 	}
@@ -303,6 +305,7 @@ int main()
 		renderer.Clear();
 
 		shader.SetVPMatrix(camera.vp);
+		Frustum frustum = Frustum(camera.vp);
 
 		// Draw calls
 		{
@@ -310,8 +313,11 @@ int main()
 
 			for (Model& t : objects)
 			{
-				shader.SetMMatrix(t.LocalToWorld());
-				renderer.DrawMesh(t.mesh);
+				if (t.IsVisible(frustum))
+				{
+					shader.SetMMatrix(t.LocalToWorld());
+					renderer.DrawMesh(t.mesh);
+				}
 			}
 		}
 

@@ -168,6 +168,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Conversion.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="vendor\FrustumCull.h" />
     <ClInclude Include="vendor\imgui\imconfig.h" />
     <ClInclude Include="vendor\imgui\imgui.h" />
     <ClInclude Include="vendor\imgui\imgui_impl_glfw.h" />

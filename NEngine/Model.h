@@ -3,6 +3,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "Mesh.h"
 #include "glm/gtc/quaternion.hpp"
+#include "FrustumCull.h"
+
 using namespace glm;
 
 struct Model
@@ -35,6 +37,14 @@ struct Model
 	Model(Mesh&mesh)
 		: mesh(mesh) {}
 
+	bool IsVisible(const Frustum& frustum)
+	{
+		//boundsMin = position - vec3(0.1f);
+		//boundsMax = position + vec3(0.1f);
+
+		return frustum.IsBoxVisible(boundsMin, boundsMax);
+	}
+
 	inline mat4& LocalToWorld()
 	{
 		if (isDirty)
@@ -44,6 +54,9 @@ struct Model
 			localToWorld = localToWorld * mat4_cast(rotation);
 			localToWorld = glm::scale(localToWorld, scale);
 
+			boundsMin = position - vec3(0.1f);
+			boundsMax = position + vec3(0.1f);
+
 			isDirty = false;
 		}
 
@@ -51,5 +64,8 @@ struct Model
 	}
 
 private:
-	glm::mat4 localToWorld;
+	mat4 localToWorld;
+
+	vec3 boundsMin;
+	vec3 boundsMax;
 };
