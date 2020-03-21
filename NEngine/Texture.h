@@ -34,6 +34,7 @@ public:
 
 	~Texture()
 	{
+		std::cout << "Disposed texture!" << std::endl;
 		glDeleteTextures(1, &id);
 	};
 
@@ -48,9 +49,10 @@ public:
 		GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 	};
 
+	std::string filePath;
+
 private:
 	unsigned int id;
-	std::string filePath;
 	unsigned char* buffer;
 	int width;
 	int height;

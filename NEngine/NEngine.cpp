@@ -42,6 +42,7 @@ Renderer renderer;
 Camera camera;
 
 std::vector<Shader> shaders;
+std::vector<Texture> textures;
 std::vector<Mesh> meshes;
 
 glm::ivec2 targetResolution = { 1024, 768 };
@@ -127,7 +128,18 @@ void RebuildEverything()
 		auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
 		shader = Shader(source);
 		shader.Bind();
+
+		shader.SetInt("_Texture", 0);
 	}
+
+	for (Texture& tex : textures)
+	{
+		auto source = tex.filePath;
+		tex = Texture(source);
+		tex.Bind();
+	}
+
+	shaders[0].SetInt("_Texture", 0);
 
 	// Commenting this out locks app
 	for (Mesh& mesh : meshes)
@@ -139,13 +151,11 @@ void RebuildEverything()
 
 #ifdef USE_GUI
 	GUI::Shutdown();
-	//ImGui_ImplOpenGL3_Shutdown();
-	//ImGui_ImplGlfw_Shutdown();
 
 	GUI::Init(app.window);
-	//ImGui_ImplGlfw_InitForOpenGL(app.window, true);
-	//ImGui_ImplOpenGL3_Init((char *)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 #endif
+
+	LOG("Rebuilt");
 }
 
 bool KeyPressed(int key)
@@ -194,6 +204,7 @@ int main()
 
 	// Texture
 	Texture tex("../NEngine/res/grass.png");
+	textures.push_back(tex);
 	tex.Bind();
 	shader.SetInt("_Texture", 0);
 
@@ -352,8 +363,6 @@ int main()
 				ImGui::ColorEdit3("color 2", (float*)&color2);
 				ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
 				ImGui::SliderFloat("Range", &shader_range, 0, 2);
-
-				ImGui::DragFloat3("Yaya", &pos1[0], 0.01f, 0, 1);
 
 				ImGui::Text("Window");
 				ImGui::DragInt2("Resolution", &targetResolution[0], 4);
