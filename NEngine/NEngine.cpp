@@ -193,7 +193,7 @@ int main()
 	// Get vertices and indices from file
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> vertVector;
-	if (ModelReader::LoadFromPly("../plain.ply", vertVector, indicesVector) != 0)
+	if (ModelReader::LoadFromPly("../NEngine/res/models/plain.ply", vertVector, indicesVector) != 0)
 		return -1;
 
 	// Mesh
@@ -203,8 +203,15 @@ int main()
 	meshes.push_back(mesh);
 
 	Mesh monkeyMesh;
-	ModelReader::LoadFromPly("../suza.ply", monkeyMesh);
+	ModelReader::LoadFromPly("../NEngine/res/models/suza.ply", monkeyMesh);
 	meshes.push_back(mesh);
+
+	Mesh grassMesh;
+	ModelReader::LoadFromPly("../NEngine/res/models/grasso.ply", grassMesh);
+	meshes.push_back(grassMesh);
+
+	Texture grassTex("../NEngine/res/models/grasso.png");
+	textures.push_back(grassTex);
 
 	// Shader
 	auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
@@ -213,7 +220,7 @@ int main()
 	shader.Bind();
 
 	// Texture
-	Texture tex("../NEngine/res/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
+	Texture tex("../NEngine/res/models/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
 	textures.push_back(tex);
 	tex.Bind();
 	shader.SetInt("_Texture", 0);
@@ -251,7 +258,7 @@ int main()
 	const glm::vec3 FORWARD = glm::vec3(0, 0, 1);
 
 	// Data passed to shader
-	ImVec4 color1{ 0.7f, 0.3f, 1.0f, 1.0f };
+	ImVec4 color1{ 200.0f / 255, 164.0f / 255, 100.0f / 255, 1.0f, };
 	ImVec4 color2{ 0.0f, 1.0f, 1.0f, 1.0f };
 	float shader_mult = 0.3f;
 	float shader_range = 1;
@@ -283,6 +290,8 @@ int main()
 			objects.push_back(m);
 		}
 	}
+
+	objects.push_back(Model(vec3(0), grassMesh));
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
