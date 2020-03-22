@@ -263,3 +263,5 @@ __pycache__/
 # Project specific
 NEngine/vendor/glm/
 results.json
+NEngine/res/plain_hi.ply
+NEngine/imgui.ini
