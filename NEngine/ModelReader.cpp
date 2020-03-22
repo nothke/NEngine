@@ -18,21 +18,18 @@
 
 #define ERROR(x) std::cout << "ModelReader ERROR: " << x << std::endl
 
-/* Don't use this one
-int ModelReader::Get(const char* path, Mesh& mesh)
+int ModelReader::LoadFromPly(const char* path, Mesh& mesh)
 {
-	// These will get out of scope
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-
-	if (Get(path, vertices, indices) != 0)
+	if (LoadFromPly(path, vertices, indices))
 		return -1;
 
+	mesh = Mesh();
 	mesh.Init(vertices, indices);
-	//*mesh = new Mesh(vertices, indices);
 
 	return 0;
-}*/
+}
 
 int ModelReader::LoadFromPly(const char* path,
 	std::vector<Vertex>& vertices,

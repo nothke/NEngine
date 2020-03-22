@@ -202,6 +202,10 @@ int main()
 	mesh.Bind();
 	meshes.push_back(mesh);
 
+	Mesh monkeyMesh;
+	ModelReader::LoadFromPly("../suza.ply", monkeyMesh);
+	meshes.push_back(mesh);
+
 	// Shader
 	auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
 	Shader shader = Shader(source);
@@ -260,6 +264,7 @@ int main()
 	glm::vec3 pos1(1.5f, 0.0f, -5.0f);
 	glm::vec3 pos2(-1.5f, 0.0f, -5.0f);
 
+	// Plain
 	Model t({ 0,0,0 }, mesh);
 	//Model t2({ -3, 0, -10 }, mesh);
 	//Model t3(pos2, mesh);
@@ -268,18 +273,16 @@ int main()
 	//objects.push_back(t2);
 	//objects.push_back(t3);
 
-	/*
-	const int monkeys = 80;
+	const int monkeys = 10;
 	for (size_t y = 0; y < monkeys; y++)
 	{
 		//InstrumentationTimer timer11("Shoot");
 		for (size_t x = 0; x < monkeys; x++)
 		{
-			Model m({ x * 2, y * 2, -10 }, mesh);
+			Model m({ x * 2, y * 2, -10 }, monkeyMesh);
 			objects.push_back(m);
 		}
 	}
-	*/
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
@@ -338,11 +341,18 @@ int main()
 		// Draw calls
 		{
 			PROFILE_SCOPE("Draw");
+			Mesh* meshPtr = nullptr;
 
 			for (Model& t : objects)
 			{
 				if (t.IsVisible(frustum))
 				{
+					if (meshPtr != &t.mesh)
+					{
+						t.mesh.Bind();
+						meshPtr = &t.mesh;
+					}
+
 					shader.SetMMatrix(t.LocalToWorld());
 					renderer.DrawMesh(t.mesh);
 				}
