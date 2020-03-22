@@ -18,6 +18,8 @@ public:
 		buffer = stbi_load(&path[0], &width, &height, &bbp, 4);
 
 		GLCall(glGenTextures(1, &id));
+
+		// bind
 		GLCall(glBindTexture(GL_TEXTURE_2D, id));
 
 		auto _filtering = filtering == Nearest ? GL_NEAREST : GL_LINEAR;
@@ -35,12 +37,12 @@ public:
 		if (buffer)
 			stbi_image_free(buffer);
 
-		std::cout << "Loaded texture: " << path << ", size: " << width << "x" << height << std::endl;
+		std::cout << "CREATED texture: " << path << ", size: " << width << "x" << height << std::endl;
 	}
 
 	~Texture()
 	{
-		std::cout << "Disposed texture!" << std::endl;
+		std::cout << "DISPOSED texture: " << filePath << std::endl;
 		glDeleteTextures(1, &id);
 	};
 

@@ -4,6 +4,7 @@
 #include "Mesh.h"
 #include "glm/gtc/quaternion.hpp"
 #include "FrustumCull.h"
+#include "Texture.h"
 
 using namespace glm;
 
@@ -14,6 +15,7 @@ struct Model
 	vec3 scale = vec3(1);
 
 	Mesh& mesh;
+	Texture* texture = nullptr;
 
 	bool isDirty = true;
 
@@ -30,6 +32,12 @@ struct Model
 
 	Model(vec3 position, Mesh&mesh)
 		: mesh(mesh), position(position) {
+		UpdateModelMatrix();
+	}
+
+	Model(vec3 position, Mesh&mesh, Texture& texture)
+		: mesh(mesh), position(position), texture(&texture) {
+		std::cout << "Assigned texture " << std::endl;
 		UpdateModelMatrix();
 	}
 

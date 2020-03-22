@@ -43,5 +43,6 @@ uniform vec4 _InputColor2;
 
 void main(){
 	vec4 tex = texture(_Texture, v_uv);
+	if (tex.a < 0.5) discard;
 	col = mix(tex, _InputColor1, v_color.a);
 }
