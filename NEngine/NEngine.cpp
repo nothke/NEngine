@@ -123,27 +123,32 @@ void RebuildEverything()
 {
 	renderer.Init();
 
+	// Commenting this out locks app
+	for (Mesh& mesh : meshes)
+	{
+		mesh.Bind();
+	}
+
 	for (Shader& shader : shaders)
 	{
 		auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
 		shader = Shader(source);
 		shader.Bind();
-
-		shader.SetInt("_Texture", 0);
 	}
 
 	for (Texture& tex : textures)
 	{
-		auto source = tex.filePath;
-		tex = Texture(source);
+		tex.Unbind();
+
+		//auto source = tex.filePath;
+		//tex = Texture(source, Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
 		tex.Bind();
+		//shader.SetInt("_Texture", 0);
 	}
 
 	shaders[0].SetInt("_Texture", 0);
 
-	// Commenting this out locks app
-	for (Mesh& mesh : meshes)
-		mesh.Bind();
+
 
 	InitInputCallbacks();
 
@@ -155,7 +160,7 @@ void RebuildEverything()
 	GUI::Init(app.window);
 #endif
 
-	LOG("Rebuilt");
+	LOG("Rebuilt everything after resolution change");
 }
 
 bool KeyPressed(int key)
@@ -178,6 +183,7 @@ int main()
 
 	Instrumentor::Instance().beginSession("Game Session", "../results.json");
 
+	app.fullscreen = true;
 	if (app.Init()) return -1;
 
 #ifdef USE_GUI
@@ -233,6 +239,7 @@ int main()
 	double lastFrameTime = glfwGetTime();
 	LOG("Frame " << lastFrameTime);
 
+	// Camera
 	camera.SetProjection(90.0f, app.aspectRatio);
 
 	const glm::vec3 RIGHT = glm::vec3(1, 0, 0);
@@ -244,6 +251,7 @@ int main()
 	ImVec4 color2{ 0.0f, 1.0f, 1.0f, 1.0f };
 	float shader_mult = 0.3f;
 	float shader_range = 1;
+	vec4 shader_FogParams = vec4(80.0f, 0, 4.0f, 10.0f);
 
 	// objects
 	std::vector<Model> objects;
@@ -252,7 +260,7 @@ int main()
 	glm::vec3 pos1(1.5f, 0.0f, -5.0f);
 	glm::vec3 pos2(-1.5f, 0.0f, -5.0f);
 
-	Model t(pos1, mesh);
+	Model t({ 0,0,0 }, mesh);
 	//Model t2({ -3, 0, -10 }, mesh);
 	//Model t3(pos2, mesh);
 
@@ -350,6 +358,7 @@ int main()
 
 		shader.SetFloat("_Mult", shader_mult);
 		shader.SetFloat("_Range", shader_range);
+		shader.SetVector("_FogParams", shader_FogParams);
 
 		// imgui
 		bool applyResolution = false;
@@ -368,6 +377,12 @@ int main()
 				ImGui::ColorEdit3("color 2", (float*)&color2);
 				ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
 				ImGui::SliderFloat("Range", &shader_range, 0, 2);
+
+				ImGui::Text("Fog");
+				ImGui::SliderFloat("Fog range", &shader_FogParams.x, 0, 1000, "%.3f", 2.0f);
+				ImGui::SliderFloat("Fog power", &shader_FogParams.y, 0, 1);
+				ImGui::SliderFloat("Fog height offset", &shader_FogParams.z, -10, 10);
+				ImGui::SliderFloat("Fog height mult", &shader_FogParams.w, 0, 10);
 
 				ImGui::Text("Window");
 				ImGui::DragInt2("Resolution", &targetResolution[0], 4);

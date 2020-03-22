@@ -27,11 +27,6 @@ void Mesh::Bind()
 	AddAtribute(1, 2, Vertex::OFFSET_UV);
 	AddAtribute(2, 3, Vertex::OFFSET_COLOR);
 
-	//GLCall(glEnableVertexAttribArray(0));
-	//GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, Vertex::OFFSET_POSITION));
-	//GLCall(glEnableVertexAttribArray(1));
-	//GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::STRIDE, (void*)Vertex::OFFSET_COLOR));
-
 	// Index buffer
 	unsigned int ibo;
 	GLCall(glGenBuffers(1, &ibo));
