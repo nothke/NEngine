@@ -171,7 +171,7 @@ int ModelReader::LoadFromPly(const char* path,
 	}
 	else
 	{
-		std::cout << "Can't open file";
+		std::cout << "Can't open file: " << path << std::endl;
 		return -1;
 	}
 
