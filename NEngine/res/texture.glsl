@@ -19,7 +19,7 @@ void main(){
 	mat4 mvp = _VP * _M;
 	gl_Position = mvp * position;
 
-	vec3 worldPos = position.xyz; // TODO: to world
+	vec3 worldPos = (_M * position).xyz; // TODO: to world
 	float fog = length(-_CamPos.xyz - worldPos) / _FogParams.x;
 	float heightFog = (_FogParams.z - worldPos.y) / _FogParams.w;
 	fog = max(heightFog, fog);
