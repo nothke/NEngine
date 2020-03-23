@@ -28,7 +28,22 @@ public:
 	void Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector, bool optimizeVertexCache = true);
 	void Simplify(float threshold, float target_error = 1e-2f);
 	void SimplifySloppy(float threshold);
-	
+
+	Mesh()
+	{
+		std::cout << "Crated Mesh " << std::endl;
+	}
+
+	~Mesh()
+	{
+		std::cout << "Destroyed Mesh" << std::endl;
+	}
+
+	void Debug()
+	{
+		std::cout << "Mesh: vertices: " << vertexCount << ", indices: " << indexCount << std::endl;
+	}
+
 private:
 	void CreateAttributes();
 	void FindBounds();

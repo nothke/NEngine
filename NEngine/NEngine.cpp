@@ -14,6 +14,7 @@
 #include <random>
 
 #include "Application.h"
+#include "AssetManager.h"
 #include "Renderer.h"
 #include "Camera.h"
 #include "Mesh.h"
@@ -43,6 +44,9 @@ Application app;
 Renderer renderer;
 Camera camera;
 
+AssetManager assets(3, 3, 3);
+
+// TODO: Remove
 std::vector<Shader> shaders;
 std::vector<Texture> textures;
 std::vector<Mesh> meshes;
@@ -189,6 +193,10 @@ int main()
 	// Meshes
 	meshes.reserve(3);
 
+	Mesh testAssetMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
+	testAssetMesh.Debug();
+
+	/*
 	Mesh plainMesh;
 	ModelReader::LoadFromPly("../NEngine/res/models/plain.ply", plainMesh);
 	meshes.push_back(plainMesh);
@@ -199,7 +207,7 @@ int main()
 
 	Mesh grassMesh;
 	ModelReader::LoadFromPly("../NEngine/res/models/grasso.ply", grassMesh);
-	meshes.push_back(grassMesh);
+	meshes.push_back(grassMesh);*/
 
 	// Shaders
 	auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
@@ -265,9 +273,8 @@ int main()
 	glm::vec3 pos2(-1.5f, 0.0f, -5.0f);
 
 	// Plain
-	Model t({ 0,0,0 }, plainMesh, tex);
-	//t.texture = &tex;
-	objects.push_back(t);
+	//Model t({ 0,0,0 }, plainMesh, tex);
+	//objects.push_back(t);
 
 	/*
 	const int monkeys = 10;
@@ -280,6 +287,7 @@ int main()
 		}
 	}*/
 
+	/*
 	const int grassCount = 80;
 	double PI = glm::pi<double>();
 	for (size_t y = 0; y < grassCount; y++)
@@ -291,7 +299,7 @@ int main()
 			m.SetRotation(vec3(0, a, 0));
 			objects.push_back(m);
 		}
-	}
+	}*/
 
 	// Grass
 	//objects.push_back(Model(vec3(0), grassMesh, grassTex));
@@ -433,7 +441,7 @@ int main()
 
 				// Analitics
 				ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, 1.0f / dt, ImGui::GetIO().Framerate);
-				ImGui::Text("Mesh: vertices: %i, indices: %i", plainMesh.vertexCount, plainMesh.indexCount);
+				//ImGui::Text("Mesh: vertices: %i, indices: %i", plainMesh.vertexCount, plainMesh.indexCount);
 
 				ImGui::End();
 			}
@@ -457,6 +465,8 @@ int main()
 #ifdef USE_GUI
 	GUI::Shutdown();
 #endif
+
+	assets.Dispose();
 
 	shader.Delete();
 
