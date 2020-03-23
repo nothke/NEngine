@@ -26,6 +26,7 @@
 #include "instrumentor.h"
 #include "GUI.h"
 #include "FrustumCull.h"
+#include "perlin/PerlinNoise.hpp"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -122,6 +123,11 @@ void InitInputCallbacks()
 	glfwSetScrollCallback(app.window, scroll_callback);
 }
 
+inline float randv()
+{
+	return ((double)rand() / (RAND_MAX)) + 1;
+}
+
 void RebuildEverything()
 {
 	renderer.Init();
@@ -171,7 +177,25 @@ int main()
 #endif
 
 	// Meshes
-	Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
+	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
+	siv::PerlinNoise pnoise = siv::PerlinNoise();
+	const float freq = 0.121f;
+	const float gain = 2;
+	const int octaves = 4;
+
+	Mesh plainMesh;
+	{
+		std::vector<Vertex> vertices;
+		std::vector<unsigned int> indices;
+		ModelReader::LoadFromPly("../NEngine/res/models/plain.ply", vertices, indices);
+
+		for (auto& v : vertices)
+		{
+			v.posy = pnoise.accumulatedOctaveNoise2D(v.posx * freq, v.posz * freq, octaves) * gain;
+		}
+		plainMesh = assets.CreateMesh(vertices, indices);
+	}
+
 	Mesh monkeyMesh = assets.CreateMesh("../NEngine/res/models/suza.ply");
 	Mesh grassMesh = assets.CreateMesh("../NEngine/res/models/grasso.ply");
 
@@ -180,8 +204,8 @@ int main()
 	mainShader->Bind();
 
 	// Textures
-	Texture grass3DTex = assets.CreateTexture("../NEngine/res/models/grasso.png"); // Texture::Filtering::Nearest, Texture::EdgeMode::Wrap
-	Texture grassPlainTex = assets.CreateTexture("../NEngine/res/models/grass.png"); // Texture::Filtering::Nearest, Texture::EdgeMode::Wrap
+	Texture grass3DTex = assets.CreateTexture("../NEngine/res/models/grasso.png");
+	Texture grassPlainTex = assets.CreateTexture("../NEngine/res/models/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
 
 	renderer.Init();
 
@@ -248,8 +272,14 @@ int main()
 	{
 		for (size_t x = 0; x < grassCount; x++)
 		{
-			Model m({ x,0,y }, grassMesh, grass3DTex);
-			float a = (((double)rand() / (RAND_MAX)) + 1) * PI;
+			vec3 pos(
+				(x + randv()) * 0.5f, 0,
+				(y + randv()) * 0.5f);
+
+			pos.y = pnoise.accumulatedOctaveNoise2D(pos.x * freq, pos.z * freq, octaves) * gain;
+
+			Model m(pos, grassMesh, grass3DTex);
+			float a = randv() * PI;
 			m.SetRotation(vec3(0, a, 0));
 			objects.push_back(m);
 		}
@@ -301,6 +331,7 @@ int main()
 
 		shader.SetVPMatrix(camera.vp);
 		shader.SetVector("_CamPos", vec4(camera.position, 1));
+		shader.SetFloat("_Time", (float)time);
 		Frustum frustum = Frustum(camera.vp);
 
 		// Draw calls

@@ -11,15 +11,25 @@ uniform vec4 _CamPos;
 uniform float _Mult;
 uniform float _Range;
 uniform vec4 _FogParams; // x - range, y - power, z - height offset, a - height mult
+uniform float _Time;
 
 out vec4 v_color;
 out vec2 v_uv;
 
 void main(){
 	mat4 mvp = _VP * _M;
-	gl_Position = mvp * position;
-
+	
 	vec3 worldPos = (_M * position).xyz; // TODO: to world
+	float time = _Time * 10;
+	float xwave = sin(time + sin(worldPos.z) * 3) * 0.1f;
+	float zwave = sin(time + sin(worldPos.x + worldPos.z * 0.3f)) * 0.1f;
+
+	vec3 off = vec3(xwave, 0, zwave) * 0.3;
+	worldPos += off * color.r;
+
+	vec3 localPos = (inverse(_M) * vec4(worldPos, 1)).xyz;
+
+	gl_Position = mvp * vec4(localPos, 1);
 	float fog = length(-_CamPos.xyz - worldPos) / _FogParams.x;
 	float heightFog = (_FogParams.z - worldPos.y) / _FogParams.w;
 	fog = max(heightFog, fog);
