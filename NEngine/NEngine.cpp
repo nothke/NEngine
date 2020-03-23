@@ -179,7 +179,7 @@ int main()
 	// Meshes
 	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
 	siv::PerlinNoise pnoise = siv::PerlinNoise();
-	const float freq = 0.121f;
+	const float freq = 0.092451f;
 	const float gain = 2;
 	const int octaves = 4;
 
@@ -240,8 +240,8 @@ int main()
 	const glm::vec3 FORWARD = glm::vec3(0, 0, 1);
 
 	// Data passed to shader
-	ImVec4 color1{ 200.0f / 255, 164.0f / 255, 100.0f / 255, 1.0f, };
-	ImVec4 color2{ 0.0f, 1.0f, 1.0f, 1.0f };
+	ImVec4 color1(0.919f, 1.000f, 0.828f, 1.000f);
+	ImVec4 color2(0.887f, 0.594f, 0.300f, 1.000f);
 	vec4 shader_FogParams = vec4(80.0f, 0, 4.0f, 10.0f);
 
 	// SCENE
@@ -320,6 +320,9 @@ int main()
 
 		camera.UpdateRotation();
 		camera.MoveRelative(playerInput * dt * cameraSpeed);
+		//camera.position.y = 0;
+		camera.position.y = -pnoise.accumulatedOctaveNoise2D(-camera.position.x * freq, -camera.position.z * freq, octaves) * gain;
+		camera.position.y -= 1;
 		camera.Update();
 
 		// Rendering
