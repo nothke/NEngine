@@ -11,6 +11,19 @@ AssetManager::AssetManager(const int meshesCapacity, const int texturesCapacity,
 	shaders.reserve(shadersCapacity);
 }
 
+void AssetManager::AddMesh(const Mesh& mesh)
+{
+	meshes.push_back(mesh);
+}
+
+Mesh& AssetManager::CreateMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
+{
+	Mesh mesh;
+	mesh.Init(vertices, indices);
+	meshes.push_back(mesh);
+	return meshes[meshes.size() - 1];
+}
+
 Mesh & AssetManager::CreateMesh(const char * path)
 {
 	Mesh mesh;
@@ -23,9 +36,9 @@ Mesh & AssetManager::CreateMesh(const char * path)
 	// mesh gets destroyed
 }
 
-Texture & AssetManager::CreateTexture(const char * path)
+Texture & AssetManager::CreateTexture(const char * path, Texture::Filtering filtering, Texture::EdgeMode edgeMode)
 {
-	Texture tex(path);
+	Texture tex(path, filtering, edgeMode);
 	textures.push_back(tex);
 
 	return textures[textures.size() - 1];
