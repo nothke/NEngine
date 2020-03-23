@@ -171,33 +171,17 @@ int main()
 #endif
 
 	// Meshes
-	//meshes.reserve(3);
-
-	Mesh testAssetMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
-	testAssetMesh.Debug();
-
-	/*
-	Mesh plainMesh;
-	ModelReader::LoadFromPly("../NEngine/res/models/plain.ply", plainMesh);
-	meshes.push_back(plainMesh);
-
-	Mesh monkeyMesh;
-	ModelReader::LoadFromPly("../NEngine/res/models/suza.ply", monkeyMesh);
-	meshes.push_back(monkeyMesh);
-
-	Mesh grassMesh;
-	ModelReader::LoadFromPly("../NEngine/res/models/grasso.ply", grassMesh);
-	meshes.push_back(grassMesh);*/
+	Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
+	Mesh monkeyMesh = assets.CreateMesh("../NEngine/res/models/suza.ply");
+	Mesh grassMesh = assets.CreateMesh("../NEngine/res/models/grasso.ply");
 
 	// Shaders
 	mainShader = &assets.CreateShader("../NEngine/res/texture.glsl");
 	mainShader->Bind();
 
 	// Textures
-	Texture grassTex = assets.CreateTexture("../NEngine/res/models/grasso.png"); // Texture::Filtering::Nearest, Texture::EdgeMode::Wrap
-	Texture tex = assets.CreateTexture("../NEngine/res/models/grass.png"); // Texture::Filtering::Nearest, Texture::EdgeMode::Wrap
-
-	//shader.SetInt("_Texture", 0);
+	Texture grass3DTex = assets.CreateTexture("../NEngine/res/models/grasso.png"); // Texture::Filtering::Nearest, Texture::EdgeMode::Wrap
+	Texture grassPlainTex = assets.CreateTexture("../NEngine/res/models/grass.png"); // Texture::Filtering::Nearest, Texture::EdgeMode::Wrap
 
 	renderer.Init();
 
@@ -246,10 +230,7 @@ int main()
 	glm::vec3 pos2(-1.5f, 0.0f, -5.0f);
 
 	// Plain
-	//Model t({ 0,0,0 }, plainMesh, tex);
-	//objects.push_back(t);
-
-	Model t({ 0,0,0 }, testAssetMesh, tex);
+	Model t({ 0,0,0 }, plainMesh, grassPlainTex);
 	objects.push_back(t);
 
 	/*
@@ -263,19 +244,18 @@ int main()
 		}
 	}*/
 
-	/*
 	const int grassCount = 80;
 	double PI = glm::pi<double>();
 	for (size_t y = 0; y < grassCount; y++)
 	{
 		for (size_t x = 0; x < grassCount; x++)
 		{
-			Model m({ x,0,y }, grassMesh, grassTex);
+			Model m({ x,0,y }, grassMesh, grass3DTex);
 			float a = (((double)rand() / (RAND_MAX)) + 1) * PI;
 			m.SetRotation(vec3(0, a, 0));
 			objects.push_back(m);
 		}
-	}*/
+	}
 
 	// Grass
 	//objects.push_back(Model(vec3(0), grassMesh, grassTex));
