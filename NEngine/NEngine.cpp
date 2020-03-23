@@ -3,7 +3,6 @@
 //#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "Shader.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "ModelReader.h"
@@ -15,9 +14,11 @@
 
 #include "Application.h"
 #include "AssetManager.h"
+#include "Shader.h"
+#include "Mesh.h"
+#include "Texture.h"
 #include "Renderer.h"
 #include "Camera.h"
-#include "Mesh.h"
 #include "Conversion.h"
 #include "Log.h"
 #include "Model.h"
@@ -25,7 +26,6 @@
 #include "instrumentor.h"
 #include "GUI.h"
 #include "FrustumCull.h"
-#include "Texture.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
