@@ -47,7 +47,7 @@ Camera camera;
 
 Shader* mainShader; // not like this with multiple shaders
 
-AssetManager assets(3, 3, 3);
+AssetManager assets(5, 3, 3);
 
 glm::ivec2 targetResolution = { 1024, 768 };
 
@@ -198,6 +198,7 @@ int main()
 
 	Mesh monkeyMesh = assets.CreateMesh("../NEngine/res/models/suza.ply");
 	Mesh grassMesh = assets.CreateMesh("../NEngine/res/models/grasso.ply");
+	Mesh skyMesh = assets.CreateMesh("../NEngine/res/models/skysphere.ply");
 
 	// Shaders
 	mainShader = &assets.CreateShader("../NEngine/res/texture.glsl");
@@ -249,6 +250,11 @@ int main()
 
 	std::vector<Model> objects;
 	objects.reserve(10);
+
+	// Sky
+	Model sky({ 0,0,0 }, skyMesh);
+	sky.SetScale(vec3(100));
+	objects.push_back(sky);
 
 	// Plain
 	Model t({ 0,0,0 }, plainMesh, grassPlainTex);
@@ -373,6 +379,10 @@ int main()
 				shader.SetMMatrix(go.LocalToWorld());
 				renderer.DrawMesh(go.mesh);
 			}
+
+			// unbind last texture
+			if (texPtr != nullptr)
+				texPtr->Unbind();
 		}
 
 		// imgui read values

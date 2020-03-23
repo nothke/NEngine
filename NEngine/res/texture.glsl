@@ -19,7 +19,7 @@ out vec2 v_uv;
 void main(){
 	mat4 mvp = _VP * _M;
 	
-	vec3 worldPos = (_M * position).xyz; // TODO: to world
+	vec3 worldPos = (_M * position).xyz;
 	float time = _Time * 5;
 	float xwave = sin(time + sin(worldPos.z - worldPos.x * 0.3f + _Time * 2) * 3) * 0.1f;
 	float zwave = sin(time + cos(worldPos.x + worldPos.z * 0.3f + _Time)) * 0.1f;
