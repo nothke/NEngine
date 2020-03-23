@@ -9,9 +9,9 @@ void AddAtribute(int index, int size, int offset, int type = GL_FLOAT, bool norm
 	GLCall(glVertexAttribPointer(index, size, type, normalized ? GL_TRUE : GL_FALSE, Vertex::STRIDE, (void*)offset));
 }
 
-void Mesh::Bind()
+void Mesh::CreateAttributes()
 {
-	unsigned int vao;
+	// Vertex Array Object
 	GLCall(glGenVertexArrays(1, &vao));
 	GLCall(glBindVertexArray(vao));
 
@@ -23,15 +23,28 @@ void Mesh::Bind()
 	const int totalsize = vertexCount * sizeof(Vertex);
 	GLCall(glBufferData(GL_ARRAY_BUFFER, totalsize, &vertices[0], GL_STATIC_DRAW));
 
+	// Vertex attributes
 	AddAtribute(0, 3, Vertex::OFFSET_POSITION);
 	AddAtribute(1, 2, Vertex::OFFSET_UV);
 	AddAtribute(2, 3, Vertex::OFFSET_COLOR);
 
-	// Index buffer
-	unsigned int ibo;
+	// Index Buffer Object
 	GLCall(glGenBuffers(1, &ibo));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
+
+	// Unbind
+	GLCall(glBindVertexArray(0));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+	//std::cout << ibo << " " << vao << std::endl;
+}
+
+void Mesh::Bind()
+{
+	GLCall(glBindVertexArray(vao));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
 }
 
 // Doesn't work for now
@@ -102,4 +115,6 @@ void Mesh::Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indi
 
 	vertexCount = vertices.size();
 	indexCount = indices.size();
+
+	CreateAttributes();
 }

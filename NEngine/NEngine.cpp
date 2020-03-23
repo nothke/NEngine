@@ -19,6 +19,7 @@
 #include "Conversion.h"
 #include "Log.h"
 #include "Model.h"
+//#define PROFILING
 #include "instrumentor.h"
 #include "GUI.h"
 #include "FrustumCull.h"
@@ -199,7 +200,6 @@ int main()
 	// Mesh
 	Mesh mesh;
 	mesh.Init(vertVector, indicesVector, true);
-	mesh.Bind();
 	meshes.push_back(mesh);
 
 	Mesh monkeyMesh;
@@ -209,8 +209,6 @@ int main()
 	Mesh grassMesh;
 	ModelReader::LoadFromPly("../NEngine/res/models/grasso.ply", grassMesh);
 	meshes.push_back(grassMesh);
-
-
 
 	// Shader
 	auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
@@ -284,7 +282,6 @@ int main()
 	const int monkeys = 10;
 	for (size_t y = 0; y < monkeys; y++)
 	{
-		//InstrumentationTimer timer11("Shoot");
 		for (size_t x = 0; x < monkeys; x++)
 		{
 			Model m({ x * 2, y * 2, -10 }, monkeyMesh);
@@ -303,7 +300,7 @@ int main()
 	}
 
 	// Grass
-	objects.push_back(Model(vec3(0), grassMesh, grassTex));
+	//objects.push_back(Model(vec3(0), grassMesh, grassTex));
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
