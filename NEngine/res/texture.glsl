@@ -21,16 +21,16 @@ void main(){
 	
 	vec3 worldPos = (_M * position).xyz; // TODO: to world
 	float time = _Time * 10;
-	float xwave = sin(time + sin(worldPos.z) * 3) * 0.1f;
-	float zwave = sin(time + sin(worldPos.x + worldPos.z * 0.3f)) * 0.1f;
+	float xwave = sin(time + sin(worldPos.z - worldPos.x * 0.3f + _Time * 2) * 3) * 0.1f;
+	float zwave = sin(time + cos(worldPos.x + worldPos.z * 0.3f + _Time)) * 0.1f;
 
-	vec3 off = vec3(xwave, 0, zwave) * 0.3;
+	vec3 off = vec3(xwave, 0, zwave) * 0.6;
 	worldPos += off * color.r;
 
 	vec3 localPos = (inverse(_M) * vec4(worldPos, 1)).xyz;
 
 	gl_Position = mvp * vec4(localPos, 1);
-	float fog = length(-_CamPos.xyz - worldPos) / _FogParams.x;
+	float fog = pow(length(-_CamPos.xyz - worldPos), _FogParams.y) / _FogParams.x;
 	float heightFog = (_FogParams.z - worldPos.y) / _FogParams.w;
 	fog = max(heightFog, fog);
 	fog = clamp(fog, 0, 1);
