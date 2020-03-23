@@ -10,12 +10,18 @@ public:
 	enum Filtering { Nearest, Linear };
 	enum EdgeMode { Clamp, Wrap };
 
-	Texture(const std::string& path, Filtering filtering = Nearest, EdgeMode edgeMode = Clamp)
-		: id(0), filePath(path), buffer(nullptr), width(0), height(0), bbp(0)
+	void Rebuild()
+	{
+		Release();
+
+		Build();
+	}
+
+	void Build()
 	{
 		stbi_set_flip_vertically_on_load(1);
 
-		buffer = stbi_load(&path[0], &width, &height, &bbp, 4);
+		buffer = stbi_load(&filePath[0], &width, &height, &bbp, 4);
 
 		GLCall(glGenTextures(1, &id));
 
@@ -36,6 +42,14 @@ public:
 
 		if (buffer)
 			stbi_image_free(buffer);
+	}
+
+	Texture(const std::string& path, Filtering filtering = Nearest, EdgeMode edgeMode = Clamp)
+		: id(0), filePath(path), buffer(nullptr),
+		width(0), height(0), bbp(0),
+		filtering(filtering), edgeMode(edgeMode)
+	{
+		Build();
 
 		std::cout << "CREATED texture: " << path << ", size: " << width << "x" << height << std::endl;
 	}
@@ -70,5 +84,8 @@ private:
 	int width;
 	int height;
 	int bbp;
+
+	Filtering filtering;
+	EdgeMode edgeMode;
 };
 

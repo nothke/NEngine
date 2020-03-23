@@ -127,29 +127,23 @@ void RebuildEverything()
 	// Commenting this out locks app
 	for (Mesh& mesh : meshes)
 	{
-		mesh.Bind();
+		mesh.Rebuild();
 	}
 
 	for (Shader& shader : shaders)
 	{
 		auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
 		shader = Shader(source);
+		// Only because there's just one shader:
 		shader.Bind();
 	}
 
 	for (Texture& tex : textures)
 	{
-		tex.Unbind();
-
-		//auto source = tex.filePath;
-		//tex = Texture(source, Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
-		tex.Bind();
-		//shader.SetInt("_Texture", 0);
+		tex.Rebuild();
 	}
 
 	shaders[0].SetInt("_Texture", 0);
-
-
 
 	InitInputCallbacks();
 
@@ -191,34 +185,30 @@ int main()
 	GUI::Init(app.window);
 #endif
 
-	// Get vertices and indices from file
-	std::vector<unsigned int> indicesVector;
-	std::vector<Vertex> vertVector;
-	if (ModelReader::LoadFromPly("../NEngine/res/models/plain.ply", vertVector, indicesVector) != 0)
-		return -1;
+	// Meshes
+	meshes.reserve(3);
 
-	// Mesh
-	Mesh mesh;
-	mesh.Init(vertVector, indicesVector, true);
-	meshes.push_back(mesh);
+	Mesh plainMesh;
+	ModelReader::LoadFromPly("../NEngine/res/models/plain.ply", plainMesh);
+	meshes.push_back(plainMesh);
 
 	Mesh monkeyMesh;
 	ModelReader::LoadFromPly("../NEngine/res/models/suza.ply", monkeyMesh);
-	meshes.push_back(mesh);
+	meshes.push_back(monkeyMesh);
 
 	Mesh grassMesh;
 	ModelReader::LoadFromPly("../NEngine/res/models/grasso.ply", grassMesh);
 	meshes.push_back(grassMesh);
 
-	// Shader
+	// Shaders
 	auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
 	Shader shader = Shader(source);
 	shaders.push_back(shader);
 	shader.Bind();
 
+	// Textures
 	textures.reserve(2);
 
-	// Texture
 	Texture grassTex("../NEngine/res/models/grasso.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
 	textures.push_back(grassTex);
 
@@ -274,7 +264,7 @@ int main()
 	glm::vec3 pos2(-1.5f, 0.0f, -5.0f);
 
 	// Plain
-	Model t({ 0,0,0 }, mesh, tex);
+	Model t({ 0,0,0 }, plainMesh, tex);
 	//t.texture = &tex;
 	objects.push_back(t);
 
@@ -439,7 +429,7 @@ int main()
 
 				// Analitics
 				ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, 1.0f / dt, ImGui::GetIO().Framerate);
-				ImGui::Text("Mesh: vertices: %i, indices: %i", mesh.vertexCount, mesh.indexCount);
+				ImGui::Text("Mesh: vertices: %i, indices: %i", plainMesh.vertexCount, plainMesh.indexCount);
 
 				ImGui::End();
 			}

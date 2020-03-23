@@ -9,6 +9,11 @@ void AddAtribute(int index, int size, int offset, int type = GL_FLOAT, bool norm
 	GLCall(glVertexAttribPointer(index, size, type, normalized ? GL_TRUE : GL_FALSE, Vertex::STRIDE, (void*)offset));
 }
 
+void Mesh::Rebuild()
+{
+	CreateAttributes();
+}
+
 void Mesh::CreateAttributes()
 {
 	// Vertex Array Object
