@@ -25,7 +25,6 @@ int ModelReader::LoadFromPly(const char* path, Mesh& mesh)
 	if (LoadFromPly(path, vertices, indices))
 		return -1;
 
-	mesh = Mesh();
 	mesh.Init(vertices, indices);
 
 	return 0;
