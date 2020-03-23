@@ -20,7 +20,7 @@ void main(){
 	mat4 mvp = _VP * _M;
 	
 	vec3 worldPos = (_M * position).xyz; // TODO: to world
-	float time = _Time * 10;
+	float time = _Time * 5;
 	float xwave = sin(time + sin(worldPos.z - worldPos.x * 0.3f + _Time * 2) * 3) * 0.1f;
 	float zwave = sin(time + cos(worldPos.x + worldPos.z * 0.3f + _Time)) * 0.1f;
 
@@ -54,5 +54,5 @@ uniform vec4 _InputColor2;
 void main(){
 	vec4 tex = texture(_Texture, v_uv);
 	if (tex.a < 0.5) discard;
-	col = mix(tex, _InputColor1, v_color.a);
+	col = mix(tex * _InputColor2, _InputColor1, v_color.a);
 }
