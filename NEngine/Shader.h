@@ -11,6 +11,7 @@ struct ShaderSource
 class Shader
 {
 	unsigned int program;
+	ShaderSource source;
 
 	// statics
 	static void SetVector(unsigned int program, const char* name, const glm::vec4& v);
