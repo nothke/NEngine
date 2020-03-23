@@ -29,6 +29,7 @@ public:
 	void SetMMatrix(const glm::mat4 & matrix) const;
 	void SetInt(const char* name, int i) const;
 
+	void Recompile();
 	void Bind() const;
 
 	static unsigned int CreateVertexColorShader();

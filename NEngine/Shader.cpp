@@ -63,6 +63,11 @@ unsigned int Shader::CreateShader(
 	return program;
 }
 
+void Shader::Recompile()
+{
+	program = CreateShader(source.vertex, source.fragment);
+}
+
 void Shader::Bind() const
 {
 	glUseProgram(program);
@@ -110,6 +115,7 @@ inline void Shader::SetProjectionMatrix(unsigned int program, const glm::mat4& m
 }
 
 Shader::Shader(ShaderSource& source)
+	: source(source)
 {
 	program = CreateShader(source.vertex, source.fragment);
 }
