@@ -37,7 +37,7 @@ struct Model
 
 	Model(vec3 position, Mesh&mesh, Texture& texture)
 		: mesh(mesh), position(position), texture(&texture) {
-		std::cout << "Assigned texture " << std::endl;
+		//std::cout << "Assigned texture " << std::endl;
 		UpdateModelMatrix();
 	}
 
@@ -64,8 +64,8 @@ struct Model
 		localToWorld = glm::scale(localToWorld, scale);
 
 		// TODO: 1000 is temp, make method to find bounds
-		boundsMin = position - vec3(1000);
-		boundsMax = position + vec3(1000);
+		boundsMin = position + mesh.boundsMin;
+		boundsMax = position + mesh.boundsMax;
 
 		isDirty = false;
 	}

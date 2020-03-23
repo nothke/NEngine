@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "Vertex.h"
+#include <glm/vec3.hpp>
 
 struct Mesh
 {
@@ -12,6 +13,15 @@ struct Mesh
 	int vertexCount;
 	int indexCount;
 
+	glm::vec3 boundsMin;
+	glm::vec3 boundsMax;
+
+private:
+	unsigned int vao;
+	unsigned int ibo;
+
+	// Methods:
+public:
 	void Bind();
 	void Rebuild();
 
@@ -20,10 +30,7 @@ struct Mesh
 	void SimplifySloppy(float threshold);
 	
 private:
-	unsigned int vao;
-	unsigned int ibo;
-
-
 	void CreateAttributes();
+	void FindBounds();
 };
 

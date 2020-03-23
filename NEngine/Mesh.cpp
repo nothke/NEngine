@@ -46,6 +46,26 @@ void Mesh::CreateAttributes()
 	//std::cout << ibo << " " << vao << std::endl;
 }
 
+void Mesh::FindBounds()
+{
+	glm::vec3 min(0);
+	glm::vec3 max(0);
+
+	for (Vertex v : vertices)
+	{
+		if (v.posx < min.x) min.x = v.posx;
+		if (v.posy < min.y) min.y = v.posy;
+		if (v.posz < min.z) min.z = v.posz;
+
+		if (v.posx > max.x) max.x = v.posx;
+		if (v.posy > max.y) max.y = v.posy;
+		if (v.posz > max.z) max.z = v.posz;
+	}
+
+	boundsMin = min;
+	boundsMax = max;
+}
+
 void Mesh::Bind()
 {
 	GLCall(glBindVertexArray(vao));
@@ -122,4 +142,5 @@ void Mesh::Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indi
 	indexCount = indices.size();
 
 	CreateAttributes();
+	FindBounds();
 }

@@ -279,7 +279,7 @@ int main()
 		}
 	}*/
 
-	const int grassCount = 10;
+	const int grassCount = 80;
 	for (size_t y = 0; y < grassCount; y++)
 	{
 		for (size_t x = 0; x < grassCount; x++)
