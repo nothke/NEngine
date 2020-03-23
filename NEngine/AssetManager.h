@@ -9,9 +9,16 @@ class AssetManager
 private:
 	std::vector<Mesh> meshes;
 	std::vector<Texture> textures;
-	std::vector<Shader> shaders;
 
 public:
+	std::vector<Shader> shaders;
+
+	/*
+	const std::vector<Shader>& GetShaders()
+	{
+		return shaders;
+	}*/
+
 	Mesh& CreateMesh(const char* path)
 	{
 		Mesh mesh;
@@ -63,6 +70,8 @@ public:
 	{
 		for (Shader& s : shaders)
 			s.Delete();
+
+		// Meshes?
 
 		for (Texture& t : textures)
 			t.Release();

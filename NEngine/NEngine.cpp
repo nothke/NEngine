@@ -44,11 +44,9 @@ Application app;
 Renderer renderer;
 Camera camera;
 
-AssetManager assets(3, 3, 3);
+Shader* mainShader; // not like this with multiple shaders
 
-// TODO: Remove
-std::vector<Shader> shaders;
-std::vector<Texture> textures;
+AssetManager assets(3, 3, 3);
 
 glm::ivec2 targetResolution = { 1024, 768 };
 
@@ -128,27 +126,9 @@ void RebuildEverything()
 {
 	renderer.Init();
 
-	// Commenting this out locks app
-	/*
-	for (Mesh& mesh : meshes)
-	{
-		mesh.Rebuild();
-	}*/
-
-	for (Shader& shader : shaders)
-	{
-		auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
-		shader = Shader(source);
-		// Only because there's just one shader:
-		shader.Bind();
-	}
-
-	for (Texture& tex : textures)
-	{
-		tex.Rebuild();
-	}
-
-	shaders[0].SetInt("_Texture", 0);
+	assets.RebuildAll();
+	mainShader = &assets.shaders[0];
+	mainShader->Bind();
 
 	InitInputCallbacks();
 
@@ -210,19 +190,12 @@ int main()
 	meshes.push_back(grassMesh);*/
 
 	// Shaders
-	auto source = ShaderReader::Parse("../NEngine/res/texture.glsl");
-	Shader shader = Shader(source);
-	shaders.push_back(shader);
-	shader.Bind();
+	mainShader = &assets.CreateShader("../NEngine/res/texture.glsl");
+	mainShader->Bind();
 
 	// Textures
-	textures.reserve(2);
-
-	Texture grassTex("../NEngine/res/models/grasso.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
-	textures.push_back(grassTex);
-
-	Texture tex("../NEngine/res/models/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
-	textures.push_back(tex);
+	Texture grassTex = assets.CreateTexture("../NEngine/res/models/grasso.png"); // Texture::Filtering::Nearest, Texture::EdgeMode::Wrap
+	Texture tex = assets.CreateTexture("../NEngine/res/models/grass.png"); // Texture::Filtering::Nearest, Texture::EdgeMode::Wrap
 
 	//shader.SetInt("_Texture", 0);
 
@@ -357,6 +330,8 @@ int main()
 		// Rendering
 		renderer.Clear(from(color1));
 
+		Shader shader = *mainShader;
+
 		shader.SetVPMatrix(camera.vp);
 		shader.SetVector("_CamPos", vec4(camera.position, 1));
 		Frustum frustum = Frustum(camera.vp);
@@ -471,10 +446,12 @@ int main()
 
 	assets.Dispose();
 
+	/*
 	shader.Delete();
 
 	for (Texture& t : textures)
 		t.Release();
+		*/
 
 	app.Terminate();
 
