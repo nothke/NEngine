@@ -40,10 +40,15 @@ public:
 		std::cout << "CREATED texture: " << path << ", size: " << width << "x" << height << std::endl;
 	}
 
+	void Release()
+	{
+		glDeleteTextures(1, &id);
+		std::cout << "RELEASED texture: " << filePath << std::endl;
+	}
+
 	~Texture()
 	{
 		std::cout << "DISPOSED texture: " << filePath << std::endl;
-		glDeleteTextures(1, &id);
 	};
 
 	void Bind(unsigned int slot = 0) const

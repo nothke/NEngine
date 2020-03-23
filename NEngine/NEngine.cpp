@@ -292,6 +292,16 @@ int main()
 		}
 	}*/
 
+	const int grassCount = 10;
+	for (size_t y = 0; y < grassCount; y++)
+	{
+		for (size_t x = 0; x < grassCount; x++)
+		{
+			Model m({ x,0,y }, grassMesh, grassTex);
+			objects.push_back(m);
+		}
+	}
+
 	// Grass
 	objects.push_back(Model(vec3(0), grassMesh, grassTex));
 
@@ -458,6 +468,9 @@ int main()
 #endif
 
 	shader.Delete();
+
+	for (Texture& t : textures)
+		t.Release();
 
 	app.Terminate();
 
