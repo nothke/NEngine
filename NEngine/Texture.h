@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "GLAssert.h"
 #include "stb_image/stb_image.h"
+#include <string>
 
 class Texture
 {

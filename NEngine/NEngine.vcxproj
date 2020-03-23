@@ -186,6 +186,7 @@
     <ClInclude Include="Application.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ModelReader.cpp" />
     <ClCompile Include="NEngine.cpp" />
