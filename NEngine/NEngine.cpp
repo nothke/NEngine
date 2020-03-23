@@ -242,8 +242,6 @@ int main()
 	// Data passed to shader
 	ImVec4 color1{ 200.0f / 255, 164.0f / 255, 100.0f / 255, 1.0f, };
 	ImVec4 color2{ 0.0f, 1.0f, 1.0f, 1.0f };
-	float shader_mult = 0.3f;
-	float shader_range = 1;
 	vec4 shader_FogParams = vec4(80.0f, 0, 4.0f, 10.0f);
 
 	// SCENE
@@ -377,8 +375,6 @@ int main()
 		glm::vec4 inputColor2 = from(color2);
 		shader.SetVector("_InputColor2", inputColor2);
 
-		shader.SetFloat("_Mult", shader_mult);
-		shader.SetFloat("_Range", shader_range);
 		shader.SetVector("_FogParams", shader_FogParams);
 
 		// imgui
@@ -396,8 +392,6 @@ int main()
 
 				ImGui::ColorEdit3("color 1", (float*)&color1);
 				ImGui::ColorEdit3("color 2", (float*)&color2);
-				ImGui::SliderFloat("Mult", &shader_mult, 0, 2);
-				ImGui::SliderFloat("Range", &shader_range, 0, 2);
 
 				ImGui::Text("Fog");
 				ImGui::SliderFloat("Fog range", &shader_FogParams.x, 0, 1000, "%.3f", 2.0f);
@@ -414,6 +408,9 @@ int main()
 
 				ImGui::SameLine();
 				ImGui::Checkbox("Fullscreen", &app.fullscreen);
+
+				if (ImGui::Button("Recompile Shaders"))
+					assets.ReloadShaders();
 
 				// Analitics
 				ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, 1.0f / dt, ImGui::GetIO().Framerate);

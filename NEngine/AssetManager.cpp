@@ -9,6 +9,7 @@ AssetManager::AssetManager(const int meshesCapacity, const int texturesCapacity,
 	meshes.reserve(meshesCapacity);
 	textures.reserve(texturesCapacity);
 	shaders.reserve(shadersCapacity);
+	shaderPaths.reserve(shadersCapacity);
 }
 
 void AssetManager::AddMesh(const Mesh& mesh)
@@ -49,6 +50,7 @@ Shader & AssetManager::CreateShader(const char * path)
 	ShaderSource source = ShaderReader::Parse(path);
 	Shader shader(source);
 	shaders.push_back(source);
+	shaderPaths.push_back(path);
 
 	return shaders[shaders.size() - 1];
 }
@@ -68,6 +70,15 @@ void AssetManager::RebuildAll()
 	for (Mesh& mesh : meshes)
 	{
 		mesh.Rebuild();
+	}
+}
+
+void AssetManager::ReloadShaders()
+{
+	for (size_t i = 0; i < shaders.size(); i++)
+	{
+		auto source = ShaderReader::Parse(shaderPaths[i]);
+		shaders[i] = Shader(source);
 	}
 }
 

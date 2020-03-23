@@ -8,6 +8,7 @@ class AssetManager
 private:
 	std::vector<Mesh> meshes;
 	std::vector<Texture> textures;
+	std::vector<std::string> shaderPaths;
 
 public:
 	std::vector<Shader> shaders;
@@ -23,5 +24,6 @@ public:
 		Texture::EdgeMode edgeMode = Texture::Wrap);
 	Shader& CreateShader(const char* path);
 	void RebuildAll();
+	void ReloadShaders();
 	void Dispose();
 };
