@@ -234,6 +234,7 @@ int main()
 
 	// Camera
 	camera.SetProjection(90.0f, app.aspectRatio);
+	bool constrainCameraToGround = true;
 
 	const glm::vec3 RIGHT = glm::vec3(1, 0, 0);
 	const glm::vec3 UP = glm::vec3(0, 1, 0);
@@ -317,12 +318,15 @@ int main()
 
 		// Camera
 		camera.SetInputRotation(rotation);
-
 		camera.UpdateRotation();
 		camera.MoveRelative(playerInput * dt * cameraSpeed);
-		//camera.position.y = 0;
-		camera.position.y = -pnoise.accumulatedOctaveNoise2D(-camera.position.x * freq, -camera.position.z * freq, octaves) * gain;
-		camera.position.y -= 1;
+
+		if (constrainCameraToGround)
+		{
+			camera.position.y = -pnoise.accumulatedOctaveNoise2D(-camera.position.x * freq, -camera.position.z * freq, octaves) * gain;
+			camera.position.y -= 1;
+		}
+
 		camera.Update();
 
 		// Rendering
@@ -395,6 +399,8 @@ int main()
 
 				ImGui::ColorEdit3("color 1", (float*)&color1);
 				ImGui::ColorEdit3("color 2", (float*)&color2);
+
+				ImGui::Checkbox("Constrain camera to ground", &constrainCameraToGround);
 
 				ImGui::Text("Fog");
 				ImGui::SliderFloat("Fog range", &shader_FogParams.x, 0, 1000, "%.3f", 2.0f);
