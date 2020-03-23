@@ -11,6 +11,7 @@
 #include <vector>
 #include "imgui/imgui.h"
 #include <chrono>
+#include <random>
 
 #include "Application.h"
 #include "Renderer.h"
@@ -280,11 +281,14 @@ int main()
 	}*/
 
 	const int grassCount = 80;
+	double PI = glm::pi<double>();
 	for (size_t y = 0; y < grassCount; y++)
 	{
 		for (size_t x = 0; x < grassCount; x++)
 		{
 			Model m({ x,0,y }, grassMesh, grassTex);
+			float a = (((double)rand() / (RAND_MAX)) + 1) * PI;
+			m.SetRotation(vec3(0, a, 0));
 			objects.push_back(m);
 		}
 	}
