@@ -222,12 +222,10 @@ int main()
 	float shader_range = 1;
 	vec4 shader_FogParams = vec4(80.0f, 0, 4.0f, 10.0f);
 
-	// objects
+	// SCENE
+
 	std::vector<Model> objects;
 	objects.reserve(10);
-
-	glm::vec3 pos1(1.5f, 0.0f, -5.0f);
-	glm::vec3 pos2(-1.5f, 0.0f, -5.0f);
 
 	// Plain
 	Model t({ 0,0,0 }, plainMesh, grassPlainTex);
@@ -257,9 +255,6 @@ int main()
 		}
 	}
 
-	// Grass
-	//objects.push_back(Model(vec3(0), grassMesh, grassTex));
-
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
 	{
@@ -269,14 +264,6 @@ int main()
 		const double time = glfwGetTime();
 		const float dt = (float)(time - lastFrameTime);
 		lastFrameTime = time;
-
-		/*
-		pos2.y = sin(time * 2) * 2;
-		objects[1].SetPosition(pos2);
-		objects[1].SetRotation(vec3(time * 3, 0, 0));
-		objects[1].SetScale(vec3(2, 2, 2));
-		objects[1].SetScale(2);
-		*/
 
 		// Input
 		glfwPollEvents();
@@ -322,33 +309,33 @@ int main()
 			Mesh* meshPtr = nullptr;
 			Texture* texPtr = nullptr;
 
-			for (Model& t : objects)
+			for (Model& go : objects)
 			{
-				if (t.IsVisible(frustum))
+				if (!go.IsVisible(frustum))
+					continue;
+
+				if (meshPtr != &go.mesh)
 				{
-					if (meshPtr != &t.mesh)
-					{
-						t.mesh.Bind();
-						meshPtr = &t.mesh;
-					}
-
-					if (texPtr != t.texture)
-					{
-						if (t.texture != nullptr)
-						{
-							t.texture->Bind(0);
-							shader.SetInt("_Texture", 0);
-							shader.Bind();
-						}
-						else
-							texPtr->Unbind();
-
-						texPtr = t.texture;
-					}
-
-					shader.SetMMatrix(t.LocalToWorld());
-					renderer.DrawMesh(t.mesh);
+					go.mesh.Bind();
+					meshPtr = &go.mesh;
 				}
+
+				if (texPtr != go.texture)
+				{
+					if (go.texture != nullptr)
+					{
+						go.texture->Bind(0);
+						shader.SetInt("_Texture", 0);
+						shader.Bind();
+					}
+					else
+						texPtr->Unbind();
+
+					texPtr = go.texture;
+				}
+
+				shader.SetMMatrix(go.LocalToWorld());
+				renderer.DrawMesh(go.mesh);
 			}
 		}
 
@@ -399,7 +386,6 @@ int main()
 
 				// Analitics
 				ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, 1.0f / dt, ImGui::GetIO().Framerate);
-				//ImGui::Text("Mesh: vertices: %i, indices: %i", plainMesh.vertexCount, plainMesh.indexCount);
 
 				ImGui::End();
 			}
@@ -425,13 +411,6 @@ int main()
 #endif
 
 	assets.Dispose();
-
-	/*
-	shader.Delete();
-
-	for (Texture& t : textures)
-		t.Release();
-		*/
 
 	app.Terminate();
 
