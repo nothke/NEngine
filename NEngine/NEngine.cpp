@@ -49,7 +49,6 @@ AssetManager assets(3, 3, 3);
 // TODO: Remove
 std::vector<Shader> shaders;
 std::vector<Texture> textures;
-std::vector<Mesh> meshes;
 
 glm::ivec2 targetResolution = { 1024, 768 };
 
@@ -130,10 +129,11 @@ void RebuildEverything()
 	renderer.Init();
 
 	// Commenting this out locks app
+	/*
 	for (Mesh& mesh : meshes)
 	{
 		mesh.Rebuild();
-	}
+	}*/
 
 	for (Shader& shader : shaders)
 	{
@@ -191,7 +191,7 @@ int main()
 #endif
 
 	// Meshes
-	meshes.reserve(3);
+	//meshes.reserve(3);
 
 	Mesh testAssetMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
 	testAssetMesh.Debug();
@@ -275,6 +275,9 @@ int main()
 	// Plain
 	//Model t({ 0,0,0 }, plainMesh, tex);
 	//objects.push_back(t);
+
+	Model t({ 0,0,0 }, testAssetMesh, tex);
+	objects.push_back(t);
 
 	/*
 	const int monkeys = 10;
