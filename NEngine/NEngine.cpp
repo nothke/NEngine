@@ -55,6 +55,7 @@ float cameraSpeedInput = 1;
 float cameraSpeed = 1;
 
 bool quitKeyPressed = false;
+bool drawGUI = true;
 
 void LockMouse(bool b)
 {
@@ -101,6 +102,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 		case GLFW_KEY_ESCAPE:
 			quitKeyPressed = true;
+
+			break;
+
+		case GLFW_KEY_GRAVE_ACCENT:
+			drawGUI = !drawGUI;
 
 			break;
 		}
@@ -397,6 +403,7 @@ int main()
 		// imgui
 		bool applyResolution = false;
 #ifdef USE_GUI
+		if (drawGUI)
 		{
 			PROFILE_SCOPE("ImGui");
 
