@@ -64,8 +64,8 @@ struct Model
 		localToWorld = glm::scale(localToWorld, scale);
 
 		// TODO: 1000 is temp, make method to find bounds
-		boundsMin = position + mesh.boundsMin;
-		boundsMax = position + mesh.boundsMax;
+		boundsMin = position + mesh.boundsMin * scale;
+		boundsMax = position + mesh.boundsMax * scale;
 
 		isDirty = false;
 	}
