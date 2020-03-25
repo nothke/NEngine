@@ -21,10 +21,13 @@ class Physics
 			{
 				btTransform trans;
 				motion->getWorldTransform(trans);
+				glm::mat4 mat;
+				trans.getOpenGLMatrix(&mat[0][0]);
 
+				model.SetLocalToWorld(mat);
 				// TODO: Directly set transform?
-				model.SetPosition(from(trans.getOrigin()));
-				model.SetRotation(from(trans.getRotation()));
+				//model.SetPosition(from(trans.getOrigin()));
+				//model.SetRotation(from(trans.getRotation()));
 			}
 		}
 	};

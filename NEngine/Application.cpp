@@ -38,7 +38,7 @@ int Application::CreateWindow()
 	glfwMakeContextCurrent(window);
 
 	// VSync
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	return 0;
 }

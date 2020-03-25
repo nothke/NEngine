@@ -155,6 +155,8 @@ void RebuildEverything()
 	GUI::Init(app.window);
 #endif
 
+	LockMouse(true);
+
 	LOG("Rebuilt everything after resolution change");
 }
 
@@ -191,8 +193,8 @@ int main()
 	auto groundShape = physics.AddShape(new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.))));
 	auto groundBody = physics.CreateBody(groundShape, 0, btVector3(0, -50, 0), btQuaternion::getIdentity());
 
-	auto monkeyShape = physics.AddShape(new btBoxShape(btVector3(1, 1, 1)));
-	auto monkeyBody = physics.CreateBody(monkeyShape, 1, btVector3(2, 100, -20), btQuaternion(30, 20, 30));
+	auto unitCubeShape = physics.AddShape(new btBoxShape(btVector3(1, 1, 1)));
+	auto monkeyBody = physics.CreateBody(unitCubeShape, 1, btVector3(2, 100, -20), btQuaternion(30, 20, 30));
 
 	// Meshes
 	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
@@ -217,6 +219,7 @@ int main()
 	Mesh monkeyMesh = assets.CreateMesh("../NEngine/res/models/suza.ply");
 	Mesh grassMesh = assets.CreateMesh("../NEngine/res/models/grasso.ply");
 	Mesh skyMesh = assets.CreateMesh("../NEngine/res/models/skysphere.ply");
+	Mesh cubeMesh = assets.CreateMesh("../NEngine/res/models/cube.ply");
 
 	// Shaders
 	mainShader = &assets.CreateShader("../NEngine/res/texture.glsl");
@@ -313,6 +316,20 @@ int main()
 	objects.push_back(trbMonkey);
 	Model& rbMonkey = objects[objects.size() - 1];
 	physics.BindBodyToModel(monkeyBody, rbMonkey);
+
+	// cubes
+	for (size_t y = 0; y < 20; y++)
+	{
+		float xoff = y % 2 == 0 ? 0.5f : 0;
+		for (size_t x = 0; x < 4; x++)
+		{
+			auto body = physics.CreateBody(unitCubeShape, 100, btVector3((x + xoff) * 2, 5 + y * 2, -10), btQuaternion::getIdentity());
+			Model cube({ 0,0,0 }, cubeMesh, grassPlainTex);
+			objects.push_back(cube);
+			Model& cubeRef = objects[objects.size() - 1];
+			physics.BindBodyToModel(body, cubeRef);
+		}
+	}
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))

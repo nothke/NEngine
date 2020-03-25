@@ -30,6 +30,15 @@ struct Model
 		isDirty = true;
 	}
 
+	void SetLocalToWorld(mat4 mat)
+	{
+		localToWorld = mat;
+
+		position = vec3(mat[3]);
+		boundsMin = position + mesh.boundsMin;
+		boundsMax = position + mesh.boundsMax;
+	}
+
 	Model(vec3 position, Mesh&mesh)
 		: mesh(mesh), position(position) {
 		UpdateModelMatrix();
