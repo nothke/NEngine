@@ -51,7 +51,9 @@ Renderer renderer;
 Camera camera;
 SoLoud::Soloud audio;
 
-SoLoud::Wav clip; // put in asset manager
+// TODO: put these in asset manager
+SoLoud::Wav clip;
+std::array<SoLoud::Wav*, 6> stepClips;
 
 Shader* mainShader; // not like this with multiple shaders
 
@@ -99,6 +101,20 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			//audio.setLooping(handle, true);
 		}
 		//audio.play(clip);
+
+		break;
+
+		case GLFW_KEY_F:
+		{
+			int i = rand() % stepClips.size();
+			// swap pointers
+			auto ptr = stepClips[0];
+			stepClips[0] = stepClips[i];
+			stepClips[i] = ptr;
+
+			auto& clip = *stepClips[0];
+			SoLoud::handle handle = audio.play(clip);
+		}
 
 		break;
 
@@ -201,15 +217,19 @@ int main()
 	GUI::Init(app.window);
 #endif
 
-
 	audio.init();
 
-
+	// Sounds
 	auto mess = clip.load("../NEngine/res/sfx/tram_joint_1.wav");
-	LOG("AUDIO: " << mess);
+
+	for (size_t i = 0; i < stepClips.size(); i++)
+	{
+		stepClips[i] = new SoLoud::Wav();
+		const char* c = ("../NEngine/res/sfx/step_sand" + std::to_string(i + 1) + ".wav").c_str();
+		stepClips[i]->load(c);
+	}
 
 	audio.play(clip);
-
 
 	// Meshes
 	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
@@ -497,6 +517,11 @@ int main()
 #ifdef USE_GUI
 	GUI::Shutdown();
 #endif
+
+	for (size_t i = 0; i < stepClips.size(); i++)
+	{
+		delete stepClips[i];
+	}
 
 	audio.deinit();
 
