@@ -49,6 +49,9 @@ bool mouseView = true;
 Application app;
 Renderer renderer;
 Camera camera;
+SoLoud::Soloud audio;
+
+SoLoud::Wav clip; // put in asset manager
 
 Shader* mainShader; // not like this with multiple shaders
 
@@ -90,6 +93,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		switch (key)
 		{
+		case GLFW_KEY_T:
+			audio.play(clip);
+
+			break;
+
 		case GLFW_KEY_LEFT_CONTROL:
 
 			mouseView = !mouseView;
@@ -114,6 +122,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			drawGUI = !drawGUI;
 
 			break;
+
+
 		}
 	}
 }
@@ -187,11 +197,10 @@ int main()
 	GUI::Init(app.window);
 #endif
 
-	SoLoud::Soloud audio;
 
 	audio.init();
 
-	SoLoud::Wav clip;
+
 	auto mess = clip.load("../NEngine/res/sfx/tram_joint_1.wav");
 	LOG("AUDIO: " << mess);
 
