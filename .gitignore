@@ -265,4 +265,5 @@ NEngine/vendor/glm/
 results.json
 NEngine/res/models/plain_hi.ply
 NEngine/imgui.ini
-Dependencies/bullet/
+Dependencies/Bullet/
+Dependencies/SoLoud/

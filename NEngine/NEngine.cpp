@@ -31,6 +31,9 @@
 #include "btBulletDynamicsCommon.h"
 #include "Physics.h"
 
+#include "soloud.h"
+#include "soloud_wav.h"
+
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
 #include <windows.h>
@@ -47,6 +50,11 @@ bool mouseView = true;
 Application app;
 Renderer renderer;
 Camera camera;
+SoLoud::Soloud audio;
+
+// TODO: put these in asset manager
+SoLoud::Wav clip;
+std::array<SoLoud::Wav*, 6> stepClips;
 
 Shader* mainShader; // not like this with multiple shaders
 
@@ -83,6 +91,18 @@ void LockMouse(bool b)
 // forward declaration for key_callback
 void RebuildEverything();
 
+void PlayFootstep()
+{
+	int i = rand() % stepClips.size();
+	// swap pointers
+	auto ptr = stepClips[0];
+	stepClips[0] = stepClips[i];
+	stepClips[i] = ptr;
+
+	auto& clip = *stepClips[0];
+	SoLoud::handle handle = audio.play(clip, 0.2f);
+}
+
 // Keyboard button press
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -95,6 +115,22 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 
 			// System
+		case GLFW_KEY_T:
+		{
+			SoLoud::handle handle = audio.play3d(clip, 0, 0, 0, 0, 0, 0, 1);
+			//audio.setLooping(handle, true);
+		}
+		//audio.play(clip);
+
+		break;
+
+		case GLFW_KEY_F:
+		{
+			PlayFootstep();
+		}
+
+		break;
+
 		case GLFW_KEY_LEFT_CONTROL:
 
 			mouseView = !mouseView;
@@ -120,6 +156,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			drawGUI = !drawGUI;
 
 			break;
+
+
 		}
 	}
 }
@@ -203,6 +241,19 @@ int main()
 
 	auto unitCubeShape = physics.AddShape(new btBoxShape(btVector3(1, 1, 1)));
 	auto monkeyBody = physics.CreateBody(unitCubeShape, 1, btVector3(2, 100, -20), btQuaternion(30, 20, 30));
+	audio.init();
+
+	// Sounds
+	auto mess = clip.load("../NEngine/res/sfx/tram_joint_1.wav");
+
+	for (size_t i = 0; i < stepClips.size(); i++)
+	{
+		stepClips[i] = new SoLoud::Wav();
+		const char* c = ("../NEngine/res/sfx/step_sand" + std::to_string(i + 1) + ".wav").c_str();
+		stepClips[i]->load(c);
+	}
+
+	audio.play(clip);
 
 	// Meshes
 	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
@@ -248,10 +299,11 @@ int main()
 
 	const float mouseSensitivity = 0.2f;
 
-	glm::vec3 camPos = { 0, 0, 0 };
+	glm::vec3 lastCamPos = vec3(0);
 	glm::vec2 playerInput;
 	glm::vec2 rotation = glm::vec2(0, 0);
 	glm::vec2 lastMousePos;
+	float footstepDistance = 0;
 
 	{
 		// Initialize mouse position
@@ -416,6 +468,20 @@ int main()
 		{
 			PROFILE_SCOPE("Physics update");
 			physics.UpdateModels();
+		float distancePassed = glm::length(camera.position - lastCamPos);
+		lastCamPos = camera.position;
+
+		audio.set3dListenerParameters(
+			-camera.position.x, -camera.position.y, -camera.position.z,
+			camera.forward.x, camera.forward.y, camera.forward.z,
+			0, 1, 0);
+
+		footstepDistance += distancePassed;
+		LOG(footstepDistance);
+		if (footstepDistance > 0.7f)
+		{
+			PlayFootstep();
+			footstepDistance = 0;
 		}
 
 		// Rendering
@@ -540,6 +606,13 @@ int main()
 #ifdef USE_GUI
 	GUI::Shutdown();
 #endif
+
+	for (size_t i = 0; i < stepClips.size(); i++)
+	{
+		delete stepClips[i];
+	}
+
+	audio.deinit();
 
 	assets.Dispose();
 
