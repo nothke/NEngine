@@ -11,6 +11,18 @@ public:
 	enum Filtering { Nearest, Linear };
 	enum EdgeMode { Clamp, Wrap };
 
+private:
+	unsigned int id;
+	unsigned char* buffer;
+	int width;
+	int height;
+	int bbp;
+
+	Filtering filtering;
+	EdgeMode edgeMode;
+
+public:
+
 	void Rebuild()
 	{
 		Release();
@@ -23,6 +35,12 @@ public:
 		stbi_set_flip_vertically_on_load(1);
 
 		buffer = stbi_load(&filePath[0], &width, &height, &bbp, 4);
+
+		if (!buffer)
+		{
+			std::cout << "ERROR: Failed loading texture: " << filePath << std::endl;
+			return;
+		}
 
 		GLCall(glGenTextures(1, &id));
 
@@ -43,6 +61,8 @@ public:
 
 		if (buffer)
 			stbi_image_free(buffer);
+
+
 	}
 
 	Texture(const std::string& path, Filtering filtering = Nearest, EdgeMode edgeMode = Clamp)
@@ -52,7 +72,8 @@ public:
 	{
 		Build();
 
-		std::cout << "CREATED texture: " << path << ", size: " << width << "x" << height << std::endl;
+		if (width != 0 && height != 0)
+			std::cout << "CREATED texture: " << path << ", size: " << width << "x" << height << std::endl;
 	}
 
 	void Release()
@@ -79,14 +100,6 @@ public:
 
 	std::string filePath;
 
-private:
-	unsigned int id;
-	unsigned char* buffer;
-	int width;
-	int height;
-	int bbp;
 
-	Filtering filtering;
-	EdgeMode edgeMode;
 };
 
