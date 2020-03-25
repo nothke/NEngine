@@ -12,6 +12,8 @@
 #include <chrono>
 #include <random>
 
+
+
 #include "Application.h"
 #include "AssetManager.h"
 #include "Shader.h"
@@ -27,6 +29,9 @@
 #include "GUI.h"
 #include "FrustumCull.h"
 #include "perlin/PerlinNoise.hpp"
+
+#include "soloud.h"
+#include "soloud_wav.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -181,6 +186,17 @@ int main()
 #ifdef USE_GUI
 	GUI::Init(app.window);
 #endif
+
+	SoLoud::Soloud audio;
+
+	audio.init();
+
+	SoLoud::Wav clip;
+	auto mess = clip.load("../NEngine/res/sfx/tram_joint_1.wav");
+	LOG("AUDIO: " << mess);
+
+	audio.play(clip);
+
 
 	// Meshes
 	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
@@ -463,6 +479,8 @@ int main()
 #ifdef USE_GUI
 	GUI::Shutdown();
 #endif
+
+	audio.deinit();
 
 	assets.Dispose();
 
