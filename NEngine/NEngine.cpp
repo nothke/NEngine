@@ -97,7 +97,7 @@ void PlayFootstep()
 	stepClips[i] = ptr;
 
 	auto& clip = *stepClips[0];
-	SoLoud::handle handle = audio.play(clip);
+	SoLoud::handle handle = audio.play(clip, 0.2f);
 }
 
 // Keyboard button press
