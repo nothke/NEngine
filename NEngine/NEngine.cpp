@@ -468,6 +468,8 @@ int main()
 		{
 			PROFILE_SCOPE("Physics update");
 			physics.UpdateModels();
+		}
+
 		float distancePassed = glm::length(camera.position - lastCamPos);
 		lastCamPos = camera.position;
 
