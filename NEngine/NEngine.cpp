@@ -94,9 +94,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		switch (key)
 		{
 		case GLFW_KEY_T:
-			audio.play(clip);
+		{
+			SoLoud::handle handle = audio.play3d(clip, 0, 0, 0, 0, 0, 0, 1);
+			//audio.setLooping(handle, true);
+		}
+		//audio.play(clip);
 
-			break;
+		break;
 
 		case GLFW_KEY_LEFT_CONTROL:
 
@@ -365,6 +369,11 @@ int main()
 		}
 
 		camera.Update();
+
+		audio.set3dListenerParameters(
+			-camera.position.x, -camera.position.y, -camera.position.z,
+			camera.forward.x, camera.forward.y, camera.forward.z,
+			0, 1, 0);
 
 		// Rendering
 		renderer.Clear(from(color1));
