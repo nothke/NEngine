@@ -25,7 +25,7 @@ void main(){
 	float zwave = sin(time + cos(worldPos.x + worldPos.z * 0.3f + _Time)) * 0.1f;
 
 	vec3 off = vec3(xwave, 0, zwave) * 0.6;
-	//worldPos += off * color.r;
+	worldPos += off * color.r;
 
 	vec3 localPos = (inverse(_M) * vec4(worldPos, 1)).xyz;
 

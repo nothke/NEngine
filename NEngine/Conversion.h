@@ -19,6 +19,11 @@ glm::vec3 from(btVector3 v)
 	return { v.getX(), v.getY(), v.getZ() };
 }
 
+btVector3 from(glm::vec3 v)
+{
+	return btVector3(v.x, v.y, v.z);
+}
+
 #include "LinearMath/btQuaternion.h"
 
 glm::quat from(btQuaternion q)

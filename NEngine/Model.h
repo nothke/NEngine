@@ -33,6 +33,8 @@ struct Model
 	void SetLocalToWorld(mat4 mat)
 	{
 		localToWorld = mat;
+		// TODO: if matrix has scale this will override it
+		localToWorld = glm::scale(localToWorld, scale);
 
 		position = vec3(mat[3]);
 		boundsMin = position + mesh.boundsMin;

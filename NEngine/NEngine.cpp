@@ -22,7 +22,7 @@
 #include "Conversion.h"
 #include "Log.h"
 #include "Model.h"
-//#define PROFILING
+#define PROFILING
 #include "instrumentor.h"
 #include "GUI.h"
 #include "FrustumCull.h"
@@ -60,6 +60,8 @@ float cameraSpeed = 1;
 bool quitKeyPressed = false;
 bool drawGUI = true;
 
+bool spawnCubeThisFrame = false;
+
 void LockMouse(bool b)
 {
 	if (b)
@@ -88,6 +90,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		switch (key)
 		{
+		case GLFW_KEY_B:
+			spawnCubeThisFrame = true;
+			break;
+
+			// System
 		case GLFW_KEY_LEFT_CONTROL:
 
 			mouseView = !mouseView;
@@ -103,6 +110,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			RebuildEverything();
 
 			break;
+
 		case GLFW_KEY_ESCAPE:
 			quitKeyPressed = true;
 
@@ -228,6 +236,8 @@ int main()
 	// Textures
 	Texture grass3DTex = assets.CreateTexture("../NEngine/res/models/grasso.png");
 	Texture grassPlainTex = assets.CreateTexture("../NEngine/res/models/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
+	Texture redCube = assets.CreateTexture("../NEngine/res/models/redsquare.png");
+	Texture whiteCube = assets.CreateTexture("../NEngine/res/models/whitesquare.png");
 
 	renderer.Init();
 
@@ -265,7 +275,7 @@ int main()
 	// Data passed to shader
 	ImVec4 color1(0.919f, 1.000f, 0.828f, 1.000f);
 	ImVec4 color2(0.887f, 0.594f, 0.300f, 1.000f);
-	vec4 shader_FogParams = vec4(80.0f, 0, 4.0f, 10.0f);
+	vec4 shader_FogParams = vec4(10.0f, 0.5f, 4.0f, 10.0f);
 
 	// SCENE
 
@@ -292,6 +302,7 @@ int main()
 		}
 	}*/
 
+	// Grass
 	const int grassCount = 80;
 	double PI = glm::pi<double>();
 	for (size_t y = 0; y < grassCount; y++)
@@ -299,8 +310,8 @@ int main()
 		for (size_t x = 0; x < grassCount; x++)
 		{
 			vec3 pos(
-				(x + randv()) * 0.5f, 0,
-				(y + randv()) * 0.5f);
+				((-grassCount / 2.0f) + x + randv()) * 0.5f, 0,
+				((-grassCount / 2.0f) + y + randv()) * 0.5f);
 
 			pos.y = pnoise.accumulatedOctaveNoise2D(pos.x * freq, pos.z * freq, octaves) * gain;
 
@@ -312,24 +323,29 @@ int main()
 	}
 
 	// rigidbody monkey
+	/*
 	Model trbMonkey({ 0,0,0 }, monkeyMesh, grassPlainTex);
 	objects.push_back(trbMonkey);
 	Model& rbMonkey = objects[objects.size() - 1];
 	physics.BindBodyToModel(monkeyBody, rbMonkey);
+	*/
 
 	// cubes
-	for (size_t y = 0; y < 20; y++)
+	for (size_t y = 0; y < 40; y++)
 	{
 		float xoff = y % 2 == 0 ? 0.5f : 0;
 		for (size_t x = 0; x < 4; x++)
 		{
 			auto body = physics.CreateBody(unitCubeShape, 100, btVector3((x + xoff) * 2, 5 + y * 2, -10), btQuaternion::getIdentity());
-			Model cube({ 0,0,0 }, cubeMesh, grassPlainTex);
+			Model cube({ 0,0,0 }, cubeMesh, whiteCube);
 			objects.push_back(cube);
 			Model& cubeRef = objects[objects.size() - 1];
 			physics.BindBodyToModel(body, cubeRef);
 		}
 	}
+
+	float smallBoxSize = 0.5f;
+	btCollisionShape* smallBoxShape = physics.AddShape(new btBoxShape(btVector3(smallBoxSize, smallBoxSize, smallBoxSize)));
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
@@ -376,13 +392,31 @@ int main()
 
 		camera.Update();
 
-		// bullet simulate
-		for (size_t i = 0; i < 10; i++)
+		if (KeyPressed(GLFW_KEY_B))
 		{
-			physics.Step(dt / 10);
+			auto cubeRB = physics.CreateBody(smallBoxShape, 20, from(-camera.position), btQuaternion::getIdentity());
+			auto model = Model(vec3(0), cubeMesh, redCube);
+			objects.push_back(model);
+			Model& model2 = objects[objects.size() - 1];
+			model2.SetScale(smallBoxSize);
+			physics.BindBodyToModel(cubeRB, model2);
+
+			cubeRB->setLinearVelocity(from(camera.forward * 30.0f));
+
+			spawnCubeThisFrame = false;
 		}
 
-		physics.UpdateModels();
+		// bullet simulate
+		for (size_t i = 0; i < 1; i++)
+		{
+			PROFILE_SCOPE("Physics step");
+			physics.Step(dt / 1);
+		}
+
+		{
+			PROFILE_SCOPE("Physics update");
+			physics.UpdateModels();
+		}
 
 		// Rendering
 		renderer.Clear(from(color1));
