@@ -1,9 +1,18 @@
 #pragma once
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
+#include "Model.h"
 
 class Physics
 {
+	struct BodyModelPair
+	{
+		Model& model;
+		btRigidBody* body;
+
+		BodyModelPair(btRigidBody* body, Model& model) : model(model) {}
+	};
+
 public:
 	btDefaultCollisionConfiguration*		collisionConfiguration;
 	btCollisionDispatcher*					dispatcher;
@@ -12,6 +21,8 @@ public:
 	btDiscreteDynamicsWorld*				dynamicsWorld;
 	// recommended by bullet instead of vector:
 	btAlignedObjectArray<btCollisionShape*>	collisionShapes;
+
+	std::vector<BodyModelPair> bodyModelPairs;
 
 	Physics()
 	{
@@ -58,6 +69,12 @@ public:
 		//add the body to the dynamics world
 		dynamicsWorld->addRigidBody(body);
 		return body;
+	}
+
+	void BindBodyToModel(btRigidBody* body, Model& model)
+	{
+		BodyModelPair pair(body, model);
+		bodyModelPairs.push_back(pair);
 	}
 
 	~Physics()
