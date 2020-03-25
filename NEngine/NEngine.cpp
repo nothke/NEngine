@@ -88,6 +88,18 @@ void LockMouse(bool b)
 // forward declaration for key_callback
 void RebuildEverything();
 
+void PlayFootstep()
+{
+	int i = rand() % stepClips.size();
+	// swap pointers
+	auto ptr = stepClips[0];
+	stepClips[0] = stepClips[i];
+	stepClips[i] = ptr;
+
+	auto& clip = *stepClips[0];
+	SoLoud::handle handle = audio.play(clip);
+}
+
 // Keyboard button press
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -106,14 +118,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 		case GLFW_KEY_F:
 		{
-			int i = rand() % stepClips.size();
-			// swap pointers
-			auto ptr = stepClips[0];
-			stepClips[0] = stepClips[i];
-			stepClips[i] = ptr;
-
-			auto& clip = *stepClips[0];
-			SoLoud::handle handle = audio.play(clip);
+			PlayFootstep();
 		}
 
 		break;
@@ -272,10 +277,11 @@ int main()
 
 	const float mouseSensitivity = 0.2f;
 
-	glm::vec3 camPos = { 0, 0, 0 };
+	glm::vec3 lastCamPos = vec3(0);
 	glm::vec2 playerInput;
 	glm::vec2 rotation = glm::vec2(0, 0);
 	glm::vec2 lastMousePos;
+	float footstepDistance = 0;
 
 	{
 		// Initialize mouse position
@@ -390,10 +396,21 @@ int main()
 
 		camera.Update();
 
+		float distancePassed = glm::length(camera.position - lastCamPos);
+		lastCamPos = camera.position;
+
 		audio.set3dListenerParameters(
 			-camera.position.x, -camera.position.y, -camera.position.z,
 			camera.forward.x, camera.forward.y, camera.forward.z,
 			0, 1, 0);
+
+		footstepDistance += distancePassed;
+		LOG(footstepDistance);
+		if (footstepDistance > 0.7f)
+		{
+			PlayFootstep();
+			footstepDistance = 0;
+		}
 
 		// Rendering
 		renderer.Clear(from(color1));
