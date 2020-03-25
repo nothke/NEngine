@@ -185,69 +185,14 @@ int main()
 	GUI::Init(app.window);
 #endif
 
-#pragma region
+	// Physics
 	Physics physics;
 
-	// GROUND
-	{
-		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
+	auto groundShape = physics.AddShape(new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.))));
+	auto groundBody = physics.CreateBody(groundShape, 0, btVector3(0, -50, 0), btQuaternion::getIdentity());
 
-		physics.collisionShapes.push_back(groundShape);
-
-		btTransform groundTransform;
-		groundTransform.setIdentity();
-		groundTransform.setOrigin(btVector3(0, -50, 0));
-
-		btScalar mass(0.);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0, 0, 0);
-		if (isDynamic)
-			groundShape->calculateLocalInertia(mass, localInertia);
-
-		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
-		btRigidBody* body = new btRigidBody(rbInfo);
-
-		//add the body to the dynamics world
-		physics.dynamicsWorld->addRigidBody(body);
-	}
-
-	// DYNAMIC BOX
-	{
-		//create a dynamic rigidbody
-
-		btCollisionShape* colShape = new btBoxShape(btVector3(1, 1, 1));
-		physics.collisionShapes.push_back(colShape);
-
-		/// Create Dynamic Objects
-		btTransform startTransform;
-		startTransform.setIdentity();
-
-		btScalar mass(1.f);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0, 0, 0);
-		if (isDynamic)
-			colShape->calculateLocalInertia(mass, localInertia);
-
-		startTransform.setOrigin(btVector3(2, 100, -20));
-		startTransform.setRotation(btQuaternion(30, 20, 30));
-
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
-		btRigidBody* body = new btRigidBody(rbInfo);
-
-		physics.dynamicsWorld->addRigidBody(body);
-	}
-
-#pragma endregion Bullet
+	auto monkeyShape = physics.AddShape(new btBoxShape(btVector3(1, 1, 1)));
+	auto monkeyBody = physics.CreateBody(monkeyShape, 1, btVector3(2, 100, -20), btQuaternion(30, 20, 30));
 
 	// Meshes
 	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");

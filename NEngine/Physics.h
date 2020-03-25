@@ -30,6 +30,36 @@ public:
 		dynamicsWorld->stepSimulation(dt, 10);
 	}
 
+	btCollisionShape* AddShape(btCollisionShape* shape)
+	{
+		collisionShapes.push_back(shape);
+		return shape;
+	}
+
+	btRigidBody* CreateBody(btCollisionShape* shape, btScalar mass, btVector3 position, btQuaternion rotation)
+	{
+		btTransform transform;
+		transform.setIdentity();
+		transform.setOrigin(position);
+		transform.setRotation(rotation);
+
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
+
+		btVector3 localInertia(0, 0, 0);
+		if (isDynamic)
+			shape->calculateLocalInertia(mass, localInertia);
+
+		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, shape, localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		//add the body to the dynamics world
+		dynamicsWorld->addRigidBody(body);
+		return body;
+	}
+
 	~Physics()
 	{
 		//remove the rigidbodies from the dynamics world and delete them
