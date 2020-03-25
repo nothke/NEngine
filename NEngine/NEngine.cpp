@@ -246,6 +246,7 @@ int main()
 			colShape->calculateLocalInertia(mass, localInertia);
 
 		startTransform.setOrigin(btVector3(2, 100, -20));
+		startTransform.setRotation(btQuaternion(30, 20, 30));
 
 		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
@@ -572,10 +573,32 @@ int main()
 #endif
 
 #pragma region
-	delete collisionConfiguration;
-	delete dispatcher;
-	delete overlappingPairCache;
+	//remove the rigidbodies from the dynamics world and delete them
+	for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+	{
+		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		dynamicsWorld->removeCollisionObject(obj);
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j = 0; j < collisionShapes.size(); j++)
+	{
+		btCollisionShape* shape = collisionShapes[j];
+		collisionShapes[j] = 0;
+		delete shape;
+	}
+
+	delete dynamicsWorld;
 	delete solver;
+	delete overlappingPairCache;
+	delete dispatcher;
+	delete collisionConfiguration;
 #pragma endregion Bullet
 
 	assets.Dispose();
