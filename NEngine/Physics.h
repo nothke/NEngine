@@ -59,11 +59,6 @@ public:
 	{
 		dynamicsWorld->stepSimulation(dt, 10);
 
-		for (auto& pair : bodyModelPairs)
-		{
-			pair.UpdateModelPosition();
-		}
-
 		/*
 		for (size_t i = 0; i < dynamicsWorld->getNumCollisionObjects(); i++)
 		{
@@ -89,6 +84,14 @@ public:
 				trs = obj->getWorldTransform();
 		}
 		*/
+	}
+
+	void UpdateModels()
+	{
+		for (auto& pair : bodyModelPairs)
+		{
+			pair.UpdateModelPosition();
+		}
 	}
 
 	btCollisionShape* AddShape(btCollisionShape* shape)

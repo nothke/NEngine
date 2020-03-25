@@ -377,7 +377,12 @@ int main()
 		camera.Update();
 
 		// bullet simulate
-		physics.Step(dt);
+		for (size_t i = 0; i < 10; i++)
+		{
+			physics.Step(dt / 10);
+		}
+
+		physics.UpdateModels();
 
 		// Rendering
 		renderer.Clear(from(color1));
