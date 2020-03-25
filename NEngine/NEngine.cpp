@@ -343,6 +343,10 @@ int main()
 	Model t({ 0,0,0 }, plainMesh, grassPlainTex);
 	objects.push_back(t);
 
+	Model t2({ 0, -3, 0 }, plainMesh, grassPlainTex);
+	t2.SetScale(5);
+	objects.push_back(t2);
+
 	/*
 	const int monkeys = 10;
 	for (size_t y = 0; y < monkeys; y++)
@@ -355,7 +359,7 @@ int main()
 	}*/
 
 	// Grass
-	const int grassCount = 80;
+	const int grassCount = 160;
 	double PI = glm::pi<double>();
 	for (size_t y = 0; y < grassCount; y++)
 	{
@@ -383,7 +387,7 @@ int main()
 	*/
 
 	// cubes
-	for (size_t y = 0; y < 40; y++)
+	for (size_t y = 0; y < 10; y++)
 	{
 		float xoff = y % 2 == 0 ? 0.5f : 0;
 		for (size_t x = 0; x < 4; x++)
