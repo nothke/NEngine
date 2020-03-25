@@ -193,6 +193,68 @@ int main()
 		overlappingPairCache, solver, collisionConfiguration);
 
 	dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
+
+	// recommended by bullet instead of vector:
+	btAlignedObjectArray<btCollisionShape*> collisionShapes;
+
+	// GROUND
+	{
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
+
+		collisionShapes.push_back(groundShape);
+
+		btTransform groundTransform;
+		groundTransform.setIdentity();
+		groundTransform.setOrigin(btVector3(0, -50, 0));
+
+		btScalar mass(0.);
+
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
+
+		btVector3 localInertia(0, 0, 0);
+		if (isDynamic)
+			groundShape->calculateLocalInertia(mass, localInertia);
+
+		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		//add the body to the dynamics world
+		dynamicsWorld->addRigidBody(body);
+	}
+
+	// DYNAMIC BOX
+	{
+		//create a dynamic rigidbody
+
+		btCollisionShape* colShape = new btBoxShape(btVector3(1, 1, 1));
+		collisionShapes.push_back(colShape);
+
+		/// Create Dynamic Objects
+		btTransform startTransform;
+		startTransform.setIdentity();
+
+		btScalar mass(1.f);
+
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
+
+		btVector3 localInertia(0, 0, 0);
+		if (isDynamic)
+			colShape->calculateLocalInertia(mass, localInertia);
+
+		startTransform.setOrigin(btVector3(2, 100, -20));
+
+		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		dynamicsWorld->addRigidBody(body);
+	}
+
 #pragma endregion Bullet
 
 	// Meshes
@@ -309,6 +371,11 @@ int main()
 		}
 	}
 
+	// rigidbody monkey
+	Model trbMonkey({ 0,0,0 }, monkeyMesh, grassPlainTex);
+	objects.push_back(trbMonkey);
+	Model& rbMonkey = objects[objects.size() - 1];
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
 	{
@@ -353,6 +420,33 @@ int main()
 		}
 
 		camera.Update();
+
+		// bullet simulate
+		dynamicsWorld->stepSimulation(dt, 10);
+
+		for (size_t i = 0; i < dynamicsWorld->getNumCollisionObjects(); i++)
+		{
+			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+			btRigidBody* body = btRigidBody::upcast(obj);
+
+			btTransform trs;
+			if (body && body->getMotionState())
+			{
+				body->getMotionState()->getWorldTransform(trs);
+
+				if (body->getMass() != 0)
+				{
+					const btVector3 pos = trs.getOrigin();
+					rbMonkey.SetPosition(vec3(pos.getX(), pos.getY(), pos.getZ()));
+					const btQuaternion rot = trs.getRotation();
+					rbMonkey.SetRotation(quat(rot.getX(), rot.getY(), rot.getZ(), rot.getW()));
+
+					std::cout << pos.getY() << std::endl;
+				}
+			}
+			else
+				trs = obj->getWorldTransform();
+		}
 
 		// Rendering
 		renderer.Clear(from(color1));
