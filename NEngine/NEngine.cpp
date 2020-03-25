@@ -29,6 +29,7 @@
 #include "perlin/PerlinNoise.hpp"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
+#include "Physics.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -185,23 +186,13 @@ int main()
 #endif
 
 #pragma region
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher * dispatcher = new btCollisionDispatcher(collisionConfiguration);
-	btBroadphaseInterface * overlappingPairCache = new btDbvtBroadphase();
-	btSequentialImpulseConstraintSolver * solver = new btSequentialImpulseConstraintSolver();
-	btDiscreteDynamicsWorld * dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,
-		overlappingPairCache, solver, collisionConfiguration);
-
-	dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
-
-	// recommended by bullet instead of vector:
-	btAlignedObjectArray<btCollisionShape*> collisionShapes;
+	Physics physics;
 
 	// GROUND
 	{
 		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
 
-		collisionShapes.push_back(groundShape);
+		physics.collisionShapes.push_back(groundShape);
 
 		btTransform groundTransform;
 		groundTransform.setIdentity();
@@ -222,7 +213,7 @@ int main()
 		btRigidBody* body = new btRigidBody(rbInfo);
 
 		//add the body to the dynamics world
-		dynamicsWorld->addRigidBody(body);
+		physics.dynamicsWorld->addRigidBody(body);
 	}
 
 	// DYNAMIC BOX
@@ -230,7 +221,7 @@ int main()
 		//create a dynamic rigidbody
 
 		btCollisionShape* colShape = new btBoxShape(btVector3(1, 1, 1));
-		collisionShapes.push_back(colShape);
+		physics.collisionShapes.push_back(colShape);
 
 		/// Create Dynamic Objects
 		btTransform startTransform;
@@ -253,7 +244,7 @@ int main()
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 
-		dynamicsWorld->addRigidBody(body);
+		physics.dynamicsWorld->addRigidBody(body);
 	}
 
 #pragma endregion Bullet
@@ -423,11 +414,11 @@ int main()
 		camera.Update();
 
 		// bullet simulate
-		dynamicsWorld->stepSimulation(dt, 10);
+		physics.Step(dt);
 
-		for (size_t i = 0; i < dynamicsWorld->getNumCollisionObjects(); i++)
+		for (size_t i = 0; i < physics.dynamicsWorld->getNumCollisionObjects(); i++)
 		{
-			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+			btCollisionObject* obj = physics.dynamicsWorld->getCollisionObjectArray()[i];
 			btRigidBody* body = btRigidBody::upcast(obj);
 
 			btTransform trs;
@@ -571,35 +562,6 @@ int main()
 #ifdef USE_GUI
 	GUI::Shutdown();
 #endif
-
-#pragma region
-	//remove the rigidbodies from the dynamics world and delete them
-	for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
-	{
-		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getMotionState())
-		{
-			delete body->getMotionState();
-		}
-		dynamicsWorld->removeCollisionObject(obj);
-		delete obj;
-	}
-
-	//delete collision shapes
-	for (int j = 0; j < collisionShapes.size(); j++)
-	{
-		btCollisionShape* shape = collisionShapes[j];
-		collisionShapes[j] = 0;
-		delete shape;
-	}
-
-	delete dynamicsWorld;
-	delete solver;
-	delete overlappingPairCache;
-	delete dispatcher;
-	delete collisionConfiguration;
-#pragma endregion Bullet
 
 	assets.Dispose();
 
