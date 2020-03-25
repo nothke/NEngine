@@ -27,6 +27,8 @@
 #include "GUI.h"
 #include "FrustumCull.h"
 #include "perlin/PerlinNoise.hpp"
+#include "btBulletCollisionCommon.h"
+#include "btBulletDynamicsCommon.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -181,6 +183,17 @@ int main()
 #ifdef USE_GUI
 	GUI::Init(app.window);
 #endif
+
+#pragma region
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	btCollisionDispatcher * dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	btBroadphaseInterface * overlappingPairCache = new btDbvtBroadphase();
+	btSequentialImpulseConstraintSolver * solver = new btSequentialImpulseConstraintSolver();
+	btDiscreteDynamicsWorld * dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,
+		overlappingPairCache, solver, collisionConfiguration);
+
+	dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
+#pragma endregion Bullet
 
 	// Meshes
 	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
@@ -463,6 +476,13 @@ int main()
 #ifdef USE_GUI
 	GUI::Shutdown();
 #endif
+
+#pragma region
+	delete collisionConfiguration;
+	delete dispatcher;
+	delete overlappingPairCache;
+	delete solver;
+#pragma endregion Bullet
 
 	assets.Dispose();
 
