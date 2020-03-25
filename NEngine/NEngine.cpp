@@ -312,6 +312,7 @@ int main()
 	Model trbMonkey({ 0,0,0 }, monkeyMesh, grassPlainTex);
 	objects.push_back(trbMonkey);
 	Model& rbMonkey = objects[objects.size() - 1];
+	physics.BindBodyToModel(monkeyBody, rbMonkey);
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
@@ -360,30 +361,6 @@ int main()
 
 		// bullet simulate
 		physics.Step(dt);
-
-		for (size_t i = 0; i < physics.dynamicsWorld->getNumCollisionObjects(); i++)
-		{
-			btCollisionObject* obj = physics.dynamicsWorld->getCollisionObjectArray()[i];
-			btRigidBody* body = btRigidBody::upcast(obj);
-
-			btTransform trs;
-			if (body && body->getMotionState())
-			{
-				body->getMotionState()->getWorldTransform(trs);
-
-				if (body->getMass() != 0)
-				{
-					const btVector3 pos = trs.getOrigin();
-					rbMonkey.SetPosition(vec3(pos.getX(), pos.getY(), pos.getZ()));
-					const btQuaternion rot = trs.getRotation();
-					rbMonkey.SetRotation(quat(rot.getX(), rot.getY(), rot.getZ(), rot.getW()));
-
-					std::cout << pos.getY() << std::endl;
-				}
-			}
-			else
-				trs = obj->getWorldTransform();
-		}
 
 		// Rendering
 		renderer.Clear(from(color1));

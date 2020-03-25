@@ -2,6 +2,7 @@
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "Model.h"
+#include "Conversion.h"
 
 class Physics
 {
@@ -10,7 +11,22 @@ class Physics
 		Model& model;
 		btRigidBody* body;
 
-		BodyModelPair(btRigidBody* body, Model& model) : model(model) {}
+		BodyModelPair(btRigidBody* body, Model& model) : body(body), model(model) {}
+
+		void UpdateModelPosition()
+		{
+			auto motion = body->getMotionState();
+
+			if (motion)
+			{
+				btTransform trans;
+				motion->getWorldTransform(trans);
+
+				// TODO: Directly set transform?
+				model.SetPosition(from(trans.getOrigin()));
+				model.SetRotation(from(trans.getRotation()));
+			}
+		}
 	};
 
 public:
@@ -39,6 +55,37 @@ public:
 	void Step(float dt)
 	{
 		dynamicsWorld->stepSimulation(dt, 10);
+
+		for (auto& pair : bodyModelPairs)
+		{
+			pair.UpdateModelPosition();
+		}
+
+		/*
+		for (size_t i = 0; i < dynamicsWorld->getNumCollisionObjects(); i++)
+		{
+			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+			btRigidBody* body = btRigidBody::upcast(obj);
+
+			btTransform trs;
+			if (body && body->getMotionState())
+			{
+				body->getMotionState()->getWorldTransform(trs);
+
+				if (body->getMass() != 0)
+				{
+					const btVector3 pos = trs.getOrigin();
+					rbMonkey.SetPosition(vec3(pos.getX(), pos.getY(), pos.getZ()));
+					const btQuaternion rot = trs.getRotation();
+					rbMonkey.SetRotation(quat(rot.getX(), rot.getY(), rot.getZ(), rot.getW()));
+
+					std::cout << pos.getY() << std::endl;
+				}
+			}
+			else
+				trs = obj->getWorldTransform();
+		}
+		*/
 	}
 
 	btCollisionShape* AddShape(btCollisionShape* shape)
@@ -74,6 +121,7 @@ public:
 	void BindBodyToModel(btRigidBody* body, Model& model)
 	{
 		BodyModelPair pair(body, model);
+		pair.UpdateModelPosition();
 		bodyModelPairs.push_back(pair);
 	}
 
