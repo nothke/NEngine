@@ -409,6 +409,10 @@ int main()
 	float smallBoxSize = 0.5f;
 	btCollisionShape* smallBoxShape = physics.AddShape(new btBoxShape(btVector3(smallBoxSize, smallBoxSize, smallBoxSize)));
 
+	Model rpt = Model({ 0, 0, 0 }, cubeMesh, redCube);
+	objects.push_back(rpt);
+	Model& raycastPoint = objects[objects.size() - 1];
+
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
 	{
@@ -466,6 +470,20 @@ int main()
 			cubeRB->setLinearVelocity(from(camera.forward * 30.0f));
 
 			spawnCubeThisFrame = false;
+		}
+
+		btVector3 start = from(-camera.position);
+		btVector3 end = from(camera.forward * 1000.0f);
+		btCollisionWorld::ClosestRayResultCallback hit(start, end);
+		physics.dynamicsWorld->rayTest(start, end, hit);
+
+		if (hit.hasHit())
+		{
+			glBegin(GL_LINES);
+			glVertex2f(0, 0);
+			glVertex2f(100, 100);
+			glEnd();
+			raycastPoint.SetPosition(from(hit.m_hitPointWorld));
 		}
 
 		// bullet simulate
