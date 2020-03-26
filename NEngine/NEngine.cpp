@@ -279,6 +279,7 @@ int main()
 	Mesh grassMesh = assets.CreateMesh("../NEngine/res/models/grasso.ply");
 	Mesh skyMesh = assets.CreateMesh("../NEngine/res/models/skysphere.ply");
 	Mesh cubeMesh = assets.CreateMesh("../NEngine/res/models/cube.ply");
+	Mesh houseMesh = assets.CreateMesh("../NEngine/res/models/farmhouse.ply");
 
 	// Shaders
 	mainShader = &assets.CreateShader("../NEngine/res/texture.glsl");
@@ -289,6 +290,7 @@ int main()
 	Texture grassPlainTex = assets.CreateTexture("../NEngine/res/models/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
 	Texture redCube = assets.CreateTexture("../NEngine/res/models/redsquare.png");
 	Texture whiteCube = assets.CreateTexture("../NEngine/res/models/whitesquare.png");
+	Texture houseTex = assets.CreateTexture("../NEngine/res/models/farmhouse_a.png");
 
 	renderer.Init();
 
@@ -343,7 +345,7 @@ int main()
 	Model t({ 0,0,0 }, plainMesh, grassPlainTex);
 	objects.push_back(t);
 
-	Model t2({ 0, -3, 0 }, plainMesh, grassPlainTex);
+	Model t2({ 0, -4, 0 }, plainMesh, grassPlainTex);
 	t2.SetScale(5);
 	objects.push_back(t2);
 
@@ -387,6 +389,7 @@ int main()
 	*/
 
 	// cubes
+	/*
 	for (size_t y = 0; y < 10; y++)
 	{
 		float xoff = y % 2 == 0 ? 0.5f : 0;
@@ -398,7 +401,10 @@ int main()
 			Model& cubeRef = objects[objects.size() - 1];
 			physics.BindBodyToModel(body, cubeRef);
 		}
-	}
+	}*/
+
+	Model farmhouse = Model({ 0,-1,0 }, houseMesh, houseTex);
+	objects.push_back(farmhouse);
 
 	float smallBoxSize = 0.5f;
 	btCollisionShape* smallBoxShape = physics.AddShape(new btBoxShape(btVector3(smallBoxSize, smallBoxSize, smallBoxSize)));
