@@ -86,6 +86,15 @@ public:
 		*/
 	}
 
+	btCollisionWorld::ClosestRayResultCallback Raycast(vec3 origin, vec3 direction, float distance = 1000)
+	{
+		btVector3 start = from(-origin);
+		btVector3 end = start + from(direction * distance);
+		btCollisionWorld::ClosestRayResultCallback hit(start, end);
+		dynamicsWorld->rayTest(start, end, hit);
+		return hit;
+	}
+
 	void UpdateModels()
 	{
 		for (auto& pair : bodyModelPairs)

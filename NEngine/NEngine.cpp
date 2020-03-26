@@ -472,10 +472,7 @@ int main()
 			spawnCubeThisFrame = false;
 		}
 
-		btVector3 start = from(-camera.position);
-		btVector3 end = from(camera.forward * 1000.0f);
-		btCollisionWorld::ClosestRayResultCallback hit(start, end);
-		physics.dynamicsWorld->rayTest(start, end, hit);
+		auto hit = physics.Raycast(camera.position, camera.forward, 10);
 
 		if (hit.hasHit())
 		{
@@ -563,6 +560,14 @@ int main()
 			if (texPtr != nullptr)
 				texPtr->Unbind();
 		}
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+		shader.SetMMatrix(mat4(1));
+		glBegin(GL_LINES);
+		glColor4f(1, 0, 0, 1);
+		glVertex2f(0, 0);
+		glVertex2f(100, 100);
+		glEnd();
 
 		// imgui read values
 		glm::vec4 inputColor1 = from(color1);
