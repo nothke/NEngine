@@ -30,6 +30,7 @@
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "Physics.h"
+#include "DebugDraw.h"
 
 #include "soloud.h"
 #include "soloud_wav.h"
@@ -242,6 +243,8 @@ int main()
 	auto unitCubeShape = physics.AddShape(new btBoxShape(btVector3(1, 1, 1)));
 	auto monkeyBody = physics.CreateBody(unitCubeShape, 1, btVector3(2, 100, -20), btQuaternion(30, 20, 30));
 	audio.init();
+
+	DebugDraw::Init();
 
 	// Sounds
 	auto mess = clip.load("../NEngine/res/sfx/tram_joint_1.wav");
@@ -476,11 +479,8 @@ int main()
 
 		if (hit.hasHit())
 		{
-			glBegin(GL_LINES);
-			glVertex2f(0, 0);
-			glVertex2f(100, 100);
-			glEnd();
-			raycastPoint.SetPosition(from(hit.m_hitPointWorld));
+			DebugDraw::Line(from(hit.m_hitPointWorld), from(hit.m_hitPointWorld) + UP);
+			//raycastPoint.SetPosition(from(hit.m_hitPointWorld));
 		}
 
 		// bullet simulate
@@ -561,13 +561,8 @@ int main()
 				texPtr->Unbind();
 		}
 
-		glClear(GL_DEPTH_BUFFER_BIT);
 		shader.SetMMatrix(mat4(1));
-		glBegin(GL_LINES);
-		glColor4f(1, 0, 0, 1);
-		glVertex2f(0, 0);
-		glVertex2f(100, 100);
-		glEnd();
+		DebugDraw::Render();
 
 		// imgui read values
 		glm::vec4 inputColor1 = from(color1);

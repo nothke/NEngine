@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="DebugDraw.h" />
     <ClInclude Include="GLAssert.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="Log.h" />
