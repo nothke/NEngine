@@ -258,7 +258,7 @@ int main()
 		stepClips[i]->load(c);
 	}
 
-	audio.play(clip);
+	//audio.play(clip);
 
 	// Meshes
 	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
@@ -349,9 +349,10 @@ int main()
 	Model t({ 0,0,0 }, plainMesh, grassPlainTex);
 	objects.push_back(t);
 
-	Model t2({ 0, -4, 0 }, plainMesh, grassPlainTex);
-	t2.SetScale(5);
-	objects.push_back(t2);
+	// Second plain
+	//Model t2({ 0, -4, 0 }, plainMesh, grassPlainTex);
+	//t2.SetScale(5);
+	//objects.push_back(t2);
 
 	/*
 	const int monkeys = 10;
@@ -491,6 +492,8 @@ int main()
 		DebugDraw::Circle(vec3(3), 1, { 1.0f,0.0f,0.1f }, 32, vec4(0, 0, 1, 1));
 
 		DebugDraw::Cross(vec3(1, 1, 0), 0.5f, vec4(1, 1, 0, 1));
+
+		DebugDraw::Sphere(vec3(0), 10, vec4(1, 1, 0, 1));
 
 		// bullet simulate
 		for (size_t i = 0; i < 1; i++)

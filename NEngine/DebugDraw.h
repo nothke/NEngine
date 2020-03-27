@@ -194,7 +194,7 @@ namespace DebugDraw
 		const vec3 UP = dir.y == 1 || dir.y == -1 ? vec3(0, 0, 1) : vec3(0, 1, 0);
 		const float PI = pi<float>();
 
-		vec3 p1 = normalize(cross(dir, UP));
+		vec3 p1 = normalize(cross(dir, UP)) * radius;
 
 		float mult = PI * 2.0f / interpolations;
 		quat rot = angleAxis(mult, dir);
@@ -221,5 +221,12 @@ namespace DebugDraw
 		p(center - vec3(0, size, 0), color);
 		p(center - vec3(-size, 0, 0), color);
 		p(center - vec3(size, 0, 0), color);
+	}
+
+	void Sphere(const vec3& center, const float& radius, const vec4& color, int interpolations = 32)
+	{
+		Circle(center, radius, { 0,0,1 });
+		Circle(center, radius, { 1,0,0 });
+		Circle(center, radius, { 0,1,0 });
 	}
 }
