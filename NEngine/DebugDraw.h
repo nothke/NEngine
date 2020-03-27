@@ -108,10 +108,51 @@ namespace DebugDraw
 		vertices.reserve(pointsCapacity);
 	}
 
-	void Line(vec3 start, vec3 end, vec4 color = { 1,0,0,1 })
+	void Line(vec3 start, vec3 end, vec4 color = { 1, 0, 0, 1 })
 	{
 		vertices.push_back({ start, color });
 		vertices.push_back({ end, color });
+	}
+
+	void Ray(vec3 start, vec3 dir, vec4 color = { 1, 0, 0, 1 })
+	{
+		vertices.push_back({ start, color });
+		vertices.push_back({ start + dir, color });
+	}
+
+	inline void p(const vec3& v, const vec4& c) { vertices.push_back({ v, c }); }
+
+	void AABB(const vec3& center, const vec3& extents, const vec4& color = { 1, 0, 0, 1 })
+	{
+		// 8 corners
+		const vec3 h = extents * 0.5f;
+		vec3 p000{ center.x - h.x, center.y - h.y, center.z - h.z };
+		vec3 p001{ center.x - h.x, center.y - h.y, center.z + h.z };
+		vec3 p010{ center.x - h.x, center.y + h.y, center.z - h.z };
+		vec3 p011{ center.x - h.x, center.y + h.y, center.z + h.z };
+
+		vec3 p100{ center.x + h.x, center.y - h.y, center.z - h.z };
+		vec3 p101{ center.x + h.x, center.y - h.y, center.z + h.z };
+		vec3 p110{ center.x + h.x, center.y + h.y, center.z - h.z };
+		vec3 p111{ center.x + h.x, center.y + h.y, center.z + h.z };
+
+		// forward aligned lines
+		p(p000, color); p(p001, color);
+		p(p010, color); p(p011, color);
+		p(p100, color); p(p101, color);
+		p(p110, color); p(p111, color);
+
+		// right aligned lines
+		p(p000, color); p(p100, color);
+		p(p001, color); p(p101, color);
+		p(p010, color); p(p110, color);
+		p(p011, color); p(p111, color);
+
+		// up aligned lines
+		p(p000, color); p(p010, color);
+		p(p001, color); p(p011, color);
+		p(p100, color); p(p110, color);
+		p(p101, color); p(p111, color);
 	}
 
 	void Render(const mat4& vp)

@@ -480,9 +480,12 @@ int main()
 
 		if (hit.hasHit())
 		{
-			DebugDraw::Line(from(hit.m_hitPointWorld), from(hit.m_hitPointWorld) + UP, { 0, 1, 0, 1 });
+			DebugDraw::Ray(from(hit.m_hitPointWorld), from(hit.m_hitNormalWorld), { 0, 1, 0, 1 });
+			DebugDraw::Line(from(hit.m_hitPointWorld) + RIGHT, from(hit.m_hitPointWorld) + UP, { 1,0,0,1 });
 			//raycastPoint.SetPosition(from(hit.m_hitPointWorld));
 		}
+
+		DebugDraw::AABB(vec3(10), vec3(10), { 0, 1, 1, 1 });
 
 		// bullet simulate
 		for (size_t i = 0; i < 1; i++)
@@ -571,7 +574,6 @@ int main()
 				texPtr->Unbind();
 		}
 
-		//shader.SetMMatrix(mat4(1));
 		DebugDraw::Render(camera.vp);
 
 		// imgui
