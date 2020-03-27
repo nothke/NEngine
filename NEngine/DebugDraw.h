@@ -74,11 +74,11 @@ namespace DebugDraw
 		GLCall(glBindVertexArray(vao));
 
 		// Vertex buffer
-		//GLCall(glGenBuffers(1, &vbo));
-		//GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+		GLCall(glGenBuffers(1, &vbo));
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 
-		//const int totalsize = vertices.size() * sizeof(Vertex);
-		//GLCall(glBufferData(GL_ARRAY_BUFFER, totalsize, &vertices[0], GL_STATIC_DRAW));
+		// You MUST create a buffer, even if it's empty
+		GLCall(glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STREAM_DRAW));
 
 		// Vertex attributes
 		// Position
@@ -88,17 +88,11 @@ namespace DebugDraw
 		GLCall(glEnableVertexAttribArray(1));
 		GLCall(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3)));
 
-		// Index Buffer Object
-		//GLCall(glGenBuffers(1, &ibo));
-		//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-		//GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
+		// We have no index buffer
 
 		// Unbind
 		GLCall(glBindVertexArray(0));
-		//GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-		//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-
-		//std::cout << ibo << " " << vao << std::endl;
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
 	void RecompileShader()
@@ -131,8 +125,6 @@ namespace DebugDraw
 
 		// Select vao
 		GLCall(glBindVertexArray(vao));
-		// Create buffer
-		GLCall(glGenBuffers(1, &vbo));
 		// Select buffer
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 		// Set data to buffer
@@ -143,15 +135,7 @@ namespace DebugDraw
 		// Unbind all
 		GLCall(glBindVertexArray(0));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-		//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
 		vertices.clear();
-	}
-
-
-
-	void Shaderr()
-	{
-
 	}
 }
