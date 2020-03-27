@@ -8,9 +8,21 @@ using namespace glm;
 
 namespace DebugDraw
 {
-	std::vector<vec3> points;
-	std::vector<vec4> colors;
+	struct Vertex
+	{
+		vec3 position;
+		vec4 color;
+	};
+
+	//std::vector<vec3> points;
+	//std::vector<vec4> colors;
 	Shader shader;
+
+	std::vector<Vertex> vertices;
+
+	unsigned int vao;
+	unsigned int vbo;
+	//unsigned int ibo;
 
 	void CreateLineShader()
 	{
@@ -53,50 +65,87 @@ namespace DebugDraw
 		shader = Shader(source);
 	}
 
+
+
+	void CreateVAO()
+	{
+		// Vertex Array Object
+		GLCall(glGenVertexArrays(1, &vao));
+		GLCall(glBindVertexArray(vao));
+
+		// Vertex buffer
+		//GLCall(glGenBuffers(1, &vbo));
+		//GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+
+		//const int totalsize = vertices.size() * sizeof(Vertex);
+		//GLCall(glBufferData(GL_ARRAY_BUFFER, totalsize, &vertices[0], GL_STATIC_DRAW));
+
+		// Vertex attributes
+		// Position
+		GLCall(glEnableVertexAttribArray(0));
+		GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0));
+		// Color
+		GLCall(glEnableVertexAttribArray(1));
+		GLCall(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3)));
+
+		// Index Buffer Object
+		//GLCall(glGenBuffers(1, &ibo));
+		//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+		//GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
+
+		// Unbind
+		GLCall(glBindVertexArray(0));
+		//GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+		//std::cout << ibo << " " << vao << std::endl;
+	}
+
 	void RecompileShader()
 	{
 		shader.Recompile();
-		//CreateLineShader();
 	}
 
 	void Init(int pointsCapacity = 64)
 	{
 		CreateLineShader();
+		CreateVAO();
 
-		points.reserve(pointsCapacity);
-		colors.reserve(pointsCapacity / 2);
+		vertices.reserve(pointsCapacity);
 	}
 
 	void Line(vec3 start, vec3 end, vec4 color = { 1,0,0,1 })
 	{
-		points.push_back(start);
-		points.push_back(end);
-		colors.push_back(color);
+		vertices.push_back({ start, color });
+		vertices.push_back({ end, color });
 	}
 
 	void Render(const mat4& vp)
 	{
-		if (points.size() == 0)
+		if (vertices.size() == 0)
 			return;
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 		shader.Bind();
 		shader.SetMatrix("_VP", vp);
 
-		// Note: GLCall must not be used in glBegin/End block!
+		// Select vao
+		GLCall(glBindVertexArray(vao));
+		// Create buffer
+		GLCall(glGenBuffers(1, &vbo));
+		// Select buffer
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+		// Set data to buffer
+		GLCall(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STREAM_DRAW));
+		// Draw
+		GLCall(glDrawArrays(GL_LINES, 0, vertices.size()));
 
-		glBegin(GL_LINES);
+		// Unbind all
+		GLCall(glBindVertexArray(0));
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-		for (size_t i = 0; i < colors.size(); i++)
-		{
-			glColor3fv(&colors[i][0]);
-			glVertex3fv(&points[i * 2][0]);
-			glVertex3fv(&points[i * 2 + 1][0]);
-		}
-
-		glEnd();
-
-		points.clear();
+		vertices.clear();
 	}
 
 
