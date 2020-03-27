@@ -14,15 +14,12 @@ namespace DebugDraw
 		vec4 color;
 	};
 
-	//std::vector<vec3> points;
-	//std::vector<vec4> colors;
 	Shader shader;
 
 	std::vector<Vertex> vertices;
 
 	unsigned int vao;
 	unsigned int vbo;
-	//unsigned int ibo;
 
 	void CreateLineShader()
 	{
@@ -65,8 +62,6 @@ namespace DebugDraw
 		shader = Shader(source);
 	}
 
-
-
 	void CreateVAO()
 	{
 		// Vertex Array Object
@@ -108,19 +103,49 @@ namespace DebugDraw
 		vertices.reserve(pointsCapacity);
 	}
 
-	void Line(vec3 start, vec3 end, vec4 color = { 1, 0, 0, 1 })
+	void Render(const mat4& vp)
+	{
+		if (vertices.size() == 0)
+			return;
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+		shader.Bind();
+		shader.SetMatrix("_VP", vp);
+
+		// Select vao
+		GLCall(glBindVertexArray(vao));
+		// Select buffer
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+		// Set data to buffer
+		GLCall(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STREAM_DRAW));
+		// Draw
+		GLCall(glDrawArrays(GL_LINES, 0, vertices.size()));
+
+		// Unbind all
+		GLCall(glBindVertexArray(0));
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+		vertices.clear();
+	}
+
+	// DRAWING METHODS
+
+	inline void p(const vec3& v, const vec4& c)
+	{
+		vertices.push_back({ v, c });
+	}
+
+	void Line(const vec3& start, const  vec3& end, const vec4& color = { 1, 0, 0, 1 })
 	{
 		vertices.push_back({ start, color });
 		vertices.push_back({ end, color });
 	}
 
-	void Ray(vec3 start, vec3 dir, vec4 color = { 1, 0, 0, 1 })
+	void Ray(const vec3& start, const vec3& dir, const vec4& color = { 1, 0, 0, 1 })
 	{
 		vertices.push_back({ start, color });
 		vertices.push_back({ start + dir, color });
 	}
-
-	inline void p(const vec3& v, const vec4& c) { vertices.push_back({ v, c }); }
 
 	void AABB(const vec3& center, const vec3& extents, const vec4& color = { 1, 0, 0, 1 })
 	{
@@ -153,30 +178,5 @@ namespace DebugDraw
 		p(p001, color); p(p011, color);
 		p(p100, color); p(p110, color);
 		p(p101, color); p(p111, color);
-	}
-
-	void Render(const mat4& vp)
-	{
-		if (vertices.size() == 0)
-			return;
-
-		glClear(GL_DEPTH_BUFFER_BIT);
-		shader.Bind();
-		shader.SetMatrix("_VP", vp);
-
-		// Select vao
-		GLCall(glBindVertexArray(vao));
-		// Select buffer
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-		// Set data to buffer
-		GLCall(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STREAM_DRAW));
-		// Draw
-		GLCall(glDrawArrays(GL_LINES, 0, vertices.size()));
-
-		// Unbind all
-		GLCall(glBindVertexArray(0));
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
-		vertices.clear();
 	}
 }
