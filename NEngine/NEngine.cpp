@@ -486,9 +486,11 @@ int main()
 		}
 
 		DebugDraw::AABB(vec3(10), vec3(10), { 0, 1, 1, 1 });
-		DebugDraw::Circle(vec3(3), 1, { 0,0,1 }, 32, vec4(0, 0, 0, 1));
+		DebugDraw::Circle(vec3(3), 2, { 0,0,1.0f }, 32, vec4(1, 0, 0, 1));
 		DebugDraw::Circle(vec3(3), 1, { 0,1,1 }, 32, vec4(0, 0, 0, 1));
-		DebugDraw::Circle(vec3(3), 1, { 1,0,0.1f }, 32, vec4(0, 0, 0, 1));
+		DebugDraw::Circle(vec3(3), 1, { 1.0f,0.0f,0.1f }, 32, vec4(0, 0, 1, 1));
+
+		DebugDraw::Cross(vec3(1, 1, 0), 0.5f, vec4(1, 1, 0, 1));
 
 		// bullet simulate
 		for (size_t i = 0; i < 1; i++)

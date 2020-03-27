@@ -188,7 +188,7 @@ namespace DebugDraw
 	{
 		const vec3 dir = normalize(direction);
 		// Check if direction is up so we don't have invalid cross product
-		const vec3 UP = dir.y == 0 || dir.y == -1 ? vec3(0, 0, 1) : vec3(0, 1, 0);
+		const vec3 UP = dir.y == 1 || dir.y == -1 ? vec3(0, 0, 1) : vec3(0, 1, 0);
 		const float PI = pi<float>();
 
 		vec3 p1 = normalize(cross(dir, UP));
@@ -208,5 +208,15 @@ namespace DebugDraw
 
 			p1 = p2;
 		}
+	}
+
+	void Cross(const vec3& center, const float& size, const vec4& color)
+	{
+		p(center - vec3(0, 0, -size), color);
+		p(center - vec3(0, 0, size), color);
+		p(center - vec3(0, -size, 0), color);
+		p(center - vec3(0, size, 0), color);
+		p(center - vec3(-size, 0, 0), color);
+		p(center - vec3(size, 0, 0), color);
 	}
 }
