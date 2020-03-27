@@ -83,7 +83,7 @@ namespace DebugDraw
 		GLCall(glEnableVertexAttribArray(1));
 		GLCall(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3)));
 
-		// We have no index buffer
+		// We have no index buffer since we'll use glDrawArrays instead of Elements
 
 		// Unbind
 		GLCall(glBindVertexArray(0));
