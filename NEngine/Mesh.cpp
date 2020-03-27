@@ -14,6 +14,8 @@ void Mesh::Rebuild()
 	CreateAttributes();
 }
 
+unsigned int vao;
+
 void Mesh::CreateAttributes()
 {
 	// Vertex Array Object

@@ -196,6 +196,8 @@ void RebuildEverything()
 
 	camera.SetProjection(90.0f, app.aspectRatio);
 
+	DebugDraw::RecompileShader();
+
 #ifdef USE_GUI
 	GUI::Shutdown();
 
@@ -319,7 +321,6 @@ int main()
 
 	// Timing
 	double lastFrameTime = glfwGetTime();
-	LOG("Frame " << lastFrameTime);
 
 	// Camera
 	camera.SetProjection(90.0f, app.aspectRatio);
@@ -479,7 +480,7 @@ int main()
 
 		if (hit.hasHit())
 		{
-			DebugDraw::Line(from(hit.m_hitPointWorld), from(hit.m_hitPointWorld) + UP);
+			DebugDraw::Line(from(hit.m_hitPointWorld), from(hit.m_hitPointWorld) + UP, { 0, 1, 0, 1 });
 			//raycastPoint.SetPosition(from(hit.m_hitPointWorld));
 		}
 
@@ -504,7 +505,6 @@ int main()
 			0, 1, 0);
 
 		footstepDistance += distancePassed;
-		LOG(footstepDistance);
 		if (footstepDistance > 0.7f)
 		{
 			PlayFootstep();
@@ -515,6 +515,16 @@ int main()
 		renderer.Clear(from(color1));
 
 		Shader shader = *mainShader;
+		shader.Bind();
+
+		// imgui read values
+		glm::vec4 inputColor1 = from(color1);
+		shader.SetVector("_InputColor1", inputColor1);
+
+		glm::vec4 inputColor2 = from(color2);
+		shader.SetVector("_InputColor2", inputColor2);
+
+		shader.SetVector("_FogParams", shader_FogParams);
 
 		shader.SetVPMatrix(camera.vp);
 		shader.SetVector("_CamPos", vec4(camera.position, 1));
@@ -561,17 +571,8 @@ int main()
 				texPtr->Unbind();
 		}
 
-		shader.SetMMatrix(mat4(1));
-		DebugDraw::Render();
-
-		// imgui read values
-		glm::vec4 inputColor1 = from(color1);
-		shader.SetVector("_InputColor1", inputColor1);
-
-		glm::vec4 inputColor2 = from(color2);
-		shader.SetVector("_InputColor2", inputColor2);
-
-		shader.SetVector("_FogParams", shader_FogParams);
+		//shader.SetMMatrix(mat4(1));
+		DebugDraw::Render(camera.vp);
 
 		// imgui
 		bool applyResolution = false;

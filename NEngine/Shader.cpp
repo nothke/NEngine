@@ -57,9 +57,6 @@ unsigned int Shader::CreateShader(
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
-	loc_VP = glGetUniformLocation(program, "_VP");
-	loc_M = glGetUniformLocation(program, "_M");
-
 	return program;
 }
 
@@ -91,7 +88,10 @@ void Shader::SetMMatrix(const glm::mat4& matrix) const
 {
 	GLCall(glUniformMatrix4fv(loc_M, 1, GL_FALSE, glm::value_ptr(matrix)));
 }
-
+void Shader::SetMatrix(const char* name, const glm::mat4& matrix)
+{
+	GLCall(glUniformMatrix4fv(glGetUniformLocation(program, name), 1, GL_FALSE, &matrix[0][0]));
+}
 void Shader::SetInt(const char * name, int i) const
 {
 	GLCall(glUniform1i(glGetUniformLocation(program, name), i));
@@ -114,10 +114,14 @@ inline void Shader::SetProjectionMatrix(unsigned int program, const glm::mat4& m
 	GLCall(glUniformMatrix4fv(loc_VP, 1, GL_FALSE, &matrix[0][0]));
 }
 
+Shader::Shader() {}
+
 Shader::Shader(ShaderSource& source)
 	: source(source)
 {
 	program = CreateShader(source.vertex, source.fragment);
+	loc_VP = glGetUniformLocation(program, "_VP");
+	loc_M = glGetUniformLocation(program, "_M");
 }
 
 unsigned int Shader::CreateVertexColorShader()
