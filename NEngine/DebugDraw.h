@@ -110,7 +110,9 @@ namespace DebugDraw
 		if (vertices.size() == 0)
 			return;
 
+		// Clear depth buffer so lines always draw on top
 		glClear(GL_DEPTH_BUFFER_BIT);
+
 		shader.Bind();
 		shader.SetMatrix("_VP", vp);
 
@@ -184,20 +186,24 @@ namespace DebugDraw
 
 	void Circle(const vec3& center, const float& radius, const vec3& direction, const int interpolations = 32, const vec4& color = { 1, 0, 0, 1 })
 	{
-		const vec3 UP = { 0, 1, 0 };
+		const vec3 dir = normalize(direction);
+		// Check if direction is up so we don't have invalid cross product
+		const vec3 UP = dir.y == 0 || dir.y == -1 ? vec3(0, 0, 1) : vec3(0, 1, 0);
 		const float PI = pi<float>();
-		vec3 p1 = vec3(0);
+
+		vec3 p1 = normalize(cross(dir, UP));
+
 		float mult = PI * 2.0f / interpolations;
+		quat rot = angleAxis(mult, dir);
+
 		for (size_t i = 0; i <= interpolations; i++)
 		{
-			float angle = i * mult;
-			vec3 right = cross(direction, UP);
-			vec3 p2 = center + angleAxis(angle, direction) * right;
+			vec3 p2 = rot * p1;
 
 			if (i > 0)
 			{
-				p(p1, color);
-				p(p2, color);
+				p(center + p1, color);
+				p(center + p2, color);
 			}
 
 			p1 = p2;

@@ -407,8 +407,8 @@ int main()
 		}
 	}*/
 
-	Model farmhouse = Model({ 0,-1,0 }, houseMesh, houseTex);
-	objects.push_back(farmhouse);
+	//Model farmhouse = Model({ 0,-1,0 }, houseMesh, houseTex);
+	//objects.push_back(farmhouse);
 
 	float smallBoxSize = 0.5f;
 	btCollisionShape* smallBoxShape = physics.AddShape(new btBoxShape(btVector3(smallBoxSize, smallBoxSize, smallBoxSize)));
@@ -487,6 +487,8 @@ int main()
 
 		DebugDraw::AABB(vec3(10), vec3(10), { 0, 1, 1, 1 });
 		DebugDraw::Circle(vec3(3), 1, { 0,0,1 }, 32, vec4(0, 0, 0, 1));
+		DebugDraw::Circle(vec3(3), 1, { 0,1,1 }, 32, vec4(0, 0, 0, 1));
+		DebugDraw::Circle(vec3(3), 1, { 1,0,0.1f }, 32, vec4(0, 0, 0, 1));
 
 		// bullet simulate
 		for (size_t i = 0; i < 1; i++)
