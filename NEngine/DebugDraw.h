@@ -6,20 +6,20 @@
 #include "Shader.h"
 using namespace glm;
 
-namespace DebugDraw
+namespace // Anonymous, to hide DebugDraw privates
 {
-	struct Vertex
+	struct LineVertex
 	{
 		vec3 position;
 		vec4 color;
 	};
 
-	Shader shader;
-
-	std::vector<Vertex> vertices;
-
 	unsigned int vao;
 	unsigned int vbo;
+
+	Shader shader;
+
+	std::vector<LineVertex> vertices;
 
 	void CreateLineShader()
 	{
@@ -78,10 +78,10 @@ namespace DebugDraw
 		// Vertex attributes
 		// Position
 		GLCall(glEnableVertexAttribArray(0));
-		GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0));
+		GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertex), 0));
 		// Color
 		GLCall(glEnableVertexAttribArray(1));
-		GLCall(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3)));
+		GLCall(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertex), (void*)sizeof(vec3)));
 
 		// We have no index buffer since we'll use glDrawArrays instead of Elements
 
@@ -89,7 +89,10 @@ namespace DebugDraw
 		GLCall(glBindVertexArray(0));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
+}
 
+namespace DebugDraw
+{
 	// Use when changing resolution
 	void RecompileShader()
 	{
@@ -121,7 +124,7 @@ namespace DebugDraw
 		// Select buffer
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 		// Set data to buffer
-		GLCall(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STREAM_DRAW));
+		GLCall(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(LineVertex), &vertices[0], GL_STREAM_DRAW));
 		// Draw
 		GLCall(glDrawArrays(GL_LINES, 0, vertices.size()));
 
