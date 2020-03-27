@@ -72,7 +72,7 @@ namespace DebugDraw
 		GLCall(glGenBuffers(1, &vbo));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 
-		// You MUST create a buffer, even if it's empty
+		// You MUST create a buffer (and before attributes), even if it's empty
 		GLCall(glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STREAM_DRAW));
 
 		// Vertex attributes
@@ -90,9 +90,11 @@ namespace DebugDraw
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
+	// Use when changing resolution
 	void RecompileShader()
 	{
 		shader.Recompile();
+		CreateVAO();
 	}
 
 	void Init(int pointsCapacity = 64)
@@ -178,5 +180,27 @@ namespace DebugDraw
 		p(p001, color); p(p011, color);
 		p(p100, color); p(p110, color);
 		p(p101, color); p(p111, color);
+	}
+
+	void Circle(const vec3& center, const float& radius, const vec3& direction, const int interpolations = 32, const vec4& color = { 1, 0, 0, 1 })
+	{
+		const vec3 UP = { 0, 1, 0 };
+		const float PI = pi<float>();
+		vec3 p1 = vec3(0);
+		float mult = PI * 2.0f / interpolations;
+		for (size_t i = 0; i <= interpolations; i++)
+		{
+			float angle = i * mult;
+			vec3 right = cross(direction, UP);
+			vec3 p2 = center + angleAxis(angle, direction) * right;
+
+			if (i > 0)
+			{
+				p(p1, color);
+				p(p2, color);
+			}
+
+			p1 = p2;
+		}
 	}
 }

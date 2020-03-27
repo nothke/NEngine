@@ -14,13 +14,6 @@ void Mesh::Rebuild()
 	CreateAttributes();
 }
 
-unsigned int vao;
-
-void CreateVAO(unsigned int& buffer, const int size, const int stride)
-{
-
-}
-
 void Mesh::CreateAttributes()
 {
 	// Vertex Array Object
