@@ -609,7 +609,7 @@ int main()
 			//ImGui::ShowDemoWindow();
 
 			{
-				ImGui::Begin("So Pro");
+				ImGui::Begin("NEngine");
 
 				ImGui::ColorEdit3("color 1", (float*)&color1);
 				ImGui::ColorEdit3("color 2", (float*)&color2);
