@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <vector>
 #include <fstream>
 #include <sstream>
 #include <glm/gtc/type_ptr.hpp>
@@ -87,7 +88,7 @@ void Shader::SetVPMatrix(const glm::mat4& matrix) const
 }
 void Shader::SetMMatrix(const glm::mat4& matrix) const
 {
-	loc_M = glGetUniformLocation(program, "_M"); 
+	loc_M = glGetUniformLocation(program, "_M");
 	GLCall(glUniformMatrix4fv(loc_M, 1, GL_FALSE, glm::value_ptr(matrix)));
 }
 void Shader::SetMatrix(const char* name, const glm::mat4& matrix)
@@ -123,12 +124,45 @@ void Shader::GetMatrixProps()
 	//loc_M = glGetUniformLocation(program, "_M");
 }
 
+void Shader::FetchUniforms()
+{
+	uniforms.clear();
+
+	GLint numUniforms = 0;
+	glGetProgramInterfaceiv(program, GL_UNIFORM, GL_ACTIVE_RESOURCES, &numUniforms);
+
+	const GLenum properties[4] = { GL_BLOCK_INDEX, GL_TYPE, GL_NAME_LENGTH, GL_LOCATION };
+
+	for (int unif = 0; unif < numUniforms; ++unif)
+	{
+		GLint values[4];
+		glGetProgramResourceiv(program, GL_UNIFORM, unif, 4, properties, 4, NULL, values);
+
+		// Skip any uniforms that are in a block.
+		if (values[0] != -1)
+			continue;
+
+		// Get the name. Must use a std::vector rather than a std::string for C++03 standards issues.
+		// C++11 would let you use a std::string directly.
+		std::vector<char> nameData(values[2]);
+		glGetProgramResourceName(program, GL_UNIFORM, unif, nameData.size(), NULL, &nameData[0]);
+		std::string name(nameData.begin(), nameData.end() - 1);
+
+		std::cout << "Found uniform: " << name << " at location " << values[3] << std::endl;
+		GLint testuf = glGetUniformLocation(program, &name[0]);
+		std::cout << "Location test: " << testuf << std::endl;
+
+		uniforms[name] = values[3];
+	}
+}
+
 Shader::Shader() {}
 
 Shader::Shader(ShaderSource& source)
 	: source(source)
 {
 	program = CreateShader(source.vertex, source.fragment);
+	FetchUniforms();
 	GetMatrixProps();
 }
 
