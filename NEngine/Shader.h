@@ -14,11 +14,9 @@ class Shader
 	unsigned int program;
 	ShaderSource source;
 
-	std::map<std::string, unsigned int> uniforms;
+	std::map<std::string, int> uniforms;
 
 private:
-	void GetMatrixProps();
-
 	void FetchUniforms();
 
 public:

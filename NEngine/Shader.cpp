@@ -39,9 +39,6 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 	return id;
 }
 
-GLint loc_VP;
-GLint loc_M;
-
 unsigned int Shader::CreateShader(
 	const std::string& vert,
 	const std::string& frag)
@@ -64,7 +61,7 @@ unsigned int Shader::CreateShader(
 void Shader::Recompile()
 {
 	program = CreateShader(source.vertex, source.fragment);
-	GetMatrixProps();
+	FetchUniforms();
 }
 
 void Shader::Bind() const
@@ -88,12 +85,12 @@ void Shader::SetVPMatrix(const glm::mat4& matrix) const
 }
 void Shader::SetMMatrix(const glm::mat4& matrix) const
 {
-	loc_M = glGetUniformLocation(program, "_M");
+	int loc_M = glGetUniformLocation(program, "_M");
 	GLCall(glUniformMatrix4fv(loc_M, 1, GL_FALSE, glm::value_ptr(matrix)));
 }
 void Shader::SetMatrix(const char* name, const glm::mat4& matrix)
 {
-	GLCall(glUniformMatrix4fv(glGetUniformLocation(program, name), 1, GL_FALSE, &matrix[0][0]));
+	GLCall(glUniformMatrix4fv(uniforms[name], 1, GL_FALSE, &matrix[0][0]));
 }
 void Shader::SetInt(const char * name, int i) const
 {
@@ -114,14 +111,8 @@ inline void Shader::SetVector(unsigned int program, const char* name, const glm:
 
 inline void Shader::SetProjectionMatrix(unsigned int program, const glm::mat4& matrix)
 {
-	loc_VP = glGetUniformLocation(program, "_VP");
+	int loc_VP = glGetUniformLocation(program, "_VP");
 	GLCall(glUniformMatrix4fv(loc_VP, 1, GL_FALSE, &matrix[0][0]));
-}
-
-void Shader::GetMatrixProps()
-{
-	//loc_VP = glGetUniformLocation(program, "_VP");
-	//loc_M = glGetUniformLocation(program, "_M");
 }
 
 void Shader::FetchUniforms()
@@ -148,9 +139,7 @@ void Shader::FetchUniforms()
 		glGetProgramResourceName(program, GL_UNIFORM, unif, nameData.size(), NULL, &nameData[0]);
 		std::string name(nameData.begin(), nameData.end() - 1);
 
-		std::cout << "Found uniform: " << name << " at location " << values[3] << std::endl;
-		GLint testuf = glGetUniformLocation(program, &name[0]);
-		std::cout << "Location test: " << testuf << std::endl;
+		//std::cout << "Found uniform: " << name << " at location " << values[3] << std::endl;
 
 		uniforms[name] = values[3];
 	}
@@ -163,7 +152,6 @@ Shader::Shader(ShaderSource& source)
 {
 	program = CreateShader(source.vertex, source.fragment);
 	FetchUniforms();
-	GetMatrixProps();
 }
 
 unsigned int Shader::CreateVertexColorShader()
