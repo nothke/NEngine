@@ -16,9 +16,6 @@ class Shader
 
 	std::map<std::string, int> uniforms;
 
-private:
-	void FetchUniforms();
-
 public:
 	// statics
 	static void SetVector(unsigned int program, const char* name, const glm::vec4& v);
@@ -43,6 +40,9 @@ public:
 
 	Shader();
 	Shader(ShaderSource& source);
+
+private:
+	void FetchUniforms();
 };
 
 namespace ShaderReader

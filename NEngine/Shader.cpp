@@ -73,24 +73,31 @@ void Shader::Bind() const
 
 void Shader::SetFloat(const char * name, const float& f) const
 {
-	SetFloat(program, name, f);
+	const int id = uniforms.at(name);
+	GLCall(glUniform1f(id, f));
+	//SetFloat(program, name, f);
 }
 void Shader::SetVector(const char * name, const glm::vec4& v) const
 {
-	SetVector(program, name, v);
+	const int id = uniforms.at(name);
+	GLCall(glUniform4f(id, v.x, v.y, v.z, v.w));
+	//SetVector(program, name, v);
 }
 void Shader::SetVPMatrix(const glm::mat4& matrix) const
 {
-	SetProjectionMatrix(program, matrix);
+	const int id = uniforms.at("_VP");
+	GLCall(glUniformMatrix4fv(id, 1, GL_FALSE, glm::value_ptr(matrix)));
+	//SetProjectionMatrix(program, matrix);
 }
 void Shader::SetMMatrix(const glm::mat4& matrix) const
 {
-	int loc_M = glGetUniformLocation(program, "_M");
-	GLCall(glUniformMatrix4fv(loc_M, 1, GL_FALSE, glm::value_ptr(matrix)));
+	const int id = uniforms.at("_M");
+	GLCall(glUniformMatrix4fv(id, 1, GL_FALSE, glm::value_ptr(matrix)));
 }
 void Shader::SetMatrix(const char* name, const glm::mat4& matrix)
 {
-	GLCall(glUniformMatrix4fv(uniforms[name], 1, GL_FALSE, &matrix[0][0]));
+	const int id = uniforms[name];
+	GLCall(glUniformMatrix4fv(id, 1, GL_FALSE, &matrix[0][0]));
 }
 void Shader::SetInt(const char * name, int i) const
 {
