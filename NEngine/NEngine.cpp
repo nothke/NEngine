@@ -34,6 +34,7 @@
 
 #include "soloud.h"
 #include "soloud_wav.h"
+#include <map>
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -244,6 +245,10 @@ int main()
 
 	auto unitCubeShape = physics.AddShape(new btBoxShape(btVector3(1, 1, 1)));
 	auto monkeyBody = physics.CreateBody(unitCubeShape, 1, btVector3(2, 100, -20), btQuaternion(30, 20, 30));
+
+	auto sphereShape = physics.AddShape(new btSphereShape(1));
+	auto sphereBody = physics.CreateBody(sphereShape, 0, btVector3(0, 0, 0), btQuaternion::getIdentity());
+
 	audio.init();
 
 	DebugDraw::Init();
@@ -414,9 +419,8 @@ int main()
 	float smallBoxSize = 0.5f;
 	btCollisionShape* smallBoxShape = physics.AddShape(new btBoxShape(btVector3(smallBoxSize, smallBoxSize, smallBoxSize)));
 
-	Model rpt = Model({ 0, 0, 0 }, cubeMesh, redCube);
-	objects.push_back(rpt);
-	Model& raycastPoint = objects[objects.size() - 1];
+	std::map<const btCollisionObject*, std::string> namePair;
+	namePair[nullptr] = "Shit!";
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
@@ -466,13 +470,14 @@ int main()
 		if (KeyPressed(GLFW_KEY_B))
 		{
 			auto cubeRB = physics.CreateBody(smallBoxShape, 20, from(-camera.position), btQuaternion::getIdentity());
+			namePair[cubeRB] = "Red Box";
 			auto model = Model(vec3(0), cubeMesh, redCube);
 			objects.push_back(model);
 			Model& model2 = objects[objects.size() - 1];
 			model2.SetScale(smallBoxSize);
 			physics.BindBodyToModel(cubeRB, model2);
 
-			cubeRB->setLinearVelocity(from(camera.forward * 30.0f));
+			cubeRB->setLinearVelocity(from(camera.forward * 2.0f));
 
 			spawnCubeThisFrame = false;
 		}
@@ -483,17 +488,23 @@ int main()
 		{
 			DebugDraw::Ray(from(hit.m_hitPointWorld), from(hit.m_hitNormalWorld), { 0, 1, 0, 1 });
 			DebugDraw::Line(from(hit.m_hitPointWorld) + RIGHT, from(hit.m_hitPointWorld) + UP, { 1,0,0,1 });
-			//raycastPoint.SetPosition(from(hit.m_hitPointWorld));
+
+			const btCollisionObject* hitobj = hit.m_collisionObject;
+
+			if (namePair.count(hitobj) > 0)
+			{
+				LOG(namePair[hitobj]);
+			}
 		}
 
-		DebugDraw::AABB(vec3(10), vec3(10), { 0, 1, 1, 1 });
-		DebugDraw::Circle(vec3(3), 2, { 0,0,1.0f }, 32, vec4(1, 0, 0, 1));
-		DebugDraw::Circle(vec3(3), 1, { 0,1,1 }, 32, vec4(0, 0, 0, 1));
-		DebugDraw::Circle(vec3(3), 1, { 1.0f,0.0f,0.1f }, 32, vec4(0, 0, 1, 1));
+		DebugDraw::AABB(vec3(10), vec3(8), { 0, 1, 1, 1 });
+		DebugDraw::Circle(vec3(10), 2, { 0,0,1.0f }, vec4(1, 0, 0, 1), 32);
+		DebugDraw::Circle(vec3(10), 1, { 0,1,1 }, vec4(0, 0, 0, 1), 32);
+		DebugDraw::Circle(vec3(10), 1, { 1.0f,0.0f,0.1f }, vec4(0, 0, 1, 1), 32);
 
-		DebugDraw::Cross(vec3(1, 1, 0), 0.5f, vec4(1, 1, 0, 1));
+		DebugDraw::Cross(vec3(10, 10, 10), 0.5f, vec4(1, 1, 0, 1));
 
-		DebugDraw::Sphere(vec3(0), 10, vec4(1, 1, 0, 1));
+		DebugDraw::Sphere(vec3(10), 6, vec4(0.5f, 1, 0.5f, 1));
 
 		// bullet simulate
 		for (size_t i = 0; i < 1; i++)

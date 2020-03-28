@@ -187,7 +187,7 @@ namespace DebugDraw
 		p(p101, color); p(p111, color);
 	}
 
-	void Circle(const vec3& center, const float& radius, const vec3& direction, const int interpolations = 32, const vec4& color = { 1, 0, 0, 1 })
+	void Circle(const vec3& center, const float& radius, const vec3& direction, const vec4& color = { 1, 0, 0, 1 }, const int interpolations = 32)
 	{
 		const vec3 dir = normalize(direction);
 		// Check if direction is up so we don't have invalid cross product
@@ -213,7 +213,7 @@ namespace DebugDraw
 		}
 	}
 
-	void Cross(const vec3& center, const float& size, const vec4& color)
+	void Cross(const vec3& center, const float& size, const vec4& color = { 1, 0, 0, 1 })
 	{
 		p(center - vec3(0, 0, -size), color);
 		p(center - vec3(0, 0, size), color);
@@ -223,10 +223,10 @@ namespace DebugDraw
 		p(center - vec3(size, 0, 0), color);
 	}
 
-	void Sphere(const vec3& center, const float& radius, const vec4& color, int interpolations = 32)
+	void Sphere(const vec3& center, const float& radius, const vec4& color = { 1, 0, 0, 1 }, int interpolations = 32)
 	{
-		Circle(center, radius, { 0,0,1 });
-		Circle(center, radius, { 1,0,0 });
-		Circle(center, radius, { 0,1,0 });
+		Circle(center, radius, { 0,0,1 }, color, interpolations);
+		Circle(center, radius, { 1,0,0 }, color, interpolations);
+		Circle(center, radius, { 0,1,0 }, color, interpolations);
 	}
 }
