@@ -188,16 +188,17 @@ inline float randv()
 void RebuildEverything()
 {
 	renderer.Init();
-
+	
+	// Initialization sequence needs to be kept assets > DebugDraw
 	assets.RebuildAll();
 	mainShader = &assets.shaders[0];
-	mainShader->Bind();
+	//mainShader->Bind();
+
+	DebugDraw::RecompileShader();
 
 	InitInputCallbacks();
 
 	camera.SetProjection(90.0f, app.aspectRatio);
-
-	DebugDraw::RecompileShader();
 
 #ifdef USE_GUI
 	GUI::Shutdown();
@@ -251,8 +252,6 @@ int main()
 
 	audio.init();
 
-	DebugDraw::Init();
-
 	// Sounds
 	auto mess = clip.load("../NEngine/res/sfx/tram_joint_1.wav");
 
@@ -301,6 +300,8 @@ int main()
 	Texture redCube = assets.CreateTexture("../NEngine/res/models/redsquare.png");
 	Texture whiteCube = assets.CreateTexture("../NEngine/res/models/whitesquare.png");
 	Texture houseTex = assets.CreateTexture("../NEngine/res/models/farmhouse_a.png");
+
+	DebugDraw::Init();
 
 	renderer.Init();
 
@@ -594,6 +595,7 @@ int main()
 		}
 
 		DebugDraw::Render(camera.vp);
+		//DebugDraw::Clear();
 
 		// imgui
 		bool applyResolution = false;

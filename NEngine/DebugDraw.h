@@ -64,15 +64,15 @@ namespace // Anonymous, to hide DebugDraw privates
 
 	void CreateVAO()
 	{
-		// Vertex Array Object
+		// Create a VAO
 		GLCall(glGenVertexArrays(1, &vao));
 		GLCall(glBindVertexArray(vao));
 
-		// Vertex buffer
+		// Create a VBO
 		GLCall(glGenBuffers(1, &vbo));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 
-		// You MUST create a buffer (and before attributes), even if it's empty
+		// You MUST set buffer data (and before attributes), even if it's empty
 		GLCall(glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STREAM_DRAW));
 
 		// Vertex attributes
@@ -132,6 +132,11 @@ namespace DebugDraw
 		GLCall(glBindVertexArray(0));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
+		vertices.clear();
+	}
+
+	void Clear()
+	{
 		vertices.clear();
 	}
 
