@@ -31,6 +31,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "Physics.h"
 #include "DebugDraw.h"
+#include "Scene.h"
 
 #include "soloud.h"
 #include "soloud_wav.h"
@@ -53,6 +54,7 @@ Application app;
 Renderer renderer;
 Camera camera;
 SoLoud::Soloud audio;
+Scene scene;
 
 // TODO: put these in asset manager
 SoLoud::Wav clip;
@@ -188,7 +190,7 @@ inline float randv()
 void RebuildEverything()
 {
 	renderer.Init();
-	
+
 	// Initialization sequence needs to be kept assets > DebugDraw
 	assets.RebuildAll();
 	mainShader = &assets.shaders[0];
@@ -233,6 +235,9 @@ int main()
 
 	//app.fullscreen = true;
 	if (app.Init()) return -1;
+
+	scene.Add("Root", nullptr);
+
 
 #ifdef USE_GUI
 	GUI::Init(app.window);
