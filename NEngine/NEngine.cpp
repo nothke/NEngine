@@ -69,6 +69,7 @@ float cameraSpeed = 1;
 
 bool quitKeyPressed = false;
 bool drawGUI = true;
+bool drawDebug = true;
 
 bool spawnCubeThisFrame = false;
 
@@ -188,7 +189,7 @@ inline float randv()
 void RebuildEverything()
 {
 	renderer.Init();
-	
+
 	// Initialization sequence needs to be kept assets > DebugDraw
 	assets.RebuildAll();
 	mainShader = &assets.shaders[0];
@@ -594,8 +595,10 @@ int main()
 				texPtr->Unbind();
 		}
 
-		DebugDraw::Render(camera.vp);
-		//DebugDraw::Clear();
+		if (drawDebug)
+			DebugDraw::Render(camera.vp);
+		else
+			DebugDraw::Clear();
 
 		// imgui
 		bool applyResolution = false;
@@ -615,6 +618,7 @@ int main()
 				ImGui::ColorEdit3("color 2", (float*)&color2);
 
 				ImGui::Checkbox("Constrain camera to ground", &constrainCameraToGround);
+				ImGui::Checkbox("Draw debug lines", &drawDebug);
 
 				ImGui::Text("Fog");
 				ImGui::SliderFloat("Fog range", &shader_FogParams.x, 0, 1000, "%.3f", 2.0f);
