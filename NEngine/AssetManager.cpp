@@ -19,22 +19,18 @@ void AssetManager::AddMesh(const Mesh& mesh)
 
 Mesh& AssetManager::CreateMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
 {
-	Mesh mesh;
-	mesh.Init(vertices, indices);
-	meshes.push_back(mesh);
+	meshes.emplace_back(vertices, indices, true);
 	return meshes[meshes.size() - 1];
 }
 
 Mesh & AssetManager::CreateMesh(const char * path)
 {
-	Mesh mesh;
-	ModelReader::LoadFromPly(path, mesh);
-	// There is a copy here
-	meshes.emplace_back(mesh);
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
+	ModelReader::LoadFromPly(path, vertices, indices);
+	meshes.emplace_back(vertices, indices, true);
 
 	return meshes[meshes.size() - 1];
-
-	// mesh gets destroyed
 }
 
 Texture & AssetManager::CreateTexture(const char * path, Texture::Filtering filtering, Texture::EdgeMode edgeMode)
