@@ -29,6 +29,7 @@
 #include "perlin/PerlinNoise.hpp"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "Physics.h"
 #include "DebugDraw.h"
 
@@ -239,6 +240,12 @@ int main()
 	GUI::Init(app.window);
 #endif
 
+	// Ground noise
+	siv::PerlinNoise pnoise = siv::PerlinNoise();
+	const float freq = 0.092451f;
+	const float gain = 2;
+	const int octaves = 4;
+
 	// Physics
 	Physics physics;
 
@@ -250,6 +257,17 @@ int main()
 
 	auto sphereShape = physics.AddShape(new btSphereShape(1));
 	auto sphereBody = physics.CreateBody(sphereShape, 0, btVector3(0, 0, 0), btQuaternion::getIdentity());
+
+	float heights[32 * 32];
+	for (size_t y = 0; y < 32; y++)
+	{
+		for (size_t x = 0; x < 32; x++)
+		{
+			heights[y * 32 + x] = pnoise.accumulatedOctaveNoise2D(x * freq, y * freq, octaves) * gain;
+		}
+	}
+
+	auto terrainShape = physics.AddShape(new btHeightfieldTerrainShape(32, 32, &heights, 20, 1, true, false));
 
 	audio.init();
 
@@ -267,10 +285,7 @@ int main()
 
 	// Meshes
 	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
-	siv::PerlinNoise pnoise = siv::PerlinNoise();
-	const float freq = 0.092451f;
-	const float gain = 2;
-	const int octaves = 4;
+
 
 	Mesh plainMesh;
 	{
@@ -509,10 +524,9 @@ int main()
 		DebugDraw::Sphere(vec3(10), 6, vec4(0.5f, 1, 0.5f, 1));
 
 		// bullet simulate
-		for (size_t i = 0; i < 1; i++)
 		{
 			PROFILE_SCOPE("Physics step");
-			physics.Step(dt / 1);
+			physics.Step(dt);
 		}
 
 		{
