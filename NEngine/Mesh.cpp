@@ -98,6 +98,11 @@ void Mesh::SimplifySloppy(float threshold)
 	indexCount = target_index_count;
 }
 
+Mesh::Mesh(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector, bool optimizeVertexCache)
+{
+	Init(vertVector, indicesVector, optimizeVertexCache);
+}
+
 void Mesh::Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector, bool optimizeVertexCache)
 {
 	if (optimizeVertexCache)

@@ -29,6 +29,8 @@ public:
 	void Simplify(float threshold, float target_error = 1e-2f);
 	void SimplifySloppy(float threshold);
 
+	Mesh(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector, bool optimizeVertexCache = true);
+
 	Mesh()
 	{
 		std::cout << "Crated Mesh " << std::endl;
