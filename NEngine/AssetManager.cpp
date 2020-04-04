@@ -30,7 +30,7 @@ Mesh & AssetManager::CreateMesh(const char * path)
 	Mesh mesh;
 	ModelReader::LoadFromPly(path, mesh);
 	// There is a copy here
-	meshes.push_back(mesh);
+	meshes.emplace_back(mesh);
 
 	return meshes[meshes.size() - 1];
 
@@ -39,8 +39,8 @@ Mesh & AssetManager::CreateMesh(const char * path)
 
 Texture & AssetManager::CreateTexture(const char * path, Texture::Filtering filtering, Texture::EdgeMode edgeMode)
 {
-	Texture tex(path, filtering, edgeMode);
-	textures.push_back(tex);
+	//Texture tex(path, filtering, edgeMode);
+	textures.emplace_back(path, filtering, edgeMode);// tex);
 
 	return textures[textures.size() - 1];
 }

@@ -57,33 +57,7 @@ public:
 
 	void Step(float dt)
 	{
-		dynamicsWorld->stepSimulation(dt, 10);
-
-		/*
-		for (size_t i = 0; i < dynamicsWorld->getNumCollisionObjects(); i++)
-		{
-			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-			btRigidBody* body = btRigidBody::upcast(obj);
-
-			btTransform trs;
-			if (body && body->getMotionState())
-			{
-				body->getMotionState()->getWorldTransform(trs);
-
-				if (body->getMass() != 0)
-				{
-					const btVector3 pos = trs.getOrigin();
-					rbMonkey.SetPosition(vec3(pos.getX(), pos.getY(), pos.getZ()));
-					const btQuaternion rot = trs.getRotation();
-					rbMonkey.SetRotation(quat(rot.getX(), rot.getY(), rot.getZ(), rot.getW()));
-
-					std::cout << pos.getY() << std::endl;
-				}
-			}
-			else
-				trs = obj->getWorldTransform();
-		}
-		*/
+		dynamicsWorld->stepSimulation(dt, 1000, 1.0f / 1000.0f);
 	}
 
 	btCollisionWorld::ClosestRayResultCallback Raycast(vec3 origin, vec3 direction, float distance = 1000)
