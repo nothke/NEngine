@@ -545,11 +545,12 @@ int main()
 		int i = assets.GetMeshIndex(m.name);
 		if (i >= 0)
 		{
-			quat q = quat(vec3(radians(m.rot.x), radians(m.rot.y), radians(m.rot.z)));
 			vec3 pos = m.pos;
 			pos.x = -m.pos.x;
-			//quat q = quat(vec3(0));
-			Model model = Model(pos, q, m.scl, assets.GetMesh(i));
+
+			Model model = Model(pos, assets.GetMesh(i));
+			model.SetRotation(vec3(radians(m.rot.x), radians(-m.rot.y), radians(m.rot.z)));
+			model.SetScale(m.scl);
 			auto opt_tex = assets.GetTexture(m.texture.c_str());
 			if (opt_tex.has_value())
 				model.texture = &opt_tex.value().get();
