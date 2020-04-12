@@ -90,6 +90,8 @@ Texture & AssetManager::CreateTexture(const char * path, Texture::Filtering filt
 	auto name = filepath.stem().string();
 	textureNames.push_back(name);
 
+	std::cout << "Created texture: " << name << std::endl;
+
 	return textures[textures.size() - 1];
 }
 

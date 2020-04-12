@@ -37,8 +37,6 @@ int Application::CreateWindow()
 
 	glfwMakeContextCurrent(window);
 
-	glfwSetWindowSize(window, screenWidth * 2, screenHeight * 2);
-
 	// VSync
 	glfwSwapInterval(1);
 

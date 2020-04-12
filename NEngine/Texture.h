@@ -48,7 +48,8 @@ public:
 		GLCall(glBindTexture(GL_TEXTURE_2D, id));
 
 		auto _filtering = filtering == Nearest ? GL_NEAREST : GL_LINEAR;
-		auto _wrap = edgeMode == Clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+		//auto _wrap = edgeMode == Clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+		auto _wrap = GL_REPEAT;
 
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _filtering)); // GL_LINEAR
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, _filtering)); // GL_LINEAR

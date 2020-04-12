@@ -38,6 +38,7 @@
 #include <map>
 #include "INIReader.h"
 #include "parser.hpp"
+#include "quad.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -72,7 +73,7 @@ float cameraSpeed = 1;
 
 bool quitKeyPressed = false;
 bool drawGUI = true;
-bool drawDebug = true;
+bool drawDebug = false;
 
 bool spawnCubeThisFrame = false;
 
@@ -317,6 +318,10 @@ int main()
 	Mesh cubeMesh = assets.CreateMesh("../NEngine/res/models/cube.ply");
 	Mesh houseMesh = assets.CreateMesh("../NEngine/res/models/farmhouse.ply");
 
+	assets.CreateMesh("../NEngine/res/models/birch.ply");
+	assets.CreateMesh("../NEngine/res/models/hillyroad_road.ply");
+	assets.CreateMesh("../NEngine/res/models/hillyroad_grass.ply");
+
 	std::cout << "End mesh gen" << std::endl;
 
 	// Shaders
@@ -329,6 +334,62 @@ int main()
 	Texture redCube = assets.CreateTexture("../NEngine/res/models/redsquare.png");
 	Texture whiteCube = assets.CreateTexture("../NEngine/res/models/whitesquare.png");
 	Texture houseTex = assets.CreateTexture("../NEngine/res/models/farmhouse_a.png");
+
+	assets.CreateTexture("../NEngine/res/models/tree_birch.png");
+	assets.CreateTexture("../NEngine/res/models/tarmac.png");
+
+	// Buffer
+	/*
+	unsigned int fbo;
+
+	{
+		// Frame Buffer Object
+		glGenFramebuffers(1, &fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		// Color
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+
+		// Stencil and depth buffer
+		unsigned int rbo;
+		glGenRenderbuffers(1, &rbo);
+		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+		// Stencil and depth - TEXTURE
+
+		//glTexImage2D(
+		//	GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, 800, 600, 0,
+		//	GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL
+		//);
+		//
+		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture, 0);
+
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		else
+			LOG("Framebuffer complete");
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	FullscreenQuad quad;
+	*/
 
 	DebugDraw::Init();
 
@@ -376,13 +437,13 @@ int main()
 	objects.reserve(10);
 
 	// Sky
-	Model sky({ 0,0,0 }, skyMesh);
-	sky.SetScale(vec3(100));
-	objects.push_back(sky);
+	//Model sky({ 0,0,0 }, skyMesh);
+	//sky.SetScale(vec3(100));
+	//objects.push_back(sky);
 
 	// Plain
-	Model t({ 0,0,0 }, plainMesh, grassPlainTex);
-	objects.push_back(t);
+	//Model t({ 0,0,0 }, plainMesh, grassPlainTex);
+	//objects.push_back(t);
 
 	// Second plain
 	//Model t2({ 0, -4, 0 }, plainMesh, grassPlainTex);
@@ -401,6 +462,7 @@ int main()
 	}*/
 
 	// Grass
+	/*
 	const int grassCount = 160;
 	double PI = glm::pi<double>();
 	for (size_t y = 0; y < grassCount; y++)
@@ -418,7 +480,7 @@ int main()
 			m.SetRotation(vec3(0, a, 0));
 			objects.push_back(m);
 		}
-	}
+	}*/
 
 	// rigidbody monkey
 	/*
@@ -443,9 +505,10 @@ int main()
 		}
 	}*/
 
-	Model farmhouse = Model({ 0,-1,0 }, houseMesh, houseTex);
-	objects.push_back(farmhouse);
+	//Model farmhouse = Model({ 0,-1,0 }, houseMesh, houseTex);
+	//objects.push_back(farmhouse);
 
+	/*
 	INIReader reader("../test.ini");
 
 	if (reader.ParseError() != 0)
@@ -456,7 +519,7 @@ int main()
 	{
 
 		std::cout << reader.GetInteger("HEADER", "warmup", 0) << std::endl;
-	}
+	}*/
 
 	// Parse scene CSV
 	std::ifstream f("../test.csv");
@@ -483,7 +546,10 @@ int main()
 		if (i >= 0)
 		{
 			quat q = quat(vec3(radians(m.rot.x), radians(m.rot.y), radians(m.rot.z)));
-			Model model = Model(m.pos, q, m.scl, assets.GetMesh(i));
+			vec3 pos = m.pos;
+			pos.x = -m.pos.x;
+			//quat q = quat(vec3(0));
+			Model model = Model(pos, q, m.scl, assets.GetMesh(i));
 			auto opt_tex = assets.GetTexture(m.texture.c_str());
 			if (opt_tex.has_value())
 				model.texture = &opt_tex.value().get();
@@ -749,6 +815,8 @@ int main()
 	{
 		delete stepClips[i];
 	}
+
+	//glDeleteFramebuffers(1, &fbo);
 
 	audio.deinit();
 
