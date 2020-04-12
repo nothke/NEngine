@@ -183,8 +183,10 @@
     <ClInclude Include="vendor\imgui\imstb_rectpack.h" />
     <ClInclude Include="vendor\imgui\imstb_textedit.h" />
     <ClInclude Include="vendor\imgui\imstb_truetype.h" />
+    <ClInclude Include="vendor\INIReader.h" />
     <ClInclude Include="vendor\instrumentor.h" />
     <ClInclude Include="vendor\meshoptimizer\meshoptimizer.h" />
+    <ClInclude Include="vendor\parser.hpp" />
     <ClInclude Include="vendor\perlin\PerlinNoise.hpp" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="Vertex.h" />

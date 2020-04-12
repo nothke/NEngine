@@ -3,40 +3,92 @@
 #include "Shader.h"
 #include "AssetManager.h"
 #include "ModelReader.h"
+#include <filesystem>
 
 AssetManager::AssetManager(const int meshesCapacity, const int texturesCapacity, const int shadersCapacity)
 {
 	meshes.reserve(meshesCapacity);
+	meshNames.reserve(meshesCapacity);
+
 	textures.reserve(texturesCapacity);
+
 	shaders.reserve(shadersCapacity);
 	shaderPaths.reserve(shadersCapacity);
 }
 
-void AssetManager::AddMesh(const Mesh& mesh)
+void AssetManager::AddMesh(const Mesh& mesh, const char* name)
 {
 	meshes.push_back(mesh);
+	meshNames.push_back(name);
 }
 
-Mesh& AssetManager::CreateMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
+int AssetManager::GetMeshIndex(const std::string & name)
+{
+	for (size_t i = 0; i < meshes.size(); i++)
+	{
+		if (meshNames[i] == name)
+			return i;
+	}
+
+	return -1;
+}
+
+Mesh& AssetManager::GetMesh(int i)
+{
+	return meshes[i];
+}
+
+Mesh& AssetManager::GetMesh(const std::string& name)
+{
+	for (size_t i = 0; i < meshes.size(); i++)
+	{
+		if (meshNames[i] == name)
+		{
+			return meshes[i];
+		}
+	}
+}
+
+Mesh& AssetManager::CreateMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, const char* name)
 {
 	meshes.emplace_back(vertices, indices, true);
+	meshNames.push_back(name);
 	return meshes[meshes.size() - 1];
 }
 
-Mesh & AssetManager::CreateMesh(const char * path)
+Mesh& AssetManager::CreateMesh(const char * path)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	ModelReader::LoadFromPly(path, vertices, indices);
 	meshes.emplace_back(vertices, indices, true);
 
+	std::filesystem::path filepath(path);
+	auto name = filepath.stem().string();
+	meshNames.push_back(name);
+	std::cout << "Mesh: " << name << std::endl;
+
 	return meshes[meshes.size() - 1];
+}
+
+std::optional<std::reference_wrapper<Texture>> AssetManager::GetTexture(const char * name)
+{
+	for (size_t i = 0; i < textures.size(); i++)
+	{
+		if (textureNames[i] == name)
+			return textures[i];
+	}
+	return {};
 }
 
 Texture & AssetManager::CreateTexture(const char * path, Texture::Filtering filtering, Texture::EdgeMode edgeMode)
 {
 	//Texture tex(path, filtering, edgeMode);
 	textures.emplace_back(path, filtering, edgeMode);// tex);
+
+	std::filesystem::path filepath(path);
+	auto name = filepath.stem().string();
+	textureNames.push_back(name);
 
 	return textures[textures.size() - 1];
 }

@@ -24,6 +24,8 @@ public:
 	void SwapBuffers();
 	void Terminate();
 
+	void RescaleTo(int width, int height);
+
 private:
 	int CreateWindow();
 

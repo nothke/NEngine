@@ -24,6 +24,11 @@ struct Model
 	void SetScale(float scale) { this->scale = vec3(scale); isDirty = true; }
 	void SetScale(vec3 scale) { this->scale = scale; isDirty = true; }
 
+	static quat ToQuat(vec3 eulerAngles)
+	{
+		return quat(vec3(eulerAngles.x, eulerAngles.y, eulerAngles.z));
+	}
+
 	void SetRotation(vec3 eulerAngles)
 	{
 		rotation = quat(vec3(eulerAngles.x, eulerAngles.y, eulerAngles.z));

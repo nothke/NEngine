@@ -37,10 +37,17 @@ int Application::CreateWindow()
 
 	glfwMakeContextCurrent(window);
 
+	glfwSetWindowSize(window, screenWidth * 2, screenHeight * 2);
+
 	// VSync
 	glfwSwapInterval(1);
 
 	return 0;
+}
+
+void Application::RescaleTo(int width, int height)
+{
+	glViewport(0, 0, width, height);
 }
 
 void Application::ToggleFullscreen()

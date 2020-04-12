@@ -36,6 +36,8 @@
 #include "soloud.h"
 #include "soloud_wav.h"
 #include <map>
+#include "INIReader.h"
+#include "parser.hpp"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -219,6 +221,15 @@ bool KeyPressed(int key)
 	return state == GLFW_PRESS;
 }
 
+struct ParsedModel
+{
+	std::string name;
+	std::string texture;
+	vec3 pos;
+	vec3 rot;
+	vec3 scl;
+};
+
 #if defined(WIN32) && !defined(USE_CONSOLE)
 int WINAPI WinMain(
 	HINSTANCE hInstance,
@@ -297,7 +308,7 @@ int main()
 		{
 			v.posy = pnoise.accumulatedOctaveNoise2D(v.posx * freq, v.posz * freq, octaves) * gain;
 		}
-		plainMesh = assets.CreateMesh(vertices, indices);
+		plainMesh = assets.CreateMesh(vertices, indices, "plain_generated");
 	}
 
 	Mesh monkeyMesh = assets.CreateMesh("../NEngine/res/models/suza.ply");
@@ -305,6 +316,8 @@ int main()
 	Mesh skyMesh = assets.CreateMesh("../NEngine/res/models/skysphere.ply");
 	Mesh cubeMesh = assets.CreateMesh("../NEngine/res/models/cube.ply");
 	Mesh houseMesh = assets.CreateMesh("../NEngine/res/models/farmhouse.ply");
+
+	std::cout << "End mesh gen" << std::endl;
 
 	// Shaders
 	mainShader = &assets.CreateShader("../NEngine/res/texture.glsl");
@@ -430,8 +443,53 @@ int main()
 		}
 	}*/
 
-	//Model farmhouse = Model({ 0,-1,0 }, houseMesh, houseTex);
-	//objects.push_back(farmhouse);
+	Model farmhouse = Model({ 0,-1,0 }, houseMesh, houseTex);
+	objects.push_back(farmhouse);
+
+	INIReader reader("../test.ini");
+
+	if (reader.ParseError() != 0)
+	{
+		std::cout << "Can't load";
+	}
+	else
+	{
+
+		std::cout << reader.GetInteger("HEADER", "warmup", 0) << std::endl;
+	}
+
+	// Parse scene CSV
+	std::ifstream f("../test.csv");
+	aria::csv::CsvParser parser = aria::csv::CsvParser(f);
+
+	std::vector<ParsedModel> parsedModels;
+	for (auto& row : parser)
+	{
+		ParsedModel m;
+
+		m.name = row[0];
+		m.texture = row[1];
+		m.pos = { stof(row[2]), stof(row[3]), stof(row[4]) };
+		m.rot = { stof(row[5]), stof(row[6]), stof(row[7]) };
+		m.scl = { stof(row[8]), stof(row[9]), stof(row[10]) };
+
+		parsedModels.push_back(m);
+	}
+
+	// Add models from CSV
+	for (auto& m : parsedModels)
+	{
+		int i = assets.GetMeshIndex(m.name);
+		if (i >= 0)
+		{
+			quat q = quat(vec3(radians(m.rot.x), radians(m.rot.y), radians(m.rot.z)));
+			Model model = Model(m.pos, q, m.scl, assets.GetMesh(i));
+			auto opt_tex = assets.GetTexture(m.texture.c_str());
+			if (opt_tex.has_value())
+				model.texture = &opt_tex.value().get();
+			objects.push_back(model);
+		}
+	}
 
 	float smallBoxSize = 0.5f;
 	btCollisionShape* smallBoxShape = physics.AddShape(new btBoxShape(btVector3(smallBoxSize, smallBoxSize, smallBoxSize)));
@@ -647,6 +705,11 @@ int main()
 					applyResolution = true;
 				}
 
+				if (ImGui::Button("Rescale"))
+				{
+					app.RescaleTo(targetResolution.x, targetResolution.y);
+				}
+
 				ImGui::SameLine();
 				ImGui::Checkbox("Fullscreen", &app.fullscreen);
 
@@ -678,6 +741,9 @@ int main()
 #ifdef USE_GUI
 	GUI::Shutdown();
 #endif
+
+	Mesh& mesh = assets.GetMesh("grasso");
+	//mesh.boundsMax = vec3(0, 0, 0);
 
 	for (size_t i = 0; i < stepClips.size(); i++)
 	{
