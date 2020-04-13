@@ -378,8 +378,8 @@ int main()
 	unsigned int fbo;
 	unsigned int fbTexture;
 
-	int fbWidth = app.windowedWidth / 1;
-	int fbHeight = app.windowedHeight / 1;
+	int fbWidth = app.windowedWidth / 4;
+	int fbHeight = app.windowedHeight / 4;
 
 	{
 		// Frame Buffer Object
@@ -667,9 +667,14 @@ int main()
 
 		// override camera position
 		vec3 campos = from(ghostObject->getWorldTransform().getOrigin());
-		campos.y = -campos.y;
+		campos = -campos;
 		camera.position = campos;
 		camera.Update();
+
+		// Character move
+		character->setWalkDirection(from(
+			-camera.right * playerInput.x +
+			-camera.forward * playerInput.y) * 0.003f);
 
 		if (KeyPressed(GLFW_KEY_B))
 		{
