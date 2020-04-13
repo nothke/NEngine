@@ -6,6 +6,7 @@ layout(location = 1) in vec2 uv;
 layout(location = 2) in vec4 color; // layout(location = 3)
 
 uniform mat4 _VP;
+uniform mat4 _P;
 uniform mat4 _M;
 uniform vec4 _CamPos;
 uniform float _Mult;
@@ -19,8 +20,14 @@ out vec3 v_uv;
 void main(){
 	int res = 16;
 
-	mat4 mvp = _VP * _M;
+	//mat4 vp = _P * _VP;
+	//mat4 mvp = vp * _M;
 	
+	mat4 _V = _VP;
+	mat4 mv = _V * _M;
+	vec4 wp = mv * position;
+	wp.xyz = floor(wp.xyz * res) / res;
+
 	vec4 worldPos = (_M * position);
 	float time = _Time * 5;
 	float xwave = sin(time + sin(worldPos.z - worldPos.x * 0.3f + _Time * 2) * 3) * 0.1f;
@@ -31,7 +38,8 @@ void main(){
 
 	vec4 localPos = inverse(_M) * worldPos;
 
-	gl_Position = mvp * localPos;
+	//gl_Position = mvp * localPos;
+	gl_Position = _P * wp;
 	//gl_Position = round(gl_Position * res) / res;
 	float fog = pow(length(-_CamPos.xyz - worldPos.xyz), _FogParams.y) / _FogParams.x;
 	float heightFog = (_FogParams.z - worldPos.y) / _FogParams.w;

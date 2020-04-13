@@ -419,7 +419,7 @@ int main()
 	double lastFrameTime = glfwGetTime();
 
 	// Camera
-	camera.SetProjection(90.0f, app.aspectRatio);
+	camera.SetProjection(60.0f, app.aspectRatio);
 	bool constrainCameraToGround = true;
 
 	const glm::vec3 RIGHT = glm::vec3(1, 0, 0);
@@ -689,7 +689,8 @@ int main()
 
 		shader.SetVector("_FogParams", shader_FogParams);
 
-		shader.SetVPMatrix(camera.vp);
+		shader.SetVPMatrix(camera.v);
+		shader.SetMatrix("_P", camera.p);
 		shader.SetVector("_CamPos", vec4(camera.position, 1));
 		shader.SetFloat("_Time", (float)time);
 		Frustum frustum = Frustum(camera.vp);

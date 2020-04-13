@@ -96,7 +96,7 @@ void Shader::SetMMatrix(const glm::mat4& matrix) const
 }
 void Shader::SetMatrix(const char* name, const glm::mat4& matrix)
 {
-	const int id = uniforms[name];
+	const int id = uniforms.at(name);
 	GLCall(glUniformMatrix4fv(id, 1, GL_FALSE, &matrix[0][0]));
 }
 void Shader::SetInt(const char * name, int i) const
@@ -131,6 +131,9 @@ void Shader::FetchUniforms()
 
 	const GLenum properties[4] = { GL_BLOCK_INDEX, GL_TYPE, GL_NAME_LENGTH, GL_LOCATION };
 
+	std::cout << std::endl;
+	std::cout << "Uniforms for: " << program << std::endl;
+
 	for (int unif = 0; unif < numUniforms; ++unif)
 	{
 		GLint values[4];
@@ -146,7 +149,8 @@ void Shader::FetchUniforms()
 		glGetProgramResourceName(program, GL_UNIFORM, unif, nameData.size(), NULL, &nameData[0]);
 		std::string name(nameData.begin(), nameData.end() - 1);
 
-		//std::cout << "Found uniform: " << name << " at location " << values[3] << std::endl;
+
+		std::cout << "\tU: " << name << " at location " << values[3] << std::endl;
 
 		uniforms[name] = values[3];
 	}
