@@ -94,6 +94,28 @@ public:
 		return shape;
 	}
 
+	btRigidBody* CreateBody(btCollisionShape* shape, btScalar mass, btScalar* glMatrix)
+	{
+		btTransform transform;
+		transform.setFromOpenGLMatrix(glMatrix);
+
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
+
+		btVector3 localInertia(0, 0, 0);
+		if (isDynamic)
+			shape->calculateLocalInertia(mass, localInertia);
+
+		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, shape, localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		//add the body to the dynamics world
+		dynamicsWorld->addRigidBody(body);
+		return body;
+	}
+
 	btRigidBody* CreateBody(btCollisionShape* shape, btScalar mass, btVector3 position, btQuaternion rotation)
 	{
 		btTransform transform;

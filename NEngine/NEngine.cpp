@@ -229,6 +229,7 @@ struct ParsedModel
 	vec3 pos;
 	vec3 rot;
 	vec3 scl;
+	bool createCollider;
 };
 
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -548,6 +549,7 @@ int main()
 		m.pos = { stof(row[2]), stof(row[3]), stof(row[4]) };
 		m.rot = { stof(row[5]), stof(row[6]), stof(row[7]) };
 		m.scl = { stof(row[8]), stof(row[9]), stof(row[10]) };
+		m.createCollider = stoi(row[11]);
 
 		parsedModels.push_back(m);
 	}
@@ -563,11 +565,18 @@ int main()
 
 			Model model = Model(pos, assets.GetMesh(i));
 			model.SetRotation(vec3(radians(m.rot.x), radians(-m.rot.y), radians(m.rot.z)));
+
 			model.SetScale(m.scl);
 			auto opt_tex = assets.GetTexture(m.texture.c_str());
 			if (opt_tex.has_value())
 				model.texture = &opt_tex.value().get();
 			objects.push_back(model);
+
+			if (m.createCollider)
+			{
+				mat4 matrix = model.LocalToWorld();
+				physics.CreateBody(physics.CreateMeshCollider(model.mesh), 0, (btScalar*)&matrix[0]);
+			}
 		}
 	}
 
