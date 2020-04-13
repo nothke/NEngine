@@ -45,7 +45,7 @@
 #include <windows.h>
 #endif
 
-//#define USE_GUI
+#define USE_GUI
 
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
@@ -351,8 +351,11 @@ int main()
 		glGenTextures(1, &fbTexture);
 		glBindTexture(GL_TEXTURE_2D, fbTexture);
 
+		int fbWidth = app.windowedWidth * 2;
+		int fbHeight = app.windowedHeight * 2;
+
 		// Color
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fbWidth, fbHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -365,7 +368,7 @@ int main()
 		unsigned int rbo;
 		glGenRenderbuffers(1, &rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fbWidth, fbHeight);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
@@ -397,7 +400,7 @@ int main()
 	// FPS input setup
 	InitInputCallbacks();
 
-	LockMouse(true);
+	LockMouse(true); 
 
 	const float mouseSensitivity = 0.2f;
 
@@ -745,6 +748,27 @@ int main()
 		else
 			DebugDraw::Clear();
 
+		{
+			// unbind vertices pre framebuffer
+			GLCall(glBindVertexArray(0));
+			GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+			// Framebuffer
+			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+			GLCall(glDisable(GL_DEPTH_TEST));
+
+			GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+			GLCall(glClear(GL_COLOR_BUFFER_BIT));
+
+			screenShader.Bind();
+			quad.Bind();
+			//std::cout << "QUAD vert " << quad.vertices[0].position.x << std::endl;
+			GLCall(glBindTexture(GL_TEXTURE_2D, fbTexture));
+			quad.Draw();
+
+			quad.Unbind();
+		}
+
 		// imgui
 		bool applyResolution = false;
 #ifdef USE_GUI
@@ -798,24 +822,7 @@ int main()
 			GUI::Render();
 		}
 #endif
-		// unbind vertices pre framebuffer
-		GLCall(glBindVertexArray(0));
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-		// Framebuffer
-		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-		GLCall(glDisable(GL_DEPTH_TEST));
-
-		GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT));
-
-		screenShader.Bind();
-		quad.Bind();
-		//std::cout << "QUAD vert " << quad.vertices[0].position.x << std::endl;
-		GLCall(glBindTexture(GL_TEXTURE_2D, fbTexture));
-		quad.Draw();
-
-		quad.Unbind();
 
 		app.SwapBuffers();
 
