@@ -38,7 +38,7 @@
 #include <map>
 #include "INIReader.h"
 #include "parser.hpp"
-#include "quad.h"
+#include "FullscreenQuad.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -328,6 +328,8 @@ int main()
 	mainShader = &assets.CreateShader("../NEngine/res/texture.glsl");
 	mainShader->Bind();
 
+	Shader screenShader = assets.CreateShader("../NEngine/res/quad.glsl");
+
 	// Textures
 	Texture grass3DTex = assets.CreateTexture("../NEngine/res/models/grasso.png");
 	Texture grassPlainTex = assets.CreateTexture("../NEngine/res/models/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
@@ -339,17 +341,15 @@ int main()
 	assets.CreateTexture("../NEngine/res/models/tarmac.png");
 
 	// Buffer
-	/*
 	unsigned int fbo;
-
+	unsigned int fbTexture;
 	{
 		// Frame Buffer Object
 		glGenFramebuffers(1, &fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-		unsigned int texture;
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glGenTextures(1, &fbTexture);
+		glBindTexture(GL_TEXTURE_2D, fbTexture);
 
 		// Color
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -359,7 +359,7 @@ int main()
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbTexture, 0);
 
 		// Stencil and depth buffer
 		unsigned int rbo;
@@ -389,7 +389,6 @@ int main()
 	}
 
 	FullscreenQuad quad;
-	*/
 
 	DebugDraw::Init();
 
@@ -674,7 +673,13 @@ int main()
 			footstepDistance = 0;
 		}
 
-		// Rendering
+		//-------------
+		//  Rendering
+		//-------------
+
+		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
+		GLCall(glEnable(GL_DEPTH_TEST)); // enable depth testing (is disabled for rendering screen-space quad)
+
 		renderer.Clear(from(color1));
 
 		Shader shader = *mainShader;
@@ -793,6 +798,26 @@ int main()
 			GUI::Render();
 		}
 #endif
+		// unbind vertices pre framebuffer
+		GLCall(glBindVertexArray(0));
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+		// Framebuffer
+		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+		GLCall(glDisable(GL_DEPTH_TEST));
+
+		GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
+		GLCall(glClear(GL_COLOR_BUFFER_BIT));
+
+		//screenShader.Bind();
+		quad.Bind();
+		std::cout << "QUAD VAO " << quad.vao << std::endl;
+		std::cout << "QUAD VBO " << quad.vbo << std::endl;
+		//glBindVertexArray(quad.vao);
+		//GLCall(glBindTexture(GL_TEXTURE_2D, fbTexture));
+		quad.Draw();
+
+		quad.Unbind();
 
 		app.SwapBuffers();
 

@@ -111,7 +111,7 @@
     <ClInclude Include="vendor\parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="quad.h">
+    <ClInclude Include="FullscreenQuad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

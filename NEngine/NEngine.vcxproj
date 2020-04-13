@@ -170,7 +170,7 @@
     <ClInclude Include="ModelReader.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Physics.h" />
-    <ClInclude Include="quad.h" />
+    <ClInclude Include="FullscreenQuad.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Conversion.h" />
     <ClInclude Include="Shader.h" />
