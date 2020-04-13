@@ -101,7 +101,7 @@ void Mesh::SimplifySloppy(float threshold)
 Mesh::Mesh(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector, bool optimizeVertexCache)
 {
 	Init(vertVector, indicesVector, optimizeVertexCache);
-	std::cout << "Crated Mesh " << std::endl;
+	//std::cout << "Crated Mesh " << std::endl;
 }
 
 void Mesh::Init(std::vector<Vertex>& vertVector, std::vector<unsigned int>& indicesVector, bool optimizeVertexCache)

@@ -66,7 +66,7 @@ Mesh& AssetManager::CreateMesh(const char * path)
 	std::filesystem::path filepath(path);
 	auto name = filepath.stem().string();
 	meshNames.push_back(name);
-	std::cout << "Mesh: " << name << std::endl;
+	std::cout << "AssetManager:: Loaded Mesh: " << name << std::endl;
 
 	return meshes[meshes.size() - 1];
 }
@@ -90,7 +90,7 @@ Texture & AssetManager::CreateTexture(const char * path, Texture::Filtering filt
 	auto name = filepath.stem().string();
 	textureNames.push_back(name);
 
-	std::cout << "Created texture: " << name << std::endl;
+	std::cout << "AssetManager:: Loaded texture: " << name << std::endl;
 
 	return textures[textures.size() - 1];
 }

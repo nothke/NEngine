@@ -33,17 +33,17 @@ public:
 
 	Mesh()
 	{
-		std::cout << "Crated Mesh " << std::endl;
+		//std::cout << "Crated Mesh " << std::endl;
 	}
 
 	~Mesh()
 	{
-		std::cout << "Destroyed Mesh" << std::endl;
+		//std::cout << "Destroyed Mesh" << std::endl;
 	}
 
 	void Debug()
 	{
-		std::cout << "Mesh: vertices: " << vertexCount << ", indices: " << indexCount << std::endl;
+		//std::cout << "Mesh: vertices: " << vertexCount << ", indices: " << indexCount << std::endl;
 	}
 
 private:

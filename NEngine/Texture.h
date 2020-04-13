@@ -74,19 +74,19 @@ public:
 	{
 		Build();
 
-		if (width != 0 && height != 0)
-			std::cout << "CREATED texture: " << path << ", size: " << width << "x" << height << std::endl;
+		//if (width != 0 && height != 0)
+			//std::cout << "CREATED texture: " << path << ", size: " << width << "x" << height << std::endl;
 	}
 
 	void Release()
 	{
 		glDeleteTextures(1, &id);
-		std::cout << "RELEASED texture: " << filePath << std::endl;
+		//std::cout << "RELEASED texture: " << filePath << std::endl;
 	}
 
 	~Texture()
 	{
-		std::cout << "DISPOSED texture: " << filePath << std::endl;
+		//std::cout << "DISPOSED texture: " << filePath << std::endl;
 	};
 
 	void Bind(unsigned int slot = 0) const
