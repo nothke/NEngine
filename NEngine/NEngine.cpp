@@ -45,7 +45,7 @@
 #include <windows.h>
 #endif
 
-#define USE_GUI
+//#define USE_GUI
 
 #define LOG(x) std::cout << x << std::endl
 #define LOGV(x) std::cout << x[0] << ", " << x[1] << ", " << x[2] << std::endl
@@ -809,12 +809,10 @@ int main()
 		GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-		//screenShader.Bind();
+		screenShader.Bind();
 		quad.Bind();
-		std::cout << "QUAD VAO " << quad.vao << std::endl;
-		std::cout << "QUAD VBO " << quad.vbo << std::endl;
-		//glBindVertexArray(quad.vao);
-		//GLCall(glBindTexture(GL_TEXTURE_2D, fbTexture));
+		//std::cout << "QUAD vert " << quad.vertices[0].position.x << std::endl;
+		GLCall(glBindTexture(GL_TEXTURE_2D, fbTexture));
 		quad.Draw();
 
 		quad.Unbind();

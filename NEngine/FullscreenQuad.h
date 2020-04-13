@@ -9,13 +9,15 @@ struct FullscreenQuad
 	unsigned int vao;
 	unsigned int vbo;
 
-	struct QuadVertex
-	{
-		vec2 position;
-		vec2 uv;
-	};
+	float vertices[4 * 6]{
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
 
-	QuadVertex vertices[6];
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
+		 1.0f,  1.0f,  1.0f, 1.0f
+	};
 
 	FullscreenQuad()
 	{
@@ -27,24 +29,17 @@ struct FullscreenQuad
 		GLCall(glGenBuffers(1, &vbo));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 
-		vertices[0] = { vec2(0, 0), vec2(0, 0) };
-		vertices[1] = { vec2(0, 1), vec2(0, 1) };
-		vertices[2] = { vec2(1, 0), vec2(1, 0) };
-
-		vertices[3] = { vec2(1, 0), vec2(1, 0) };
-		vertices[4] = { vec2(0, 1), vec2(0, 1) };
-		vertices[5] = { vec2(1, 1), vec2(1, 1) };
-
-		const int totalsize = 6 * sizeof(QuadVertex);
-		GLCall(glBufferData(GL_ARRAY_BUFFER, 0, &vertices, GL_STATIC_DRAW));
+		const int vertexSize = 4 * sizeof(float);
+		const int totalsize = 6 * vertexSize;
+		GLCall(glBufferData(GL_ARRAY_BUFFER, totalsize, &vertices, GL_STATIC_DRAW));
 
 		// Vertex attributes
 		// Position
 		GLCall(glEnableVertexAttribArray(0));
-		GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(QuadVertex), 0));
+		GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, vertexSize, 0));
 		// UV
 		GLCall(glEnableVertexAttribArray(1));
-		GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(QuadVertex), (void*)sizeof(vec2)));
+		GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, vertexSize, (void*)sizeof(vec2)));
 
 		// We have no index buffer since we'll use glDrawArrays instead of Elements
 
