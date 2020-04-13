@@ -5,7 +5,7 @@ layout(location = 0) in vec4 position; // layout(location = 0) // not needed, ap
 layout(location = 1) in vec2 uv;
 layout(location = 2) in vec4 color; // layout(location = 3)
 
-uniform mat4 _VP;
+uniform mat4 _VP; // actually _V
 uniform mat4 _P;
 uniform mat4 _M;
 uniform vec4 _CamPos;
@@ -15,7 +15,7 @@ uniform vec4 _FogParams; // x - range, y - power, z - height offset, a - height 
 uniform float _Time;
 
 out vec4 v_color;
-out vec3 v_uv;
+out vec3 v_uv; // 3 is affine reversal for PS1
 
 void main(){
 	int res = 16;
@@ -26,8 +26,9 @@ void main(){
 	mat4 _V = _VP;
 	mat4 mv = _V * _M;
 	vec4 wp = mv * position;
-	wp.xyz = floor(wp.xyz * res) / res;
+	wp.xyz = floor(wp.xyz * res) / res; // PS1 precision reduction
 
+	// wavy grass, not used atm
 	vec4 worldPos = (_M * position);
 	float time = _Time * 5;
 	float xwave = sin(time + sin(worldPos.z - worldPos.x * 0.3f + _Time * 2) * 3) * 0.1f;
@@ -47,7 +48,7 @@ void main(){
 	fog = clamp(fog, 0, 1);
 
 	v_color = vec4(color.rgb, fog); // v_color gives funky results
-	v_uv = vec3(uv * gl_Position.w, gl_Position.w);
+	v_uv = vec3(uv * gl_Position.w, gl_Position.w); // PS1 affine reverse
 }
 
 #shader fragment
@@ -63,7 +64,7 @@ uniform vec4 _InputColor1;
 uniform vec4 _InputColor2;
 
 void main(){
-	vec2 uv = v_uv.xy / v_uv.z;
+	vec2 uv = v_uv.xy / v_uv.z; // reverse affine
 	vec4 tex = texture(_Texture, uv);
 	if (tex.a < 0.5) discard;
 	col = mix(tex * _InputColor2, _InputColor1, v_color.a);
