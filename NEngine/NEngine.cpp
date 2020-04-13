@@ -578,7 +578,7 @@ int main()
 			{
 				mat4 matrix = model.LocalToWorld();
 
-				if (shapeMap.count(m.name))
+				if (shapeMap.count(m.name) > 0)
 				{
 					physics.CreateBody(shapeMap[m.name], 0, (btScalar*)&matrix[0]);
 				}
@@ -587,6 +587,7 @@ int main()
 					auto mcol = physics.CreateMeshCollider(model.mesh);
 					shapeMap.emplace(m.name, mcol);
 					physics.CreateBody(mcol, 0, (btScalar*)&matrix[0]);
+					LOG("Creating collider for " << m.name);
 				}
 			}
 		}
@@ -717,7 +718,7 @@ int main()
 		GLCall(glEnable(GL_DEPTH_TEST)); // enable depth testing (is disabled for rendering screen-space quad)
 
 		// not needed if rendered directly
-		glViewport(0, 0, fbWidth, fbWidth);
+		glViewport(0, 0, fbWidth, fbHeight);
 
 		renderer.Clear(from(color1));
 
