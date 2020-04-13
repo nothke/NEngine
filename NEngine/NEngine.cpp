@@ -30,6 +30,8 @@
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
+#include "BulletDynamics/Character/btKinematicCharacterController.h"
 #include "Physics.h"
 #include "DebugDraw.h"
 
@@ -351,6 +353,27 @@ int main()
 	assets.CreateTexture("../NEngine/res/models/tree_birch.png");
 	assets.CreateTexture("../NEngine/res/models/tarmac.png");
 
+	// Character
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(btVector3(0, 10, 0));
+	btPairCachingGhostObject* ghostObject = new btPairCachingGhostObject();
+	ghostObject->setWorldTransform(startTransform);
+
+	physics.overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+
+	btConvexShape* capsule = new btCapsuleShape(1, 2);
+	ghostObject->setCollisionShape(capsule);
+
+	auto character = new btKinematicCharacterController(ghostObject, capsule, btScalar(0.2f));
+
+	physics.dynamicsWorld->addCollisionObject(ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	physics.dynamicsWorld->addCharacter(character);
+
+	character->setGravity(btVector3(0, -10, 0));
+
+	//btKinematicCharacterController(btPairCachingGhostObject())
+
 	// Buffer
 	unsigned int fbo;
 	unsigned int fbTexture;
@@ -642,6 +665,10 @@ int main()
 			camera.position.y -= 1;
 		}
 
+		// override camera position
+		vec3 campos = from(ghostObject->getWorldTransform().getOrigin());
+		campos.y = -campos.y;
+		camera.position = campos;
 		camera.Update();
 
 		if (KeyPressed(GLFW_KEY_B))
