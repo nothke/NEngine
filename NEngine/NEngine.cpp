@@ -554,6 +554,8 @@ int main()
 		parsedModels.push_back(m);
 	}
 
+	std::map<std::string, btCollisionShape*> shapeMap;
+
 	// Add models from CSV
 	for (auto& m : parsedModels)
 	{
@@ -575,7 +577,17 @@ int main()
 			if (m.createCollider)
 			{
 				mat4 matrix = model.LocalToWorld();
-				physics.CreateBody(physics.CreateMeshCollider(model.mesh), 0, (btScalar*)&matrix[0]);
+
+				if (shapeMap.count(m.name))
+				{
+					physics.CreateBody(shapeMap[m.name], 0, (btScalar*)&matrix[0]);
+				}
+				else
+				{
+					auto mcol = physics.CreateMeshCollider(model.mesh);
+					shapeMap.emplace(m.name, mcol);
+					physics.CreateBody(mcol, 0, (btScalar*)&matrix[0]);
+				}
 			}
 		}
 	}
