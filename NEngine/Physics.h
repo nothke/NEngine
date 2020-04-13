@@ -26,9 +26,6 @@ class Physics
 				trans.getOpenGLMatrix(&mat[0][0]);
 
 				model.SetLocalToWorld(mat);
-				// TODO: Directly set transform?
-				//model.SetPosition(from(trans.getOrigin()));
-				//model.SetRotation(from(trans.getRotation()));
 			}
 		}
 	};
