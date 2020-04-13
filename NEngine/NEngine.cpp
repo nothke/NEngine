@@ -79,6 +79,10 @@ bool drawDebug = false;
 
 bool spawnCubeThisFrame = false;
 
+// fbo
+unsigned int fbo;
+unsigned int fbTexture;
+
 void LockMouse(bool b)
 {
 	if (b)
@@ -100,6 +104,11 @@ void LockMouse(bool b)
 // forward declaration for key_callback
 void RebuildEverything();
 
+void BuildFBO()
+{
+
+}
+
 void PlayFootstep()
 {
 	int i = rand() % stepClips.size();
@@ -109,7 +118,7 @@ void PlayFootstep()
 	stepClips[i] = ptr;
 
 	auto& clip = *stepClips[0];
-	SoLoud::handle handle = audio.play(clip, 0.2f);
+	SoLoud::handle handle = audio.play(clip, 0.05f);
 }
 
 // Keyboard button press
@@ -248,9 +257,9 @@ int main()
 
 	Instrumentor::Instance().beginSession("Game Session", "../results.json");
 
-	//app.fullscreen = true;
-	app.windowedWidth = 1024;
-	app.windowedHeight = 768;
+	app.fullscreen = false;
+	//app.windowedWidth = 1024;
+	//app.windowedHeight = 768;
 	if (app.Init()) return -1;
 
 #ifdef USE_GUI
@@ -269,11 +278,11 @@ int main()
 	//auto groundShape = physics.AddShape(new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.))));
 	//auto groundBody = physics.CreateBody(groundShape, 0, btVector3(0, -50, 0), btQuaternion::getIdentity());
 
-	auto unitCubeShape = physics.AddShape(new btBoxShape(btVector3(1, 1, 1)));
-	auto monkeyBody = physics.CreateBody(unitCubeShape, 1, btVector3(2, 100, -20), btQuaternion(30, 20, 30));
+	//auto unitCubeShape = physics.AddShape(new btBoxShape(btVector3(1, 1, 1)));
+	//auto monkeyBody = physics.CreateBody(unitCubeShape, 1, btVector3(2, 100, -20), btQuaternion(30, 20, 30));
 
-	auto sphereShape = physics.AddShape(new btSphereShape(1));
-	auto sphereBody = physics.CreateBody(sphereShape, 0, btVector3(0, 0, 0), btQuaternion::getIdentity());
+	//auto sphereShape = physics.AddShape(new btSphereShape(1));
+	//auto sphereBody = physics.CreateBody(sphereShape, 0, btVector3(0, 0, 0), btQuaternion::getIdentity());
 
 
 	/*
@@ -300,6 +309,11 @@ int main()
 		stepClips[i]->load(c);
 	}
 
+	SoLoud::Wav mus_2;
+	mus_2.load("../NEngine/res/sfx/mus_2.wav");
+	auto mus_handle = audio.play(mus_2);
+	audio.setLooping(mus_handle, true);
+
 	//audio.play(clip);
 
 	// Meshes
@@ -324,6 +338,7 @@ int main()
 	Mesh skyMesh = assets.CreateMesh("../NEngine/res/models/skysphere.ply");
 	Mesh cubeMesh = assets.CreateMesh("../NEngine/res/models/cube.ply");
 	Mesh houseMesh = assets.CreateMesh("../NEngine/res/models/farmhouse.ply");
+	assets.CreateMesh("../NEngine/res/models/mausoleum.ply");
 
 	assets.CreateMesh("../NEngine/res/models/birch.ply");
 	Mesh road = assets.CreateMesh("../NEngine/res/models/hillyroad_road.ply");
@@ -352,17 +367,18 @@ int main()
 
 	assets.CreateTexture("../NEngine/res/models/tree_birch.png");
 	assets.CreateTexture("../NEngine/res/models/tarmac.png");
+	assets.CreateTexture("../NEngine/res/models/concrete.png");
 
 	// Character
 	btTransform startTransform;
 	startTransform.setIdentity();
-	startTransform.setOrigin(btVector3(0, 10, 0));
+	startTransform.setOrigin(btVector3(50, 10, 0));
 	btPairCachingGhostObject* ghostObject = new btPairCachingGhostObject();
 	ghostObject->setWorldTransform(startTransform);
 
 	physics.overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
-	btConvexShape* capsule = new btCapsuleShape(1, 2);
+	btConvexShape* capsule = new btCapsuleShape(0.3f, 2);
 	ghostObject->setCollisionShape(capsule);
 
 	auto character = new btKinematicCharacterController(ghostObject, capsule, btScalar(0.2f));
@@ -378,8 +394,8 @@ int main()
 	unsigned int fbo;
 	unsigned int fbTexture;
 
-	int fbWidth = app.windowedWidth / 4;
-	int fbHeight = app.windowedHeight / 4;
+	int fbWidth = (app.fullscreen ? app.fullscreenWidth : app.windowedWidth) / 4;
+	int fbHeight = (app.fullscreen ? app.fullscreenHeight : app.windowedHeight) / 4;
 
 	{
 		// Frame Buffer Object
@@ -666,7 +682,7 @@ int main()
 		}
 
 		// override camera position
-		vec3 campos = from(ghostObject->getWorldTransform().getOrigin());
+		vec3 campos = from(ghostObject->getWorldTransform().getOrigin()) + UP;
 		campos = -campos;
 		camera.position = campos;
 		camera.Update();
@@ -674,7 +690,7 @@ int main()
 		// Character move
 		character->setWalkDirection(from(
 			-camera.right * playerInput.x +
-			-camera.forward * playerInput.y) * 0.003f);
+			-camera.forward * playerInput.y) * 0.03f);
 
 		if (KeyPressed(GLFW_KEY_B))
 		{

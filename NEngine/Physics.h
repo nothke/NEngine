@@ -55,7 +55,8 @@ public:
 
 	void Step(float dt)
 	{
-		dynamicsWorld->stepSimulation(dt, 1000, 1.0f / 1000.0f);
+		int iters = 10;
+		dynamicsWorld->stepSimulation(dt, 10, 1.0f / 60);
 	}
 
 	btCollisionWorld::ClosestRayResultCallback Raycast(vec3 origin, vec3 direction, float distance = 1000)
