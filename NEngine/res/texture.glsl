@@ -21,25 +21,25 @@ void main(){
 
 	mat4 mvp = _VP * _M;
 	
-	vec3 worldPos = (_M * position).xyz;
+	vec4 worldPos = (_M * position);
 	float time = _Time * 5;
 	float xwave = sin(time + sin(worldPos.z - worldPos.x * 0.3f + _Time * 2) * 3) * 0.1f;
 	float zwave = sin(time + cos(worldPos.x + worldPos.z * 0.3f + _Time)) * 0.1f;
 
 	vec3 off = vec3(xwave, 0, zwave) * 0.6;
-	worldPos += off * color.r;
+	worldPos.xyz += off * color.r;
 
-	vec3 localPos = (inverse(_M) * vec4(worldPos, 1)).xyz;
+	vec4 localPos = inverse(_M) * worldPos;
 
-	gl_Position = mvp * vec4(localPos, 1);
-	gl_Position = round(gl_Position * res) / res;
-	float fog = pow(length(-_CamPos.xyz - worldPos), _FogParams.y) / _FogParams.x;
+	gl_Position = mvp * localPos;
+	//gl_Position = round(gl_Position * res) / res;
+	float fog = pow(length(-_CamPos.xyz - worldPos.xyz), _FogParams.y) / _FogParams.x;
 	float heightFog = (_FogParams.z - worldPos.y) / _FogParams.w;
 	fog = max(heightFog, fog);
 	fog = clamp(fog, 0, 1);
 
 	v_color = vec4(color.rgb, fog); // v_color gives funky results
-	v_uv = vec3(uv.xy * gl_Position.w, gl_Position.w);
+	v_uv = vec3(uv * gl_Position.w, gl_Position.w);
 }
 
 #shader fragment
@@ -55,7 +55,8 @@ uniform vec4 _InputColor1;
 uniform vec4 _InputColor2;
 
 void main(){
-	vec4 tex = texture(_Texture, v_uv.xy / v_uv.z);
+	vec2 uv = v_uv.xy / v_uv.z;
+	vec4 tex = texture(_Texture, uv);
 	if (tex.a < 0.5) discard;
 	col = mix(tex * _InputColor2, _InputColor1, v_color.a);
 }
