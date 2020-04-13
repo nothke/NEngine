@@ -3,6 +3,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "Model.h"
 #include "Conversion.h"
+#include "Mesh.h"
 
 class Physics
 {
@@ -75,6 +76,16 @@ public:
 		{
 			pair.UpdateModelPosition();
 		}
+	}
+
+	btCollisionShape* CreateMeshCollider(Mesh& mesh)
+	{
+		btTriangleIndexVertexArray* va = new btTriangleIndexVertexArray(
+			mesh.indexCount / 3, (int*)&mesh.indices[0], 3 * sizeof(int),
+			mesh.vertexCount, (btScalar*)&mesh.vertices[0], sizeof(Vertex));
+
+		btBvhTriangleMeshShape* triShape = new btBvhTriangleMeshShape(va, true);
+		return triShape;
 	}
 
 	btCollisionShape* AddShape(btCollisionShape* shape)

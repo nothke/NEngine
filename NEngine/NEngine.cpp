@@ -246,6 +246,8 @@ int main()
 	Instrumentor::Instance().beginSession("Game Session", "../results.json");
 
 	//app.fullscreen = true;
+	app.windowedWidth = 1024;
+	app.windowedHeight = 768;
 	if (app.Init()) return -1;
 
 #ifdef USE_GUI
@@ -261,8 +263,8 @@ int main()
 	// Physics
 	Physics physics;
 
-	auto groundShape = physics.AddShape(new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.))));
-	auto groundBody = physics.CreateBody(groundShape, 0, btVector3(0, -50, 0), btQuaternion::getIdentity());
+	//auto groundShape = physics.AddShape(new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.))));
+	//auto groundBody = physics.CreateBody(groundShape, 0, btVector3(0, -50, 0), btQuaternion::getIdentity());
 
 	auto unitCubeShape = physics.AddShape(new btBoxShape(btVector3(1, 1, 1)));
 	auto monkeyBody = physics.CreateBody(unitCubeShape, 1, btVector3(2, 100, -20), btQuaternion(30, 20, 30));
@@ -270,6 +272,8 @@ int main()
 	auto sphereShape = physics.AddShape(new btSphereShape(1));
 	auto sphereBody = physics.CreateBody(sphereShape, 0, btVector3(0, 0, 0), btQuaternion::getIdentity());
 
+
+	/*
 	float heights[32 * 32];
 	for (size_t y = 0; y < 32; y++)
 	{
@@ -277,9 +281,9 @@ int main()
 		{
 			heights[y * 32 + x] = pnoise.accumulatedOctaveNoise2D(x * freq, y * freq, octaves) * gain;
 		}
-	}
+	}*/
 
-	auto terrainShape = physics.AddShape(new btHeightfieldTerrainShape(32, 32, &heights, 20, 1, true, false));
+	//auto terrainShape = physics.AddShape(new btHeightfieldTerrainShape(32, 32, &heights, 20, 1, true, false));
 
 	audio.init();
 
@@ -319,8 +323,14 @@ int main()
 	Mesh houseMesh = assets.CreateMesh("../NEngine/res/models/farmhouse.ply");
 
 	assets.CreateMesh("../NEngine/res/models/birch.ply");
-	assets.CreateMesh("../NEngine/res/models/hillyroad_road.ply");
-	assets.CreateMesh("../NEngine/res/models/hillyroad_grass.ply");
+	Mesh road = assets.CreateMesh("../NEngine/res/models/hillyroad_road.ply");
+	Mesh hillGrass = assets.CreateMesh("../NEngine/res/models/hillyroad_grass.ply");
+
+	auto col = physics.CreateMeshCollider(road);
+	physics.AddShape(col);
+
+	auto grassShape = physics.AddShape(physics.CreateMeshCollider(hillGrass));
+	physics.CreateBody(grassShape, 0, btVector3(0, 0, 0), btQuaternion::getIdentity());
 
 	std::cout << "End mesh gen" << std::endl;
 
@@ -343,6 +353,10 @@ int main()
 	// Buffer
 	unsigned int fbo;
 	unsigned int fbTexture;
+
+	int fbWidth = app.windowedWidth / 1;
+	int fbHeight = app.windowedHeight / 1;
+
 	{
 		// Frame Buffer Object
 		glGenFramebuffers(1, &fbo);
@@ -350,9 +364,6 @@ int main()
 
 		glGenTextures(1, &fbTexture);
 		glBindTexture(GL_TEXTURE_2D, fbTexture);
-
-		int fbWidth = app.windowedWidth * 2;
-		int fbHeight = app.windowedHeight * 2;
 
 		// Color
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fbWidth, fbHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -400,7 +411,7 @@ int main()
 	// FPS input setup
 	InitInputCallbacks();
 
-	LockMouse(true); 
+	LockMouse(true);
 
 	const float mouseSensitivity = 0.2f;
 
@@ -422,7 +433,7 @@ int main()
 
 	// Camera
 	camera.SetProjection(60.0f, app.aspectRatio);
-	bool constrainCameraToGround = true;
+	bool constrainCameraToGround = false;
 
 	const glm::vec3 RIGHT = glm::vec3(1, 0, 0);
 	const glm::vec3 UP = glm::vec3(0, 1, 0);
@@ -436,7 +447,7 @@ int main()
 	// SCENE
 
 	std::vector<Model> objects;
-	objects.reserve(10);
+	objects.reserve(1024);
 
 	// Sky
 	//Model sky({ 0,0,0 }, skyMesh);
@@ -524,7 +535,7 @@ int main()
 	}*/
 
 	// Parse scene CSV
-	std::ifstream f("../test.csv");
+	std::ifstream f("../scene.csv");
 	aria::csv::CsvParser parser = aria::csv::CsvParser(f);
 
 	std::vector<ParsedModel> parsedModels;
@@ -615,11 +626,12 @@ int main()
 		{
 			auto cubeRB = physics.CreateBody(smallBoxShape, 20, from(-camera.position), btQuaternion::getIdentity());
 			namePair[cubeRB] = "Red Box";
-			auto model = Model(vec3(0), cubeMesh, redCube);
-			objects.push_back(model);
-			Model& model2 = objects[objects.size() - 1];
-			model2.SetScale(smallBoxSize);
-			physics.BindBodyToModel(cubeRB, model2);
+			//auto model = Model(vec3(0), cubeMesh, redCube);
+			Model& model = objects.emplace_back(vec3(0), cubeMesh, redCube);
+			//Model& model2 = objects[objects.size() - 1];
+			model.SetScale(smallBoxSize);
+
+			physics.BindBodyToModel(cubeRB, model);
 
 			cubeRB->setLinearVelocity(from(camera.forward * 2.0f));
 
@@ -682,6 +694,9 @@ int main()
 
 		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
 		GLCall(glEnable(GL_DEPTH_TEST)); // enable depth testing (is disabled for rendering screen-space quad)
+
+		// not needed if rendered directly
+		glViewport(0, 0, fbWidth, fbWidth);
 
 		renderer.Clear(from(color1));
 
@@ -747,6 +762,8 @@ int main()
 			DebugDraw::Render(camera.vp);
 		else
 			DebugDraw::Clear();
+
+		glViewport(0, 0, app.windowedWidth, app.windowedHeight);
 
 		{
 			// unbind vertices pre framebuffer
