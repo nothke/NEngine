@@ -280,21 +280,10 @@ int main()
 		stepClips[i] = &assets.GetAudioClip(str).value().get();
 	}
 
-	auto& beatClip = assets.GetAudioClip("mus_2").value().get();
-	auto mus_handle = audio.play3d(beatClip, -48.45f, -9.39f, 28.02f);
-	audio.set3dSourceAttenuation(mus_handle, 1, 0.05f);
-	audio.setLooping(mus_handle, true);
-
-	auto& pinatenClip = assets.GetAudioClip("pinaten").value().get();
-	auto pinaten_handle = audio.play3d(pinatenClip, 10000, 10000, 10000);
-	audio.set3dSourceAttenuation(pinaten_handle, 1, 0.1f);
-	audio.setLooping(pinaten_handle, true);
-
+	scene.PlayAudioSource("mus_2", { 48.45f, 9.39f, -28.02f }, 1, 0.05f, true);
+	auto pinatenSource = scene.PlayAudioSource("pinaten", { 10000, 10000, 10000 }, 1, 0.1f, true);
 	vec3 coffeePos = { 15.0f, -3.76f, 44.21f };
-	auto& coffeeClip = assets.GetAudioClip("coffee").value().get();
-	auto coffee = audio.play3d(coffeeClip, -coffeePos.x, -coffeePos.y, -coffeePos.z);
-	audio.set3dSourceAttenuation(coffee, 1, 0.1f);
-	audio.setLooping(coffee, true);
+	scene.PlayAudioSource("coffee", coffeePos, 1, 0.1f, true);
 
 	vec3 mausoleumpos = { 47.97, 8.54, -27.4 };
 
@@ -641,7 +630,7 @@ int main()
 			miccel.SetPosition(miccpos);
 			miccel.SetRotation(quatLookAt(walkDir, UP));
 			miccel.UpdateModelMatrix();
-			audio.set3dSourcePosition(pinaten_handle, miccpos.x, miccpos.y, miccpos.z);
+			audio.set3dSourcePosition(pinatenSource, miccpos.x, miccpos.y, miccpos.z);
 
 			if (length(-miccpos - camera.position) < 2)
 			{
@@ -884,11 +873,6 @@ int main()
 #ifdef USE_GUI
 	GUI::Shutdown();
 #endif
-
-	for (size_t i = 0; i < stepClips.size(); i++)
-	{
-		delete stepClips[i];
-	}
 
 	delete(quad);
 	fb.Release();
