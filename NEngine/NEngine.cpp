@@ -291,26 +291,22 @@ int main()
 	// Sounds
 	for (size_t i = 0; i < stepClips.size(); i++)
 	{
-		stepClips[i] = new SoLoud::Wav();
-		const char* c = ("res/sfx/step_sand" + std::to_string(i + 1) + ".wav").c_str();
-		stepClips[i]->load(c);
+		const std::string str = "step_sand" + std::to_string(i + 1);
+		stepClips[i] = &assets.GetAudioClip(str).value().get();
 	}
 
-	SoLoud::Wav mus_2;
-	mus_2.load("res/sfx/mus_2.wav");
-	auto mus_handle = audio.play3d(mus_2, -48.45f, -9.39f, 28.02f);
+	auto& beatClip = assets.GetAudioClip("mus_2").value().get();
+	auto mus_handle = audio.play3d(beatClip, -48.45f, -9.39f, 28.02f);
 	audio.set3dSourceAttenuation(mus_handle, 1, 0.05f);
 	audio.setLooping(mus_handle, true);
 
-	SoLoud::Wav pinaten;
-	pinaten.load("res/sfx/pinaten.ogg");
-	auto pinaten_handle = audio.play3d(pinaten, 10000, 10000, 10000);
+	auto& pinatenClip = assets.GetAudioClip("pinaten").value().get();
+	auto pinaten_handle = audio.play3d(pinatenClip, 10000, 10000, 10000);
 	audio.set3dSourceAttenuation(pinaten_handle, 1, 0.1f);
 	audio.setLooping(pinaten_handle, true);
 
 	vec3 coffeePos = { 15.0f, -3.76f, 44.21f };
-	SoLoud::Wav coffeeClip;
-	coffeeClip.load("res/sfx/coffee.ogg");
+	auto& coffeeClip = assets.GetAudioClip("coffee").value().get();
 	auto coffee = audio.play3d(coffeeClip, -coffeePos.x, -coffeePos.y, -coffeePos.z);
 	audio.set3dSourceAttenuation(coffee, 1, 0.1f);
 	audio.setLooping(coffee, true);
