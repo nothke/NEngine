@@ -283,27 +283,6 @@ int main()
 	// Physics
 	Physics physics;
 
-	//auto groundShape = physics.AddShape(new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.))));
-	//auto groundBody = physics.CreateBody(groundShape, 0, btVector3(0, -50, 0), btQuaternion::getIdentity());
-
-	//auto unitCubeShape = physics.AddShape(new btBoxShape(btVector3(1, 1, 1)));
-	//auto monkeyBody = physics.CreateBody(unitCubeShape, 1, btVector3(2, 100, -20), btQuaternion(30, 20, 30));
-
-	//auto sphereShape = physics.AddShape(new btSphereShape(1));
-	//auto sphereBody = physics.CreateBody(sphereShape, 0, btVector3(0, 0, 0), btQuaternion::getIdentity());
-
-
-	/*
-	float heights[32 * 32];
-	for (size_t y = 0; y < 32; y++)
-	{
-		for (size_t x = 0; x < 32; x++)
-		{
-			heights[y * 32 + x] = pnoise.accumulatedOctaveNoise2D(x * freq, y * freq, octaves) * gain;
-		}
-	}*/
-
-	//auto terrainShape = physics.AddShape(new btHeightfieldTerrainShape(32, 32, &heights, 20, 1, true, false));
 
 	audio.init();
 
@@ -343,10 +322,18 @@ int main()
 	vec3 miccpos = { 42.12, 8.94, -27.94 };
 	miccpos = { 0, 10000, 0 };
 
-	//audio.play(clip);
+#pragma region
+	/*
+	float heights[32 * 32];
+	for (size_t y = 0; y < 32; y++)
+	{
+		for (size_t x = 0; x < 32; x++)
+		{
+			heights[y * 32 + x] = pnoise.accumulatedOctaveNoise2D(x * freq, y * freq, octaves) * gain;
+		}
+	}*/
 
-	// Meshes
-	//Mesh plainMesh = assets.CreateMesh("res/models/plain.ply");
+	//auto terrainShape = physics.AddShape(new btHeightfieldTerrainShape(32, 32, &heights, 20, 1, true, false));
 
 	/*
 	Mesh plainMesh;
@@ -362,53 +349,7 @@ int main()
 		plainMesh = assets.CreateMesh(vertices, indices, "plain_generated");
 	}
 	*/
-
-#if false
-	const char* str = "lkl";
-
-	Mesh monkeyMesh = assets.CreateMesh(*str + "res/models/suza.ply");
-	//Mesh grassMesh = assets.CreateMesh("res/models/grasso.ply");
-	Mesh skyMesh = assets.CreateMesh("res/models/skysphere.ply");
-	Mesh cubeMesh = assets.CreateMesh("res/models/cube.ply");
-	Mesh houseMesh = assets.CreateMesh("res/models/farmhouse.ply");
-	assets.CreateMesh("res/models/mausoleum.ply");
-
-	assets.CreateMesh("res/models/birch.ply");
-	Mesh road = assets.CreateMesh("res/models/hillyroad_road.ply");
-	Mesh hillGrass = assets.CreateMesh("res/models/hillyroad_grass.ply");
-
-	assets.CreateMesh("res/models/mihaus.ply");
-	assets.CreateTexture("res/models/house_a.png");
-
-	assets.CreateMesh("res/models/stonewall.ply");
-	assets.CreateTexture("res/models/stonewall.png");
-
-	Mesh miccelMesh = assets.CreateMesh("res/models/miccel.ply");
-	Texture miccelTex = assets.CreateTexture("res/models/miccel.png");
-
-	auto col = physics.CreateMeshCollider(road);
-	physics.AddShape(col);
-
-	auto grassShape = physics.AddShape(physics.CreateMeshCollider(hillGrass));
-	physics.CreateBody(grassShape, 0, btVector3(0, 0, 0), btQuaternion::getIdentity());
-
-	// Shaders
-	mainShader = &assets.CreateShader("res/texture.glsl");
-	mainShader->Bind();
-
-	screenShader = assets.CreateShader("res/quad.glsl");
-
-	// Textures
-	//Texture grass3DTex = assets.CreateTexture("res/models/grasso.png");
-	Texture grassPlainTex = assets.CreateTexture("res/models/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
-	Texture redCube = assets.CreateTexture("res/models/redsquare.png");
-	Texture whiteCube = assets.CreateTexture("res/models/whitesquare.png");
-	Texture houseTex = assets.CreateTexture("res/models/farmhouse_a.png");
-
-	assets.CreateTexture("res/models/tree_birch.png");
-	assets.CreateTexture("res/models/tarmac.png");
-	assets.CreateTexture("res/models/concrete.png");
-#endif
+#pragma endregion procgen plain mesh, unused
 
 	mainShader = &assets.GetShader("texture").value().get();
 	screenShader = assets.GetShader("quad").value().get();
@@ -558,7 +499,9 @@ int main()
 	}*/
 #pragma endregion unused
 
+#pragma region
 	// Parse scene CSV
+
 	std::ifstream f("res/scene.csv");
 	aria::csv::CsvParser parser = aria::csv::CsvParser(f);
 
@@ -615,7 +558,9 @@ int main()
 			}
 		}
 	}
+#pragma endregion scene parsing
 
+	// MICCEL
 	Mesh& miccelMesh = assets.GetMesh("miccel").value().get();
 	Texture& miccelTex = assets.GetTexture("miccel").value().get();
 
@@ -632,6 +577,7 @@ int main()
 	float smallBoxSize = 0.5f;
 	btCollisionShape* smallBoxShape = physics.AddShape(new btBoxShape(btVector3(smallBoxSize, smallBoxSize, smallBoxSize)));
 
+	// Name pairs, used to inspect with raycasting
 	std::map<const btCollisionObject*, std::string> namePair;
 	namePair[nullptr] = "Shit!";
 
