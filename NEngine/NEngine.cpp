@@ -226,16 +226,6 @@ bool KeyPressed(int key)
 	return state == GLFW_PRESS;
 }
 
-struct ParsedModel
-{
-	std::string name;
-	std::string texture;
-	vec3 pos;
-	vec3 rot;
-	vec3 scl;
-	bool createCollider;
-};
-
 #if defined(WIN32) && !defined(USE_CONSOLE)
 int WINAPI WinMain(
 	HINSTANCE hInstance,
@@ -271,7 +261,7 @@ int main()
 
 	assets.LoadAll("res/");
 
-	Scene scene(assets, audio);
+	Scene scene(assets, audio, physics);
 
 	// Sounds
 	for (size_t i = 0; i < stepClips.size(); i++)
@@ -319,6 +309,7 @@ int main()
 	*/
 #pragma endregion procgen plain mesh, unused
 
+	// TODO: don't use pointer?
 	mainShader = &assets.GetShader("texture").value().get();
 	screenShader = assets.GetShader("quad").value().get();
 
@@ -377,8 +368,7 @@ int main()
 
 	// SCENE
 
-	std::vector<Model> objects;
-	objects.reserve(1024);
+
 
 #pragma region
 	// Sky
@@ -467,73 +457,13 @@ int main()
 	}*/
 #pragma endregion unused
 
-#pragma region
-	// Parse scene CSV
-
-	std::ifstream f("res/scene.csv");
-	aria::csv::CsvParser parser = aria::csv::CsvParser(f);
-
-	std::vector<ParsedModel> parsedModels;
-	for (auto& row : parser)
-	{
-		ParsedModel m;
-
-		m.name = row[0];
-		m.texture = row[1];
-		m.pos = { stof(row[2]), stof(row[3]), stof(row[4]) };
-		m.rot = { stof(row[5]), stof(row[6]), stof(row[7]) };
-		m.scl = { stof(row[8]), stof(row[9]), stof(row[10]) };
-		m.createCollider = stoi(row[11]);
-
-		parsedModels.push_back(m);
-	}
-
-	std::map<std::string, btCollisionShape*> shapeMap;
-
-	// Add models from CSV
-	for (auto& m : parsedModels)
-	{
-		int i = assets.GetMeshIndex(m.name);
-		if (i >= 0)
-		{
-			vec3 pos = m.pos;
-			pos.x = -m.pos.x;
-
-			Model model = Model(pos, assets.GetMesh(i));
-			model.SetRotation(vec3(radians(m.rot.x), radians(-m.rot.y), radians(m.rot.z)));
-
-			model.SetScale(m.scl);
-			auto opt_tex = assets.GetTexture(m.texture.c_str());
-			if (opt_tex.has_value())
-				model.texture = &opt_tex.value().get();
-			objects.push_back(model);
-
-			if (m.createCollider)
-			{
-				mat4 matrix = model.LocalToWorld();
-
-				if (shapeMap.count(m.name) > 0)
-				{
-					physics.CreateBody(shapeMap[m.name], 0, (btScalar*)&matrix[0]);
-				}
-				else
-				{
-					auto mcol = physics.CreateMeshCollider(model.mesh);
-					shapeMap.emplace(m.name, mcol);
-					physics.CreateBody(mcol, 0, (btScalar*)&matrix[0]);
-					LOG("Creating collider for " << m.name);
-				}
-			}
-		}
-	}
-#pragma endregion scene parsing
+	scene.LoadFromCSV("res/scene.csv");
 
 	// MICCEL
 	Mesh& miccelMesh = assets.GetMesh("miccel").value().get();
 	Texture& miccelTex = assets.GetTexture("miccel").value().get();
 
-	objects.push_back(Model(vec3(0), miccelMesh, miccelTex));
-	auto& miccel = objects[objects.size() - 1];
+	auto& miccel = scene.CreateModel(miccelMesh, miccelTex);
 	miccel.SetScale(1.5f);
 	miccel.SetPosition({ 0, 100, 0 });
 	miccel.UpdateModelMatrix();
@@ -645,7 +575,7 @@ int main()
 			auto cubeRB = physics.CreateBody(smallBoxShape, 20, from(-camera.position), btQuaternion::getIdentity());
 			namePair[cubeRB] = "Red Box";
 			//auto model = Model(vec3(0), cubeMesh, redCube);
-			Model& model = objects.emplace_back(vec3(0), cubeMesh, cubeTex);
+			Model& model = scene.CreateModel(cubeMesh, cubeTex);// objects.emplace_back(vec3(0), cubeMesh, cubeTex);
 			//Model& model2 = objects[objects.size() - 1];
 			model.SetScale(smallBoxSize);
 
@@ -743,7 +673,7 @@ int main()
 			Mesh* meshPtr = nullptr;
 			Texture* texPtr = nullptr;
 
-			for (Model& go : objects)
+			for (Model& go : scene.models)
 			{
 				if (!go.IsVisible(frustum))
 					continue;
