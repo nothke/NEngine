@@ -16,17 +16,22 @@ int Application::CreateWindow()
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-	//fullscreenWidth = mode->width;
-	//fullscreenHeight = mode->height;
-
 	const int screenWidth = fullscreen ? mode->width : windowedWidth;
 	const int screenHeight = fullscreen ? mode->height : windowedHeight;
+
+	std::cout << "Window target: " << screenWidth << ":" << screenHeight << std::endl;
+
+	//currentWidth = fullscreen ? fullscreenWidth : screenWidth;
+	//currentHeight = fullscreen ? fullscreenWidth : screenHeight;
 
 	aspectRatio = (float)screenWidth / (float)screenHeight;
 
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	window = glfwCreateWindow(screenWidth, screenHeight, "NEngine", fullscreen ? monitor : NULL, NULL);
+
+	glfwGetWindowSize(window, &currentWidth, &currentHeight);
+	std::cout << "Window size: " << currentWidth << ":" << currentHeight << std::endl;
 
 	if (!window)
 	{

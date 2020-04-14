@@ -41,6 +41,7 @@
 #include "INIReader.h"
 #include "parser.hpp"
 #include "FullscreenQuad.h"
+#include "FrameBuffer.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -65,6 +66,7 @@ SoLoud::Wav clip;
 std::array<SoLoud::Wav*, 6> stepClips;
 
 Shader* mainShader; // not like this with multiple shaders
+Shader screenShader;
 
 AssetManager assets(5, 3, 3);
 
@@ -79,9 +81,8 @@ bool drawDebug = false;
 
 bool spawnCubeThisFrame = false;
 
-// fbo
-unsigned int fbo;
-unsigned int fbTexture;
+FrameBuffer fb;
+FullscreenQuad* quad;
 
 void LockMouse(bool b)
 {
@@ -103,11 +104,6 @@ void LockMouse(bool b)
 
 // forward declaration for key_callback
 void RebuildEverything();
-
-void BuildFBO()
-{
-
-}
 
 void PlayFootstep()
 {
@@ -209,6 +205,17 @@ void RebuildEverything()
 	assets.RebuildAll();
 	mainShader = &assets.shaders[0];
 	//mainShader->Bind();
+	screenShader.Recompile();
+
+	fb.fbWidth = app.currentWidth / 4;
+	fb.fbHeight = app.currentHeight / 4;
+
+	delete(quad);
+
+	fb.Release();
+	fb.Build();
+
+	quad = new FullscreenQuad();
 
 	DebugDraw::RecompileShader();
 
@@ -311,8 +318,27 @@ int main()
 
 	SoLoud::Wav mus_2;
 	mus_2.load("../NEngine/res/sfx/mus_2.wav");
-	auto mus_handle = audio.play(mus_2);
+	auto mus_handle = audio.play3d(mus_2, -48.45f, -9.39f, 28.02f);
+	audio.set3dSourceAttenuation(mus_handle, 1, 0.05f);
 	audio.setLooping(mus_handle, true);
+
+	SoLoud::Wav pinaten;
+	pinaten.load("../NEngine/res/sfx/pinaten.ogg");
+	auto pinaten_handle = audio.play3d(pinaten, 10000, 10000, 10000);
+	audio.set3dSourceAttenuation(pinaten_handle, 1, 0.1f);
+	audio.setLooping(pinaten_handle, true);
+
+	vec3 coffeePos = { 15.0f, -3.76f, 44.21f };
+	SoLoud::Wav coffeeClip;
+	coffeeClip.load("../NEngine/res/sfx/coffee.ogg");
+	auto coffee = audio.play3d(coffeeClip, -coffeePos.x, -coffeePos.y, -coffeePos.z);
+	audio.set3dSourceAttenuation(coffee, 1, 0.1f);
+	audio.setLooping(coffee, true);
+
+	vec3 mausoleumpos = { 47.97, 8.54, -27.4 };
+
+	vec3 miccpos = { 42.12, 8.94, -27.94 };
+	miccpos = { 0, 10000, 0 };
 
 	//audio.play(clip);
 
@@ -344,6 +370,15 @@ int main()
 	Mesh road = assets.CreateMesh("../NEngine/res/models/hillyroad_road.ply");
 	Mesh hillGrass = assets.CreateMesh("../NEngine/res/models/hillyroad_grass.ply");
 
+	assets.CreateMesh("../NEngine/res/models/mihaus.ply");
+	assets.CreateTexture("../NEngine/res/models/house_a.png");
+
+	assets.CreateMesh("../NEngine/res/models/stonewall.ply");
+	assets.CreateTexture("../NEngine/res/models/stonewall.png");
+
+	Mesh miccelMesh = assets.CreateMesh("../NEngine/res/models/miccel.ply");
+	Texture miccelTex = assets.CreateTexture("../NEngine/res/models/miccel.png");
+
 	auto col = physics.CreateMeshCollider(road);
 	physics.AddShape(col);
 
@@ -356,7 +391,7 @@ int main()
 	mainShader = &assets.CreateShader("../NEngine/res/texture.glsl");
 	mainShader->Bind();
 
-	Shader screenShader = assets.CreateShader("../NEngine/res/quad.glsl");
+	screenShader = assets.CreateShader("../NEngine/res/quad.glsl");
 
 	// Textures
 	Texture grass3DTex = assets.CreateTexture("../NEngine/res/models/grasso.png");
@@ -369,80 +404,18 @@ int main()
 	assets.CreateTexture("../NEngine/res/models/tarmac.png");
 	assets.CreateTexture("../NEngine/res/models/concrete.png");
 
-	// Character
-	btTransform startTransform;
-	startTransform.setIdentity();
-	startTransform.setOrigin(btVector3(50, 10, 0));
-	btPairCachingGhostObject* ghostObject = new btPairCachingGhostObject();
-	ghostObject->setWorldTransform(startTransform);
+	auto character = physics.CreateCharacter(btVector3(50, 10, 0));
 
-	physics.overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-
-	btConvexShape* capsule = new btCapsuleShape(0.3f, 2);
-	ghostObject->setCollisionShape(capsule);
-
-	auto character = new btKinematicCharacterController(ghostObject, capsule, btScalar(0.2f));
-
-	physics.dynamicsWorld->addCollisionObject(ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
-	physics.dynamicsWorld->addCharacter(character);
-
-	character->setGravity(btVector3(0, -10, 0));
-
-	//btKinematicCharacterController(btPairCachingGhostObject())
+	// Miccel
+	auto miccelCharacter = physics.CreateCharacter(btVector3(0, 10, 0));
 
 	// Buffer
-	unsigned int fbo;
-	unsigned int fbTexture;
+	fb.fbWidth = app.currentWidth / 4;
+	fb.fbHeight = app.currentHeight / 4;
 
-	int fbWidth = (app.fullscreen ? app.fullscreenWidth : app.windowedWidth) / 4;
-	int fbHeight = (app.fullscreen ? app.fullscreenHeight : app.windowedHeight) / 4;
+	fb.Build();
 
-	{
-		// Frame Buffer Object
-		glGenFramebuffers(1, &fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-		glGenTextures(1, &fbTexture);
-		glBindTexture(GL_TEXTURE_2D, fbTexture);
-
-		// Color
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fbWidth, fbHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbTexture, 0);
-
-		// Stencil and depth buffer
-		unsigned int rbo;
-		glGenRenderbuffers(1, &rbo);
-		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fbWidth, fbHeight);
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-		// Stencil and depth - TEXTURE
-
-		//glTexImage2D(
-		//	GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, 800, 600, 0,
-		//	GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL
-		//);
-		//
-		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture, 0);
-
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-		else
-			LOG("Framebuffer complete");
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-
-	FullscreenQuad quad;
+	quad = new FullscreenQuad();
 
 	DebugDraw::Init();
 
@@ -473,7 +446,7 @@ int main()
 
 	// Camera
 	camera.SetProjection(60.0f, app.aspectRatio);
-	bool constrainCameraToGround = false;
+	bool constrainCameraToGround = true;
 
 	const glm::vec3 RIGHT = glm::vec3(1, 0, 0);
 	const glm::vec3 UP = glm::vec3(0, 1, 0);
@@ -632,11 +605,19 @@ int main()
 		}
 	}
 
+	objects.push_back(Model(vec3(0), miccelMesh, miccelTex));
+	auto& miccel = objects[objects.size() - 1];
+	miccel.SetScale(1.5f);
+	miccel.SetPosition({ 0, 100, 0 });
+	miccel.UpdateModelMatrix();
+
 	float smallBoxSize = 0.5f;
 	btCollisionShape* smallBoxShape = physics.AddShape(new btBoxShape(btVector3(smallBoxSize, smallBoxSize, smallBoxSize)));
 
 	std::map<const btCollisionObject*, std::string> namePair;
 	namePair[nullptr] = "Shit!";
+
+	bool miccelSpawned = false;
 
 	// GAME LOOP
 	while (!glfwWindowShouldClose(app.window))
@@ -675,22 +656,57 @@ int main()
 		camera.UpdateRotation();
 		camera.MoveRelative(playerInput * dt * cameraSpeed);
 
+		/*
 		if (constrainCameraToGround)
 		{
 			camera.position.y = -pnoise.accumulatedOctaveNoise2D(-camera.position.x * freq, -camera.position.z * freq, octaves) * gain;
 			camera.position.y -= 1;
+		}*/
+
+		// override camera position from character
+		vec3 campos;
+		if (constrainCameraToGround)
+		{
+			campos = from(character->getGhostObject()->getWorldTransform().getOrigin()) + UP;
+			campos = -campos;
+			camera.position = campos;
+			camera.Update();
+
+			// Character move
+			character->setWalkDirection(from(
+				-camera.right * playerInput.x +
+				-camera.forward * playerInput.y) * 0.03f);
+		}
+		else
+			camera.Update();
+
+		if (length(mausoleumpos - camera.position) < 5)
+		{
+			miccelSpawned = true;
 		}
 
-		// override camera position
-		vec3 campos = from(ghostObject->getWorldTransform().getOrigin()) + UP;
-		campos = -campos;
-		camera.position = campos;
-		camera.Update();
+		// Miccel
+		if (miccelSpawned)
+		{
+			miccpos = from(miccelCharacter->getGhostObject()->getWorldTransform().getOrigin());
+			vec3 walkDir = -camera.position - miccpos + vec3(0.001f);
+			walkDir.y = 0;
+			walkDir = normalize(walkDir);
 
-		// Character move
-		character->setWalkDirection(from(
-			-camera.right * playerInput.x +
-			-camera.forward * playerInput.y) * 0.03f);
+			LOGV(walkDir);
+			miccelCharacter->setWalkDirection(from(walkDir * 0.025f));
+			miccel.SetPosition(miccpos);
+			miccel.SetRotation(quatLookAt(walkDir, UP));
+			miccel.UpdateModelMatrix();
+			audio.set3dSourcePosition(pinaten_handle, miccpos.x, miccpos.y, miccpos.z);
+
+			if (length(-miccpos - camera.position) < 2)
+			{
+				LOG(" ");
+				LOG("You ded");
+				break;
+			}
+		}
 
 		if (KeyPressed(GLFW_KEY_B))
 		{
@@ -707,6 +723,9 @@ int main()
 
 			spawnCubeThisFrame = false;
 		}
+
+		if (KeyPressed(GLFW_KEY_M))
+			miccelSpawned = true;
 
 		auto hit = physics.Raycast(camera.position, camera.forward, 10);
 
@@ -751,6 +770,8 @@ int main()
 			camera.forward.x, camera.forward.y, camera.forward.z,
 			0, 1, 0);
 
+		audio.update3dAudio();
+
 		footstepDistance += distancePassed;
 		if (footstepDistance > 0.7f)
 		{
@@ -762,11 +783,7 @@ int main()
 		//  Rendering
 		//-------------
 
-		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
-		GLCall(glEnable(GL_DEPTH_TEST)); // enable depth testing (is disabled for rendering screen-space quad)
-
-		// not needed if rendered directly
-		glViewport(0, 0, fbWidth, fbHeight);
+		fb.Bind();
 
 		renderer.Clear(from(color1));
 
@@ -833,27 +850,23 @@ int main()
 		else
 			DebugDraw::Clear();
 
-		glViewport(0, 0, app.windowedWidth, app.windowedHeight);
+		glViewport(0, 0, app.currentWidth, app.currentHeight);
 
 		{
 			// unbind vertices pre framebuffer
 			GLCall(glBindVertexArray(0));
 			GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-			// Framebuffer
-			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-			GLCall(glDisable(GL_DEPTH_TEST));
-
-			GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
-			GLCall(glClear(GL_COLOR_BUFFER_BIT));
+			fb.DrawPre();
 
 			screenShader.Bind();
-			quad.Bind();
-			//std::cout << "QUAD vert " << quad.vertices[0].position.x << std::endl;
-			GLCall(glBindTexture(GL_TEXTURE_2D, fbTexture));
-			quad.Draw();
+			quad->Bind();
 
-			quad.Unbind();
+			fb.BindTexture();
+
+			quad->Draw();
+
+			quad->Unbind();
 		}
 
 		// imgui
@@ -903,6 +916,8 @@ int main()
 				// Analitics
 				ImGui::Text("DT: %.3f ms, FPS: %.1f, AVG: %.1f", dt, 1.0f / dt, ImGui::GetIO().Framerate);
 
+				ImGui::Text("Player pos: %.2f, %.2f, %.2f", camera.position.x, camera.position.y, camera.position.z);
+
 				ImGui::End();
 			}
 
@@ -935,7 +950,8 @@ int main()
 		delete stepClips[i];
 	}
 
-	//glDeleteFramebuffers(1, &fbo);
+	delete(quad);
+	fb.Release();
 
 	audio.deinit();
 

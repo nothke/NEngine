@@ -9,11 +9,14 @@ public:
 
 	bool fullscreen = false;
 
+	int currentWidth;
+	int currentHeight;
+
 	int windowedWidth = 800;
 	int windowedHeight = 600;
 
-	int fullscreenWidth = 0;
-	int fullscreenHeight = 0;
+	//int fullscreenWidth = 0;
+	//int fullscreenHeight = 0;
 
 	float aspectRatio;
 

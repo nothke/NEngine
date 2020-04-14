@@ -138,6 +138,33 @@ public:
 		return body;
 	}
 
+	btKinematicCharacterController* CreateCharacter(btVector3 pos)
+	{
+		btTransform startTransform;
+		startTransform.setIdentity();
+		startTransform.setOrigin(pos);
+		btPairCachingGhostObject* ghostObject = new btPairCachingGhostObject();
+		ghostObject->setWorldTransform(startTransform);
+
+		overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+
+		btConvexShape* capsule = new btCapsuleShape(0.1f, 1.8f);
+		ghostObject->setCollisionShape(capsule);
+		collisionShapes.push_back(capsule);
+
+		auto character = new btKinematicCharacterController(ghostObject, capsule, btScalar(0.2f));
+
+		// Filters are required
+		dynamicsWorld->addCollisionObject(ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+		dynamicsWorld->addCharacter(character);
+
+		character->setGravity(btVector3(0, -10, 0));
+
+		// Character and ghost object cleanup??
+
+		return character;
+	}
+
 	void BindBodyToModel(btRigidBody* body, Model& model)
 	{
 		BodyModelPair pair(body, model);
