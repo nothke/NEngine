@@ -307,30 +307,30 @@ int main()
 	audio.init();
 
 	// Sounds
-	auto mess = clip.load("../NEngine/res/sfx/tram_joint_1.wav");
+	auto mess = clip.load("res/sfx/tram_joint_1.wav");
 
 	for (size_t i = 0; i < stepClips.size(); i++)
 	{
 		stepClips[i] = new SoLoud::Wav();
-		const char* c = ("../NEngine/res/sfx/step_sand" + std::to_string(i + 1) + ".wav").c_str();
+		const char* c = ("res/sfx/step_sand" + std::to_string(i + 1) + ".wav").c_str();
 		stepClips[i]->load(c);
 	}
 
 	SoLoud::Wav mus_2;
-	mus_2.load("../NEngine/res/sfx/mus_2.wav");
+	mus_2.load("res/sfx/mus_2.wav");
 	auto mus_handle = audio.play3d(mus_2, -48.45f, -9.39f, 28.02f);
 	audio.set3dSourceAttenuation(mus_handle, 1, 0.05f);
 	audio.setLooping(mus_handle, true);
 
 	SoLoud::Wav pinaten;
-	pinaten.load("../NEngine/res/sfx/pinaten.ogg");
+	pinaten.load("res/sfx/pinaten.ogg");
 	auto pinaten_handle = audio.play3d(pinaten, 10000, 10000, 10000);
 	audio.set3dSourceAttenuation(pinaten_handle, 1, 0.1f);
 	audio.setLooping(pinaten_handle, true);
 
 	vec3 coffeePos = { 15.0f, -3.76f, 44.21f };
 	SoLoud::Wav coffeeClip;
-	coffeeClip.load("../NEngine/res/sfx/coffee.ogg");
+	coffeeClip.load("res/sfx/coffee.ogg");
 	auto coffee = audio.play3d(coffeeClip, -coffeePos.x, -coffeePos.y, -coffeePos.z);
 	audio.set3dSourceAttenuation(coffee, 1, 0.1f);
 	audio.setLooping(coffee, true);
@@ -343,14 +343,14 @@ int main()
 	//audio.play(clip);
 
 	// Meshes
-	//Mesh plainMesh = assets.CreateMesh("../NEngine/res/models/plain.ply");
+	//Mesh plainMesh = assets.CreateMesh("res/models/plain.ply");
 
 
 	Mesh plainMesh;
 	{
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
-		ModelReader::LoadFromPly("../NEngine/res/models/plain.ply", vertices, indices);
+		ModelReader::LoadFromPly("res/models/plain.ply", vertices, indices);
 
 		for (auto& v : vertices)
 		{
@@ -359,25 +359,25 @@ int main()
 		plainMesh = assets.CreateMesh(vertices, indices, "plain_generated");
 	}
 
-	Mesh monkeyMesh = assets.CreateMesh("../NEngine/res/models/suza.ply");
-	Mesh grassMesh = assets.CreateMesh("../NEngine/res/models/grasso.ply");
-	Mesh skyMesh = assets.CreateMesh("../NEngine/res/models/skysphere.ply");
-	Mesh cubeMesh = assets.CreateMesh("../NEngine/res/models/cube.ply");
-	Mesh houseMesh = assets.CreateMesh("../NEngine/res/models/farmhouse.ply");
-	assets.CreateMesh("../NEngine/res/models/mausoleum.ply");
+	Mesh monkeyMesh = assets.CreateMesh("res/models/suza.ply");
+	//Mesh grassMesh = assets.CreateMesh("res/models/grasso.ply");
+	Mesh skyMesh = assets.CreateMesh("res/models/skysphere.ply");
+	Mesh cubeMesh = assets.CreateMesh("res/models/cube.ply");
+	Mesh houseMesh = assets.CreateMesh("res/models/farmhouse.ply");
+	assets.CreateMesh("res/models/mausoleum.ply");
 
-	assets.CreateMesh("../NEngine/res/models/birch.ply");
-	Mesh road = assets.CreateMesh("../NEngine/res/models/hillyroad_road.ply");
-	Mesh hillGrass = assets.CreateMesh("../NEngine/res/models/hillyroad_grass.ply");
+	assets.CreateMesh("res/models/birch.ply");
+	Mesh road = assets.CreateMesh("res/models/hillyroad_road.ply");
+	Mesh hillGrass = assets.CreateMesh("res/models/hillyroad_grass.ply");
 
-	assets.CreateMesh("../NEngine/res/models/mihaus.ply");
-	assets.CreateTexture("../NEngine/res/models/house_a.png");
+	assets.CreateMesh("res/models/mihaus.ply");
+	assets.CreateTexture("res/models/house_a.png");
 
-	assets.CreateMesh("../NEngine/res/models/stonewall.ply");
-	assets.CreateTexture("../NEngine/res/models/stonewall.png");
+	assets.CreateMesh("res/models/stonewall.ply");
+	assets.CreateTexture("res/models/stonewall.png");
 
-	Mesh miccelMesh = assets.CreateMesh("../NEngine/res/models/miccel.ply");
-	Texture miccelTex = assets.CreateTexture("../NEngine/res/models/miccel.png");
+	Mesh miccelMesh = assets.CreateMesh("res/models/miccel.ply");
+	Texture miccelTex = assets.CreateTexture("res/models/miccel.png");
 
 	auto col = physics.CreateMeshCollider(road);
 	physics.AddShape(col);
@@ -388,21 +388,21 @@ int main()
 	std::cout << "End mesh gen" << std::endl;
 
 	// Shaders
-	mainShader = &assets.CreateShader("../NEngine/res/texture.glsl");
+	mainShader = &assets.CreateShader("res/texture.glsl");
 	mainShader->Bind();
 
-	screenShader = assets.CreateShader("../NEngine/res/quad.glsl");
+	screenShader = assets.CreateShader("res/quad.glsl");
 
 	// Textures
-	Texture grass3DTex = assets.CreateTexture("../NEngine/res/models/grasso.png");
-	Texture grassPlainTex = assets.CreateTexture("../NEngine/res/models/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
-	Texture redCube = assets.CreateTexture("../NEngine/res/models/redsquare.png");
-	Texture whiteCube = assets.CreateTexture("../NEngine/res/models/whitesquare.png");
-	Texture houseTex = assets.CreateTexture("../NEngine/res/models/farmhouse_a.png");
+	//Texture grass3DTex = assets.CreateTexture("res/models/grasso.png");
+	Texture grassPlainTex = assets.CreateTexture("res/models/grass.png", Texture::Filtering::Nearest, Texture::EdgeMode::Wrap);
+	Texture redCube = assets.CreateTexture("res/models/redsquare.png");
+	Texture whiteCube = assets.CreateTexture("res/models/whitesquare.png");
+	Texture houseTex = assets.CreateTexture("res/models/farmhouse_a.png");
 
-	assets.CreateTexture("../NEngine/res/models/tree_birch.png");
-	assets.CreateTexture("../NEngine/res/models/tarmac.png");
-	assets.CreateTexture("../NEngine/res/models/concrete.png");
+	assets.CreateTexture("res/models/tree_birch.png");
+	assets.CreateTexture("res/models/tarmac.png");
+	assets.CreateTexture("res/models/concrete.png");
 
 	auto character = physics.CreateCharacter(btVector3(50, 10, 0));
 
@@ -548,7 +548,7 @@ int main()
 	}*/
 
 	// Parse scene CSV
-	std::ifstream f("../NEngine/res/scene.csv");
+	std::ifstream f("res/scene.csv");
 	aria::csv::CsvParser parser = aria::csv::CsvParser(f);
 
 	std::vector<ParsedModel> parsedModels;
