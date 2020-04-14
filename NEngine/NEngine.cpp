@@ -42,6 +42,7 @@
 #include "parser.hpp"
 #include "FullscreenQuad.h"
 #include "FrameBuffer.h"
+#include "Scene.h"
 
 #define USE_CONSOLE // When changing this you also need to set Linker > System > SubSystem to Console/Windows
 #if defined(WIN32) && !defined(USE_CONSOLE)
@@ -62,13 +63,12 @@ Camera camera;
 SoLoud::Soloud audio;
 
 // TODO: put these in asset manager
-SoLoud::Wav clip;
 std::array<SoLoud::Wav*, 6> stepClips;
 
 Shader* mainShader; // not like this with multiple shaders
 Shader screenShader;
 
-AssetManager assets(5, 3, 3);
+AssetManager assets(16, 16, 8);
 
 glm::ivec2 targetResolution = { 1024, 768 };
 
@@ -128,22 +128,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			spawnCubeThisFrame = true;
 			break;
 
-			// System
-		case GLFW_KEY_T:
-		{
-			SoLoud::handle handle = audio.play3d(clip, 0, 0, 0, 0, 0, 0, 1);
-			//audio.setLooping(handle, true);
-		}
-		//audio.play(clip);
-
-		break;
-
-		case GLFW_KEY_F:
-		{
-			PlayFootstep();
-		}
-
-		break;
+			break;
 
 		case GLFW_KEY_LEFT_CONTROL:
 
@@ -280,13 +265,13 @@ int main()
 	const float gain = 2;
 	const int octaves = 4;
 
-	// Physics
 	Physics physics;
-
 
 	audio.init();
 
 	assets.LoadAll("res/");
+
+	Scene scene(assets, audio);
 
 	// Sounds
 	for (size_t i = 0; i < stepClips.size(); i++)
