@@ -19,10 +19,11 @@ public:
 
 	AssetManager(const int meshesCapacity, const  int texturesCapacity, const  int shadersCapacity);
 
+	void LoadAll(const std::string& folderPath);
 
 	int GetMeshIndex(const std::string& name);
 	Mesh& GetMesh(int i);
-	Mesh& GetMesh(const std::string& name);
+	std::optional<std::reference_wrapper<Mesh>> GetMesh(const std::string& name);
 
 	void AddMesh(const Mesh& mesh, const char* name);
 	Mesh& CreateMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, const char* name);
@@ -33,6 +34,7 @@ public:
 		Texture::Filtering filtering = Texture::Nearest,
 		Texture::EdgeMode edgeMode = Texture::Wrap);
 
+	std::optional<std::reference_wrapper<Shader>> GetShader(const std::string& name);
 	Shader& CreateShader(const char* path);
 
 	void RebuildAll();

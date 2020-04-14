@@ -16,6 +16,40 @@ AssetManager::AssetManager(const int meshesCapacity, const int texturesCapacity,
 	shaderPaths.reserve(shadersCapacity);
 }
 
+void AssetManager::LoadAll(const std::string & folderPath)
+{
+	std::cout << std::endl << "AssetManager:: Found files" << std::endl;
+	for (const auto & entry : std::filesystem::directory_iterator(folderPath))
+	{
+		if (entry.is_directory())
+		{
+			LoadAll(entry.path().string());
+			continue;
+		}
+
+		//std::cout << entry.path().filename() << std::endl;
+
+		auto ext = entry.path().extension();
+
+		if (ext == ".ply")
+		{
+			//std::cout << "Is PLY!" << std::endl;
+			CreateMesh(entry.path().string().c_str());
+		}
+		else if (ext == ".png")
+		{
+			CreateTexture(entry.path().string().c_str());
+		}
+		else if (ext == ".glsl")
+		{
+			CreateShader(entry.path().string().c_str());
+		}
+
+	}
+
+	std::cout << "AssetManager:: Loading assets completed" << std::endl << std::endl;
+}
+
 void AssetManager::AddMesh(const Mesh& mesh, const char* name)
 {
 	meshes.push_back(mesh);
@@ -38,15 +72,15 @@ Mesh& AssetManager::GetMesh(int i)
 	return meshes[i];
 }
 
-Mesh& AssetManager::GetMesh(const std::string& name)
+std::optional<std::reference_wrapper<Mesh>> AssetManager::GetMesh(const std::string& name)
 {
 	for (size_t i = 0; i < meshes.size(); i++)
 	{
 		if (meshNames[i] == name)
-		{
 			return meshes[i];
-		}
 	}
+
+	return {};
 }
 
 Mesh& AssetManager::CreateMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, const char* name)
@@ -93,6 +127,17 @@ Texture & AssetManager::CreateTexture(const char * path, Texture::Filtering filt
 	std::cout << "AssetManager:: Loaded texture: " << name << std::endl;
 
 	return textures[textures.size() - 1];
+}
+
+std::optional<std::reference_wrapper<Shader>> AssetManager::GetShader(const std::string & name)
+{
+	for (size_t i = 0; i < shaders.size(); i++)
+	{
+		std::filesystem::path path(shaderPaths[i]);
+		if (path.stem() == name)
+			return shaders[i];
+	}
+	return {};
 }
 
 Shader & AssetManager::CreateShader(const char * path)

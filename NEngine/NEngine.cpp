@@ -203,7 +203,8 @@ void RebuildEverything()
 
 	// Initialization sequence needs to be kept assets > DebugDraw
 	assets.RebuildAll();
-	mainShader = &assets.shaders[0];
+	// TODO: do we need to fetch the shader again? pointer?
+	mainShader = &assets.GetShader("texture").value().get();
 	//mainShader->Bind();
 	screenShader.Recompile();
 
@@ -264,7 +265,7 @@ int main()
 
 	Instrumentor::Instance().beginSession("Game Session", "../results.json");
 
-	app.fullscreen = true;
+	app.fullscreen = false;
 	//app.windowedWidth = 1024;
 	//app.windowedHeight = 768;
 	if (app.Init()) return -1;
@@ -306,6 +307,8 @@ int main()
 
 	audio.init();
 
+	assets.LoadAll("res/");
+
 	// Sounds
 	auto mess = clip.load("res/sfx/tram_joint_1.wav");
 
@@ -345,7 +348,7 @@ int main()
 	// Meshes
 	//Mesh plainMesh = assets.CreateMesh("res/models/plain.ply");
 
-
+	/*
 	Mesh plainMesh;
 	{
 		std::vector<Vertex> vertices;
@@ -358,8 +361,12 @@ int main()
 		}
 		plainMesh = assets.CreateMesh(vertices, indices, "plain_generated");
 	}
+	*/
 
-	Mesh monkeyMesh = assets.CreateMesh("res/models/suza.ply");
+#if false
+	const char* str = "lkl";
+
+	Mesh monkeyMesh = assets.CreateMesh(*str + "res/models/suza.ply");
 	//Mesh grassMesh = assets.CreateMesh("res/models/grasso.ply");
 	Mesh skyMesh = assets.CreateMesh("res/models/skysphere.ply");
 	Mesh cubeMesh = assets.CreateMesh("res/models/cube.ply");
@@ -385,8 +392,6 @@ int main()
 	auto grassShape = physics.AddShape(physics.CreateMeshCollider(hillGrass));
 	physics.CreateBody(grassShape, 0, btVector3(0, 0, 0), btQuaternion::getIdentity());
 
-	std::cout << "End mesh gen" << std::endl;
-
 	// Shaders
 	mainShader = &assets.CreateShader("res/texture.glsl");
 	mainShader->Bind();
@@ -403,6 +408,10 @@ int main()
 	assets.CreateTexture("res/models/tree_birch.png");
 	assets.CreateTexture("res/models/tarmac.png");
 	assets.CreateTexture("res/models/concrete.png");
+#endif
+
+	mainShader = &assets.GetShader("texture").value().get();
+	screenShader = assets.GetShader("quad").value().get();
 
 	auto character = physics.CreateCharacter(btVector3(50, 10, 0));
 
@@ -462,6 +471,7 @@ int main()
 	std::vector<Model> objects;
 	objects.reserve(1024);
 
+#pragma region
 	// Sky
 	//Model sky({ 0,0,0 }, skyMesh);
 	//sky.SetScale(vec3(100));
@@ -546,6 +556,7 @@ int main()
 
 		std::cout << reader.GetInteger("HEADER", "warmup", 0) << std::endl;
 	}*/
+#pragma endregion unused
 
 	// Parse scene CSV
 	std::ifstream f("res/scene.csv");
@@ -605,11 +616,18 @@ int main()
 		}
 	}
 
+	Mesh& miccelMesh = assets.GetMesh("miccel").value().get();
+	Texture& miccelTex = assets.GetTexture("miccel").value().get();
+
 	objects.push_back(Model(vec3(0), miccelMesh, miccelTex));
 	auto& miccel = objects[objects.size() - 1];
 	miccel.SetScale(1.5f);
 	miccel.SetPosition({ 0, 100, 0 });
 	miccel.UpdateModelMatrix();
+
+	// thrown cubes
+	Mesh& cubeMesh = assets.GetMesh("cube").value().get();
+	Texture& cubeTex = assets.GetTexture("redsquare").value().get();
 
 	float smallBoxSize = 0.5f;
 	btCollisionShape* smallBoxShape = physics.AddShape(new btBoxShape(btVector3(smallBoxSize, smallBoxSize, smallBoxSize)));
@@ -713,7 +731,7 @@ int main()
 			auto cubeRB = physics.CreateBody(smallBoxShape, 20, from(-camera.position), btQuaternion::getIdentity());
 			namePair[cubeRB] = "Red Box";
 			//auto model = Model(vec3(0), cubeMesh, redCube);
-			Model& model = objects.emplace_back(vec3(0), cubeMesh, redCube);
+			Model& model = objects.emplace_back(vec3(0), cubeMesh, cubeTex);
 			//Model& model2 = objects[objects.size() - 1];
 			model.SetScale(smallBoxSize);
 
@@ -941,9 +959,6 @@ int main()
 #ifdef USE_GUI
 	GUI::Shutdown();
 #endif
-
-	Mesh& mesh = assets.GetMesh("grasso");
-	//mesh.boundsMax = vec3(0, 0, 0);
 
 	for (size_t i = 0; i < stepClips.size(); i++)
 	{
