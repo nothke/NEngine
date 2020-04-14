@@ -76,7 +76,7 @@ float cameraSpeedInput = 1;
 float cameraSpeed = 1;
 
 bool quitKeyPressed = false;
-bool drawGUI = true;
+bool drawGUI = false;
 bool drawDebug = false;
 
 bool spawnCubeThisFrame = false;
@@ -264,7 +264,7 @@ int main()
 
 	Instrumentor::Instance().beginSession("Game Session", "../results.json");
 
-	app.fullscreen = false;
+	app.fullscreen = true;
 	//app.windowedWidth = 1024;
 	//app.windowedHeight = 768;
 	if (app.Init()) return -1;
