@@ -5,7 +5,11 @@
 #include "ModelReader.h"
 #include <filesystem>
 
-AssetManager::AssetManager(const int meshesCapacity, const int texturesCapacity, const int shadersCapacity)
+AssetManager::AssetManager(
+	const int meshesCapacity,
+	const int texturesCapacity,
+	const int shadersCapacity,
+	const int audioClipsCapacity)
 {
 	meshes.reserve(meshesCapacity);
 	meshNames.reserve(meshesCapacity);
@@ -14,6 +18,9 @@ AssetManager::AssetManager(const int meshesCapacity, const int texturesCapacity,
 
 	shaders.reserve(shadersCapacity);
 	shaderPaths.reserve(shadersCapacity);
+
+	clips.reserve(audioClipsCapacity);
+	clipNames.reserve(audioClipsCapacity);
 }
 
 void AssetManager::LoadAll(const std::string & folderPath)
@@ -44,7 +51,10 @@ void AssetManager::LoadAll(const std::string & folderPath)
 		{
 			CreateShader(entry.path().string().c_str());
 		}
-
+		else if (ext == ".wav" || ext == ".ogg")
+		{
+			CreateWav(entry.path().string().c_str());
+		}
 	}
 
 	std::cout << "AssetManager:: Loading assets completed" << std::endl << std::endl;
@@ -148,6 +158,29 @@ Shader & AssetManager::CreateShader(const char * path)
 	shaderPaths.push_back(path);
 
 	return shaders[shaders.size() - 1];
+}
+
+std::optional<std::reference_wrapper<SoLoud::Wav>> AssetManager::GetAudioClip(const std::string & name)
+{
+	for (size_t i = 0; i < clips.size(); i++)
+	{
+		if (clipNames[i] == name)
+			return clips[i];
+	}
+	return {};
+}
+
+SoLoud::Wav& AssetManager::CreateWav(const std::string & path)
+{
+	SoLoud::Wav& wav = clips.emplace_back();
+	wav.load(path.c_str());
+
+	std::filesystem::path filepath(path);
+	auto name = filepath.stem().string();
+	clipNames.push_back(name);
+
+	std::cout << "AssetManager:: Loaded audio clip: " << name << std::endl;
+	return wav;
 }
 
 void AssetManager::RebuildAll()

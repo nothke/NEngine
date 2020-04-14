@@ -289,8 +289,6 @@ int main()
 	assets.LoadAll("res/");
 
 	// Sounds
-	auto mess = clip.load("res/sfx/tram_joint_1.wav");
-
 	for (size_t i = 0; i < stepClips.size(); i++)
 	{
 		stepClips[i] = new SoLoud::Wav();
