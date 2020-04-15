@@ -238,7 +238,9 @@ int main()
 {
 	// TODO: Parse command line arguments
 
-	Instrumentor::Instance().beginSession("Game Session", "../results.json");
+#ifdef PROFILING
+	Instrumentor::Instance().beginSession("Game Session", "profiling_session.json");
+#endif
 
 	app.fullscreen = false;
 	//app.windowedWidth = 1024;
@@ -259,7 +261,10 @@ int main()
 
 	audio.init();
 
-	assets.LoadAll("res/");
+	{
+		PROFILE_SCOPE("Loading assets");
+		assets.LoadAll("res/");
+	}
 
 	Scene scene(assets, audio, physics);
 
@@ -555,7 +560,7 @@ int main()
 			walkDir.y = 0;
 			walkDir = normalize(walkDir);
 
-			LOGV(walkDir);
+			//LOGV(walkDir);
 			miccelCharacter->setWalkDirection(from(walkDir * 0.025f));
 			miccel.SetPosition(miccpos);
 			miccel.SetRotation(quatLookAt(walkDir, UP));
@@ -813,7 +818,9 @@ int main()
 
 	app.Terminate();
 
+#ifdef PROFILING
 	Instrumentor::Instance().endSession();
+#endif
 
 	return 0;
 }

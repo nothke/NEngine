@@ -5,6 +5,8 @@
 #include "ModelReader.h"
 #include <filesystem>
 
+#define AM_LOG 0;
+
 AssetManager::AssetManager(
 	const int meshesCapacity,
 	const int texturesCapacity,
@@ -23,24 +25,28 @@ AssetManager::AssetManager(
 	clipNames.reserve(audioClipsCapacity);
 }
 
+
 void AssetManager::LoadAll(const std::string & folderPath)
 {
-	std::cout << std::endl << "AssetManager:: Found files" << std::endl;
+	std::cout << std::endl << "AssetManager:: LOADING ASSETS" << std::endl;
+	LoadRecursively(folderPath);
+	std::cout << "AssetManager:: Loading assets completed" << std::endl << std::endl;
+}
+
+void AssetManager::LoadRecursively(const std::string& folderPath)
+{
 	for (const auto & entry : std::filesystem::directory_iterator(folderPath))
 	{
 		if (entry.is_directory())
 		{
-			LoadAll(entry.path().string());
+			LoadRecursively(entry.path().string());
 			continue;
 		}
-
-		//std::cout << entry.path().filename() << std::endl;
 
 		auto ext = entry.path().extension();
 
 		if (ext == ".ply")
 		{
-			//std::cout << "Is PLY!" << std::endl;
 			CreateMesh(entry.path().string().c_str());
 		}
 		else if (ext == ".png")
@@ -56,8 +62,6 @@ void AssetManager::LoadAll(const std::string & folderPath)
 			CreateWav(entry.path().string().c_str());
 		}
 	}
-
-	std::cout << "AssetManager:: Loading assets completed" << std::endl << std::endl;
 }
 
 void AssetManager::AddMesh(const Mesh& mesh, const char* name)
@@ -110,7 +114,10 @@ Mesh& AssetManager::CreateMesh(const char * path)
 	std::filesystem::path filepath(path);
 	auto name = filepath.stem().string();
 	meshNames.push_back(name);
+
+#if AM_LOG
 	std::cout << "AssetManager:: Loaded Mesh: " << name << std::endl;
+#endif
 
 	return meshes[meshes.size() - 1];
 }
@@ -134,7 +141,9 @@ Texture & AssetManager::CreateTexture(const char * path, Texture::Filtering filt
 	auto name = filepath.stem().string();
 	textureNames.push_back(name);
 
+#if AM_LOG
 	std::cout << "AssetManager:: Loaded texture: " << name << std::endl;
+#endif
 
 	return textures[textures.size() - 1];
 }
@@ -167,6 +176,8 @@ std::optional<std::reference_wrapper<SoLoud::Wav>> AssetManager::GetAudioClip(co
 		if (clipNames[i] == name)
 			return clips[i];
 	}
+
+	std::cout << "ERROR: AssetManager:: " << name << " doesn't exist";
 	return {};
 }
 
@@ -179,7 +190,9 @@ SoLoud::Wav& AssetManager::CreateWav(const std::string & path)
 	auto name = filepath.stem().string();
 	clipNames.push_back(name);
 
+#if AM_LOG
 	std::cout << "AssetManager:: Loaded audio clip: " << name << std::endl;
+#endif
 	return wav;
 }
 

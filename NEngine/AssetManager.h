@@ -57,4 +57,7 @@ public:
 	void RebuildAll();
 	void ReloadShaders();
 	void Dispose();
+
+private:
+	void LoadRecursively(const std::string& folderPath);
 };

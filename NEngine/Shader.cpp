@@ -11,6 +11,7 @@
 #include "GLAssert.h"
 
 #define LOG(x) std::cout << x << std::endl
+#define SHADER_LOG_UNIFORMS 0
 
 unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 {
@@ -131,8 +132,10 @@ void Shader::FetchUniforms()
 
 	const GLenum properties[4] = { GL_BLOCK_INDEX, GL_TYPE, GL_NAME_LENGTH, GL_LOCATION };
 
+#if SHADER_LOG_UNIFORMS
 	std::cout << std::endl;
 	std::cout << "Uniforms for: " << program << std::endl;
+#endif
 
 	for (int unif = 0; unif < numUniforms; ++unif)
 	{
@@ -149,8 +152,9 @@ void Shader::FetchUniforms()
 		glGetProgramResourceName(program, GL_UNIFORM, unif, nameData.size(), NULL, &nameData[0]);
 		std::string name(nameData.begin(), nameData.end() - 1);
 
-
+#if SHADER_LOG_UNIFORMS
 		std::cout << "\tU: " << name << " at location " << values[3] << std::endl;
+#endif
 
 		uniforms[name] = values[3];
 	}

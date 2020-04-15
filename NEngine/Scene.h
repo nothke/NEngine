@@ -87,7 +87,7 @@ struct Scene
 						auto mcol = physics.CreateMeshCollider(model.mesh);
 						shapeMap.emplace(m.name, mcol);
 						physics.CreateBody(mcol, 0, (btScalar*)&matrix[0]);
-						std::cout << "Creating collider for " << m.name << std::endl;
+						//std::cout << "Creating collider for " << m.name << std::endl;
 					}
 				}
 			}
