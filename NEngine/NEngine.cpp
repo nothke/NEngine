@@ -268,10 +268,10 @@ int main()
 
 	Scene scene(assets, audio, physics);
 
-	// Sounds
+	// Load foot sounds
 	for (size_t i = 0; i < stepClips.size(); i++)
 	{
-		const std::string str = "step_sand" + std::to_string(i + 1);
+		const std::string str = "step_grass_" + std::to_string(i + 1); // step_grass_1
 		stepClips[i] = &assets.GetAudioClip(str).value().get();
 	}
 
