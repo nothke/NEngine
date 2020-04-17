@@ -45,7 +45,7 @@ void AssetManager::LoadRecursively(const std::string& folderPath)
 
 		auto ext = entry.path().extension();
 
-		if (ext == ".ply")
+		if (ext == ".ply" || ext == ".hpm")
 		{
 			CreateMesh(entry.path().string().c_str());
 		}
@@ -106,12 +106,23 @@ Mesh& AssetManager::CreateMesh(std::vector<Vertex>& vertices, std::vector<unsign
 
 Mesh& AssetManager::CreateMesh(const char * path)
 {
+	std::filesystem::path filepath(path);
+
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	ModelReader::LoadFromPly(path, vertices, indices);
-	meshes.emplace_back(vertices, indices, true);
 
-	std::filesystem::path filepath(path);
+	if (filepath.extension() == ".ply")
+	{
+		ModelReader::LoadFromPly(path, vertices, indices);
+		meshes.emplace_back(vertices, indices, true);
+	}
+	else // hpm
+	{
+		Mesh hpmMesh;
+		ModelReader::LoadFromHPM(path, hpmMesh);
+		meshes.push_back(hpmMesh);
+	}
+
 	auto name = filepath.stem().string();
 	meshNames.push_back(name);
 
