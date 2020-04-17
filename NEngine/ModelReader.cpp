@@ -8,6 +8,7 @@
 #include "Vertex.h"
 #include "Mesh.h"
 #include <sys/stat.h>
+#include <half.hpp>
 
 //#define DEBUG
 
@@ -171,7 +172,7 @@ int ModelReader::LoadFromPly(const char* path,
 	}
 	else
 	{
-		std::cout << "Can't open file: " << path << std::endl;
+		std::cout << "ERROR: ModelReader:: Can't open file: " << path << std::endl;
 		return -1;
 	}
 
@@ -206,6 +207,19 @@ int ModelReader::LoadFromPly(const char* path,
 	return 0;
 }
 
+int from_u16i(char* buffer)
+{
+
+}
+
+unsigned short to_ushort(char* buffer)
+{
+	//unsigned short p;
+	//p = (((unsigned short)buffer[1]) << 8) | buffer[0];
+	unsigned short p = *reinterpret_cast<unsigned short*>(&buffer[0]);
+	return p;
+}
+
 int to_int(char* buffer)
 {
 	int a = int(
@@ -217,6 +231,20 @@ int to_int(char* buffer)
 	return a;
 }
 
+float half_to_float(char* buffer)
+{
+	using half_float::half;
+	half h(0);
+	unsigned char b[] = { buffer[0], buffer[1] };
+	memcpy(&h, &b, sizeof(h));
+	return (float)h;
+}
+
+float charnorm_to_float(char* buffer)
+{
+	return (float)buffer[0] / 255.0f;
+}
+
 float to_float(char* buffer)
 {
 	float f;
@@ -225,9 +253,14 @@ float to_float(char* buffer)
 	return f;
 }
 
+bool bit(char c, int i)
+{
+	return (c >> (7 - i)) & 1;
+}
+
 int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 {
-	std::cout << "Reading HPM" << std::endl;
+	std::cout << "Reading HPM: " << path << std::endl;
 
 	std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
 	long fileSize = in.tellg();
@@ -242,37 +275,128 @@ int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 
 	if (!file.is_open())
 	{
-		std::cout << "Can't open file: " << path << std::endl;
+		std::cout << "ERROR: ModelReader:: Can't open file: " << path << std::endl;
 		return -1;
 	}
 
+	char buf8[1];
+	char buf16[2];
 	char buf32[4];
 
-	file.read(buf32, 4);
-	int vc = to_int(buf32);
+	// flags #1
 
-	file.read(buf32, 4);
-	int ic = to_int(buf32);
+	file.read(buf8, 1);
+	std::cout << "flags#1: " << +static_cast<unsigned char>(buf8[0]) << std::endl;
+
+	bool f00_hasUVs = bit(buf8[0], 0);
+	bool f01_hasColors = bit(buf8[0], 1);
+	bool f02_32bit_positions = bit(buf8[0], 2);
+	bool f03_32bit_indices = bit(buf8[0], 3);
+	bool f04_32bit_uvs = bit(buf8[0], 4);
+	bool f05_32bit_colors = bit(buf8[0], 5);
+
+	// flags #2
+
+	file.read(buf8, 1);
+	std::cout << "flags#2: " << +static_cast<unsigned char>(buf8[0]) << std::endl;
+
+	// unused
+
+	// vertex count - 2 bytes
+
+	file.read(buf16, 2);
+	unsigned short vc = to_ushort(buf16);
+
+	// index count - 2 bytes
+
+	file.read(buf16, 2);
+	unsigned short ic = to_ushort(buf16);
 
 	std::vector<Vertex> vertices;
 	vertices.reserve(vc);
 
+	std::cout << "has uv " << f00_hasUVs << std::endl;
+	std::cout << "has colors " << f01_hasColors << std::endl;
+	std::cout << "has 32bit positions " << f02_32bit_positions << std::endl;
+	std::cout << "has 32bit indices " << f03_32bit_indices << std::endl;
+	std::cout << "has 32bit uvs " << f04_32bit_uvs << std::endl;
+	std::cout << "has 32bit colors " << f05_32bit_colors << std::endl;
+
 	std::cout << "VC: " << vc << std::endl;
 	std::cout << "IC: " << ic << std::endl;
 
+	// half test
+	//file.read(buf16, 2);
+	//float v = half_to_float(buf16);
+	//std::cout << "H2F: " << v << std::endl;
+
+	// half test
+	/*
+	for (size_t i = 0; i < 65535; i++)
+	{
+		file.read(buf16, 2);
+
+		unsigned short index = to_ushort(buf16);
+		int indexi = index;
+
+		std::cout << "i: " << i << " " << indexi << std::endl;
+	}
+	*/
+
+	//return -1;
+
 	for (size_t i = 0; i < vc; i++)
 	{
-		file.read(buf32, 4); float posx = to_float(buf32);
-		file.read(buf32, 4); float posy = to_float(buf32);
-		file.read(buf32, 4); float posz = to_float(buf32);
+		float posx, posy, posz;
 
-		file.read(buf32, 4); float uvs = to_float(buf32);
-		file.read(buf32, 4); float uvt = to_float(buf32);
+		if (f02_32bit_positions)
+		{
+			file.read(buf32, 4); posx = to_float(buf32);
+			file.read(buf32, 4); posy = to_float(buf32);
+			file.read(buf32, 4); posz = to_float(buf32);
+		}
+		else
+		{
+			file.read(buf16, 2); posx = half_to_float(buf16);
+			file.read(buf16, 2); posy = half_to_float(buf16);
+			file.read(buf16, 2); posz = half_to_float(buf16);
+		}
 
-		file.read(buf32, 4); float colr = to_float(buf32);
-		file.read(buf32, 4); float colg = to_float(buf32);
-		file.read(buf32, 4); float colb = to_float(buf32);
-		file.read(buf32, 4); float cola = to_float(buf32);
+		float uvs = 0, uvt = 0;
+
+		if (f00_hasUVs)
+		{
+			if (f04_32bit_uvs)
+			{
+				file.read(buf32, 4); uvs = to_float(buf32);
+				file.read(buf32, 4); uvt = to_float(buf32);
+			}
+			else
+			{
+				file.read(buf16, 2); uvs = half_to_float(buf16);
+				file.read(buf16, 2); uvt = half_to_float(buf16);
+			}
+		}
+
+		float colr = 0, colg = 0, colb = 0, cola = 0;
+
+		if (f01_hasColors)
+		{
+			if (f05_32bit_colors)
+			{
+				file.read(buf32, 4); colr = to_float(buf32);
+				file.read(buf32, 4); colg = to_float(buf32);
+				file.read(buf32, 4); colb = to_float(buf32);
+				file.read(buf32, 4); cola = to_float(buf32);
+			}
+			else
+			{
+				file.read(buf8, 1); colr = charnorm_to_float(buf8);
+				file.read(buf8, 1); colg = charnorm_to_float(buf8);
+				file.read(buf8, 1); colb = charnorm_to_float(buf8);
+				file.read(buf8, 1); cola = charnorm_to_float(buf8);
+			}
+		}
 
 		Vertex v = { posx, posy, posz, uvs, uvt, colr, colg, colb }; // TODO: a is missing
 		vertices.emplace_back(v);
@@ -287,7 +411,25 @@ int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 
 	for (size_t i = 0; i < ic; i++)
 	{
-		file.read(buf32, 4);
+		if (f03_32bit_indices)
+		{
+			file.read(buf32, 4);
+
+			int index = to_int(buf32);
+			indices.push_back(index);
+
+			std::cout << "i: " << i << " " << index << std::endl;
+		}
+		else
+		{
+			file.read(buf16, 2);
+
+			unsigned short index = to_ushort(buf16);
+			//int indexi = index;
+			indices.push_back(index);
+
+			std::cout << "i: " << i << " " << index << std::endl;
+		}
 
 		if (!file.good())
 		{
@@ -295,12 +437,11 @@ int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 			file.close();
 			return -1;
 		}
-
-		int index = to_int(buf32);
-		indices.push_back(index);
-
-		std::cout << "i: " << i << " " << index << std::endl;
 	}
+
+	std::cout << "FML" << std::endl;
+	std::cout << vertices[0].posx << ", " << vertices[0].colr << std::endl;
+	std::cout << indices[0] << std::endl;
 
 	mesh.Init(vertices, indices);
 
