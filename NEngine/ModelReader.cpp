@@ -7,7 +7,6 @@
 #include <sstream>
 #include "Vertex.h"
 #include "Mesh.h"
-#include <sys/stat.h>
 #include <half.hpp>
 
 //#define DEBUG
@@ -224,6 +223,7 @@ int to_int(char* buffer)
 	return a;
 }
 
+// Uses half.hpp: http://half.sourceforge.net/index.html
 float half_to_float(char* buffer)
 {
 	using half_float::half;
@@ -251,9 +251,13 @@ bool bit(char c, int i)
 	return (c >> (7 - i)) & 1;
 }
 
+#define DEBUG_HPM 0
+
 int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 {
+#if DEBUG_HPM
 	std::cout << "Reading HPM: " << path << std::endl;
+#endif
 
 	std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
 	long fileSize = in.tellg();
@@ -279,7 +283,9 @@ int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 	// flags #1
 
 	file.read(buf8, 1);
+#if DEBUG_HPM
 	std::cout << "flags#1: " << +static_cast<unsigned char>(buf8[0]) << std::endl;
+#endif
 
 	bool f00_hasUVs = bit(buf8[0], 0);
 	bool f01_hasColors = bit(buf8[0], 1);
@@ -291,7 +297,9 @@ int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 	// flags #2
 
 	file.read(buf8, 1);
+#if DEBUG_HPM
 	std::cout << "flags#2: " << +static_cast<unsigned char>(buf8[0]) << std::endl;
+#endif
 
 	// unused
 
@@ -308,15 +316,10 @@ int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 	std::vector<Vertex> vertices;
 	vertices.reserve(vc);
 
-	std::cout << "has uv " << f00_hasUVs << std::endl;
-	std::cout << "has colors " << f01_hasColors << std::endl;
-	std::cout << "has 32bit positions " << f02_32bit_positions << std::endl;
-	std::cout << "has 32bit indices " << f03_32bit_indices << std::endl;
-	std::cout << "has 32bit uvs " << f04_32bit_uvs << std::endl;
-	std::cout << "has 32bit colors " << f05_32bit_colors << std::endl;
-
+#if DEBUG_HPM
 	std::cout << "VC: " << vc << std::endl;
 	std::cout << "IC: " << ic << std::endl;
+#endif
 
 	for (size_t i = 0; i < vc; i++)
 	{
@@ -374,9 +377,11 @@ int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 		Vertex v = { posx, posy, posz, uvs, uvt, colr, colg, colb }; // TODO: a is missing
 		vertices.emplace_back(v);
 
+#if DEBUG_HPM
 		std::cout << "v: " << posx << " " << posy << " " << posz << " " <<
 			uvs << " " << uvt << " " <<
 			colr << " " << colg << " " << colb << " " << cola << std::endl;
+#endif
 	}
 
 	std::vector<unsigned int> indices;
@@ -391,7 +396,9 @@ int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 			int index = to_int(buf32);
 			indices.push_back(index);
 
+#if DEBUG_HPM
 			std::cout << "i: " << i << " " << index << std::endl;
+#endif
 		}
 		else
 		{
@@ -401,20 +408,20 @@ int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 			//int indexi = index;
 			indices.push_back(index);
 
+#if DEBUG_HPM
 			std::cout << "i: " << i << " " << index << std::endl;
+#endif
 		}
 
+#if DEBUG_HPM
 		if (!file.good())
 		{
 			std::cout << "fail at : " << i << std::endl;
 			file.close();
 			return -1;
 		}
+#endif
 	}
-
-	std::cout << "FML" << std::endl;
-	std::cout << vertices[0].posx << ", " << vertices[0].colr << std::endl;
-	std::cout << indices[0] << std::endl;
 
 	mesh.Init(vertices, indices);
 
