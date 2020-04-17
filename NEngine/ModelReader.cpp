@@ -207,15 +207,8 @@ int ModelReader::LoadFromPly(const char* path,
 	return 0;
 }
 
-int from_u16i(char* buffer)
-{
-
-}
-
 unsigned short to_ushort(char* buffer)
 {
-	//unsigned short p;
-	//p = (((unsigned short)buffer[1]) << 8) | buffer[0];
 	unsigned short p = *reinterpret_cast<unsigned short*>(&buffer[0]);
 	return p;
 }
@@ -242,7 +235,7 @@ float half_to_float(char* buffer)
 
 float charnorm_to_float(char* buffer)
 {
-	return (float)buffer[0] / 255.0f;
+	return -(float)buffer[0];
 }
 
 float to_float(char* buffer)
@@ -324,26 +317,6 @@ int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
 
 	std::cout << "VC: " << vc << std::endl;
 	std::cout << "IC: " << ic << std::endl;
-
-	// half test
-	//file.read(buf16, 2);
-	//float v = half_to_float(buf16);
-	//std::cout << "H2F: " << v << std::endl;
-
-	// half test
-	/*
-	for (size_t i = 0; i < 65535; i++)
-	{
-		file.read(buf16, 2);
-
-		unsigned short index = to_ushort(buf16);
-		int indexi = index;
-
-		std::cout << "i: " << i << " " << indexi << std::endl;
-	}
-	*/
-
-	//return -1;
 
 	for (size_t i = 0; i < vc; i++)
 	{
