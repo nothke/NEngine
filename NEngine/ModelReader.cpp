@@ -7,6 +7,7 @@
 #include <sstream>
 #include "Vertex.h"
 #include "Mesh.h"
+#include <sys/stat.h>
 
 //#define DEBUG
 
@@ -201,6 +202,109 @@ int ModelReader::LoadFromPly(const char* path,
 		LOG("I " << indices[i] << ", " << indices[i + 1] << ", " << indices[i + 2]);
 	}
 #endif
+
+	return 0;
+}
+
+int to_int(char* buffer)
+{
+	int a = int(
+		(unsigned char)(buffer[3]) << 24 |
+		(unsigned char)(buffer[2]) << 16 |
+		(unsigned char)(buffer[1]) << 8 |
+		(unsigned char)(buffer[0]));
+
+	return a;
+}
+
+float to_float(char* buffer)
+{
+	float f;
+	unsigned char b[] = { buffer[0], buffer[1], buffer[2], buffer[3] };
+	memcpy(&f, &b, sizeof(f));
+	return f;
+}
+
+int ModelReader::LoadFromHPM(const std::string& path, Mesh& mesh)
+{
+	std::cout << "Reading HPM" << std::endl;
+
+	std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
+	long fileSize = in.tellg();
+
+	if (fileSize == 0)
+	{
+		std::cout << "HPM:: file is empty" << std::endl;
+		return -1;
+	}
+
+	std::ifstream file(path, std::ifstream::binary);
+
+	if (!file.is_open())
+	{
+		std::cout << "Can't open file: " << path << std::endl;
+		return -1;
+	}
+
+	char buf32[4];
+
+	file.read(buf32, 4);
+	int vc = to_int(buf32);
+
+	file.read(buf32, 4);
+	int ic = to_int(buf32);
+
+	std::vector<Vertex> vertices;
+	vertices.reserve(vc);
+
+	std::cout << "VC: " << vc << std::endl;
+	std::cout << "IC: " << ic << std::endl;
+
+	for (size_t i = 0; i < vc; i++)
+	{
+		file.read(buf32, 4); float posx = to_float(buf32);
+		file.read(buf32, 4); float posy = to_float(buf32);
+		file.read(buf32, 4); float posz = to_float(buf32);
+
+		file.read(buf32, 4); float uvs = to_float(buf32);
+		file.read(buf32, 4); float uvt = to_float(buf32);
+
+		file.read(buf32, 4); float colr = to_float(buf32);
+		file.read(buf32, 4); float colg = to_float(buf32);
+		file.read(buf32, 4); float colb = to_float(buf32);
+		file.read(buf32, 4); float cola = to_float(buf32);
+
+		Vertex v = { posx, posy, posz, uvs, uvt, colr, colg, colb }; // TODO: a is missing
+		vertices.emplace_back(v);
+
+		std::cout << "v: " << posx << " " << posy << " " << posz << " " <<
+			uvs << " " << uvt << " " <<
+			colr << " " << colg << " " << colb << " " << cola << std::endl;
+	}
+
+	std::vector<unsigned int> indices;
+	indices.reserve(ic);
+
+	for (size_t i = 0; i < ic; i++)
+	{
+		file.read(buf32, 4);
+
+		if (!file.good())
+		{
+			std::cout << "fail at : " << i << std::endl;
+			file.close();
+			return -1;
+		}
+
+		int index = to_int(buf32);
+		indices.push_back(index);
+
+		std::cout << "i: " << i << " " << index << std::endl;
+	}
+
+	mesh.Init(vertices, indices);
+
+	file.close();
 
 	return 0;
 }
