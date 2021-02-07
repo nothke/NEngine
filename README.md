@@ -1,3 +1,5 @@
+Note, this is an old version of NEngine that had about 2 weeks of development in total and used to create the HPS1 game Betula. The engine has continuoed it's development in a private repo, which I'm planning to open one day.
+
 ## NEngine
 Only used for learning about making games in C++ and OpenGL. Not to be used for anything serious.
 
